@@ -1,2 +1,2 @@
 # pokemon5e-foundry-module
-A foundry module to play Pokémon 5e
+A foundryvtt module to play Pokémon 5e.
