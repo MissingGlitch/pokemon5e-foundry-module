@@ -222,3 +222,6 @@ extras
 media
 macros
 testing.js
+
+# Exclusion for .log files in the 'packs' folder and its subfolders
+!packs/**/*.log

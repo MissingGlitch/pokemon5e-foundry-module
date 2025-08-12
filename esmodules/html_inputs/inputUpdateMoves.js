@@ -172,8 +172,8 @@ function updatePokemonMoves(event) {
 
 			// DMG_SAVE or DMG_ATK
 			else {
-				valueToUpdate = targetActivity.damage.parts.map( (dmg, index) => {
-					if (index === 0) return { ...dmg, custom: { ...dmg.custom, formula: correspondingFinalValue } }
+				valueToUpdate = targetActivity.toObject().damage.parts.map( (dmg, index) => {
+					if (index === 0) return { ...dmg, custom: { ...dmg.custom, formula: correspondingFinalValue } };
 					else return dmg;
 				});
 			}
