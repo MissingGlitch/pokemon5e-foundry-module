@@ -1,7 +1,0 @@
-2025/08/14-11:26:09.745 2d80 Recovering log #90
-2025/08/14-11:26:09.849 2d80 Delete type=0 #90
-2025/08/14-11:26:09.849 2d80 Delete type=3 #88
-2025/08/14-20:25:20.232 205c Level-0 table #95: started
-2025/08/14-20:25:20.232 205c Level-0 table #95: 0 bytes OK
-2025/08/14-20:25:20.290 205c Delete type=0 #93
-2025/08/14-20:25:20.431 205c Manual compaction at level-0 from 'undefined' @ 72057594037927935 : 1 .. 'undefined' @ 0 : 0; will stop at (end)
