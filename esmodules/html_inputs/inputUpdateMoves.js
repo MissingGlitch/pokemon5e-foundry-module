@@ -24,6 +24,7 @@ const IIDS = {
 	// Weapon Types Identificators
 	DMG_ATK: "damage-from-attack", 	////
 	DMG_SAVE: "damage-from-save", 	////
+	DMG_AUTO: "damage-auto",		////
 	HEALING: "healing", 			//// Healing Identifier. Used to indicate that a pokémon move heals.
 	SIMPLE_DICE: "simple-dice", 	////
 	AC: "ac" 						////
@@ -33,6 +34,7 @@ const IIDS = {
 const ALL_SCALING_PATHS = {};
 	ALL_SCALING_PATHS[IIDS.DMG_ATK] = "damage.parts";
 	ALL_SCALING_PATHS[IIDS.DMG_SAVE] = "damage.parts";
+	ALL_SCALING_PATHS[IIDS.DMG_AUTO] = "damage.parts";
 	ALL_SCALING_PATHS[IIDS.HEALING] = "healing.custom.formula";
 	ALL_SCALING_PATHS[IIDS.SIMPLE_DICE] = "roll.formula";
 	ALL_SCALING_PATHS[IIDS.AC] = "";
@@ -42,6 +44,7 @@ const ACTIVITIES = {};
 	ACTIVITIES[IIDS.HEALING] = "heal";
 	ACTIVITIES[IIDS.DMG_SAVE] = "save";
 	ACTIVITIES[IIDS.DMG_ATK] = "attack";
+	ACTIVITIES[IIDS.DMG_AUTO] = "damage";
 	ACTIVITIES[IIDS.SIMPLE_DICE] = "utility";
 
 //* Update Moves Functionality
@@ -101,11 +104,11 @@ function updatePokemonMoves(event) {
 		}
 
 		// Weapon Type (Without Ability Definition) Validation
-		if ( rollFormula.includes("@mod") && (weaponType === IIDS.HEALING || weaponType === IIDS.SIMPLE_DICE) ) {
+		if ( rollFormula.includes("@mod") && ( !(weaponType === IIDS.DMG_ATK) && !(weaponType === IIDS.DMG_SAVE) ) ) {
 			const pokemonMoveAbility = pokemonMove.system.activities.find(a => a.type === "cast")?.spell?.ability;
 
 			if (!pokemonMoveAbility) {
-				ui.notifications.warn(`❌ The healing pokémon move "${pokemonMove.name}" does not have a valid cast activity.`, { console: true });
+				ui.notifications.warn(`❌ The pokémon move "${pokemonMove.name}" does not have a valid cast activity.`, { console: true });
 				console.log(`"${pokemonMove.name}" all activities:`);
 				console.log(pokemonMove.system.activities);
 				return;
@@ -165,12 +168,12 @@ function updatePokemonMoves(event) {
 			//* TRUE UPDATE
 			let valueToUpdate;
 
-			// All others that are not DMG_SAVE or DMG_ATK
-			if (!(weaponType === IIDS.DMG_SAVE || weaponType === IIDS.DMG_ATK)) {
+			// All others that are not damage
+			if (!(weaponType.includes("damage"))) {
 				valueToUpdate = correspondingFinalValue;
 			}
 
-			// DMG_SAVE or DMG_ATK
+			// DMG_ATK, DMG_SAVE, DMG_AUTO
 			else {
 				valueToUpdate = targetActivity.toObject().damage.parts.map( (dmg, index) => {
 					if (index === 0) return { ...dmg, custom: { ...dmg.custom, formula: correspondingFinalValue } };
@@ -185,39 +188,6 @@ function updatePokemonMoves(event) {
 			ui.notifications.info(`✅ The pokémon move "${pokemonMove.name}" has been updated from "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab}).`, { console: true });
 		}
 	});
-	// const currentScalingIdentificator = /\(\((.*?)\)\)/;
-	// const moveScalingIdentificator = /<p\s+id="pokemon5e-move-scaling".*?>(.+?)<\/p>/;
-	// allPokemonMoves.forEach(pokemonMove => {
-	// 	const unidentifiedDescription = pokemonMove.system.unidentified.description;
-	// 	const moveScalingFound = unidentifiedDescription.match(moveScalingIdentificator);
-	// 	const currentDamage = pokemonMove.system.damage.base.custom.formula;
-	// 	const currentScaling = currentDamage.match(currentScalingIdentificator)?.[1] || null;
-
-	// 	if (!currentScaling) {
-	// 		ui.notifications.warn(`The pokémon move "${pokemonMove.name}" does not have a valid scaling formula.`, { console: true });
-	// 		console.log(`"${pokemonMove.name}" pokémon move damage formula: ${currentDamage}`);
-	// 		return;
-	// 	}
-
-	// 	if (moveScalingFound) {
-	// 		const moveScalingRaw = moveScalingFound[1].split(",").map(dmg => dmg.trim());
-	// 		const moveScaling = { lv1: moveScalingRaw[0], lv5: moveScalingRaw[1], lv10: moveScalingRaw[2], lv17: moveScalingRaw[3] };
-	// 		const correspondingLevel = (sheetLevel >= 17) ? "lv17" : (sheetLevel >= 10) ? "lv10" : (sheetLevel >= 5) ? "lv5" : "lv1";
-	// 		const correspondingScaling = getCorrespondingScaling(moveScaling, correspondingLevel);
-
-	// 		console.log(`"${pokemonMove.name}" pokémon move scaling found: ${moveScalingRaw}`);
-	// 		console.log(`Current Level: ${sheetLevel}, Corresponding Move Level: ${correspondingLevel}, Current Scaling: "${currentScaling}", Corresponding Scaling: "${correspondingScaling}"`);
-	// 		if (correspondingScaling === currentScaling) {
-	// 			ui.notifications.info(`The pokémon move "${pokemonMove.name}" already has the correct scaling for its current level.`, { console: true });
-	// 		} else {
-	// 			pokemonMove.update({ "system.damage.base.custom.formula": currentDamage.replace(currentScaling, correspondingScaling) });
-	// 			ui.notifications.info(`The pokémon move "${pokemonMove.name}" scaling has been updated from "${currentScaling}" to "${correspondingScaling}".`, { console: true });
-	// 		}
-	// 	} else {
-	// 		ui.notifications.warn(`No scaling was found for the pokémon move "${pokemonMove.name}".`, { console: true });
-	// 		console.log(`"${pokemonMove.name}" pokémon move unidentified description: ${unidentifiedDescription}`);
-	// 	}
-	// });
 }
 
 //* Helper Functions
