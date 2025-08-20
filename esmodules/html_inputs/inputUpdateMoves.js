@@ -14,14 +14,14 @@ updateButton.appendChild(updateButtonIcon);
 
 //* Internal IDs (IIDS)
 const IIDS = {
-	// Global Data Identificators
-	NO_SCALE: "no-scale", 			//// No Scale Identifier. Used to indicate that a pokémon move has no scaling nor stab.
+	// Global Data Identifiers
+	NO_SCALE: "no-scale", 			//// No Scale Identifier. Used to indicate that a pokémon move has no scaling or stab.
 
 	// Roll Formula Attributes (@)
 	SCALE_AT: "@scale", 			//// @ Scale Attribute. Used to indicate in which part of the roll formula the scaling should be.
 	STAB_AT: "@stab", 				//// @ STAB Attribute. Used to indicate in which part of the roll formula the STAB should be.
 
-	// Weapon Types Identificators
+	// Weapon Types Identifiers
 	DMG_ATK: "damage-from-attack", 	////
 	DMG_SAVE: "damage-from-save", 	////
 	DMG_AUTO: "damage-auto",		////
@@ -50,13 +50,14 @@ const ACTIVITIES = {};
 //* Update Moves Functionality
 function updatePokemonMoves(event) {
 	pokemonModuleLog("<-- Pokémon 5e Update Pokémon Moves -->");
+	const hideInfoMessages = game.settings.get("pokemon5e", "hideUpdateMovesButtonMessages");
 
 	// Identify the type of actor (synthetic or normal)
 	const rawUUID = event.target.form.id; // HTML Form Element ID
 	console.info(`Sheet UUID from HTML: ${rawUUID}`);
 	const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
-	const paredUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
-	const sheet = fromUuidSync(paredUUID);
+	const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
+	const sheet = fromUuidSync(parsedUUID);
 
 	if (!sheet) {
 		ui.notifications.error("No valid sheet found.", { console: true });
@@ -89,7 +90,7 @@ function updatePokemonMoves(event) {
 
 		// No Scaling, No STAB
 		if (scaleHtmlData === IIDS.NO_SCALE) {
-			ui.notifications.info(`✅ The pokémon move "${pokemonMove.name}" does not scale nor use stab.`, { console: true });
+			ui.notifications.info(`✅ The pokémon move "${pokemonMove.name}" does not scale or use stab.`, { console: true });
 			return;
 		}
 
@@ -163,7 +164,8 @@ function updatePokemonMoves(event) {
 		console.log(`Current Level: ${sheetLevel}, Corresponding Move Level: ${correspondingLevel},\nCurrent Value: "${currentValue}", Corresponding Value: "${correspondingFinalValue}"\nCast Ability Score: "${castDefinedAbilityScore}"`);
 
 		if (correspondingFinalValue === currentValue) {
-			ui.notifications.info(`✅ The pokémon move "${pokemonMove.name}" already has the correct scaling and stab for its current level.`, { console: true });
+			const message = `✅ The pokémon move "${pokemonMove.name}" already has the correct scaling and stab for its current level.`;
+			hideInfoMessages ? console.log(message) : ui.notifications.info(message, { console: true });
 		} else {
 			//* TRUE UPDATE
 			let valueToUpdate;
@@ -185,7 +187,8 @@ function updatePokemonMoves(event) {
 			moveUpdate[scalingPath] = valueToUpdate;
 			targetActivity.update(moveUpdate);
 
-			ui.notifications.info(`✅ The pokémon move "${pokemonMove.name}" has been updated from "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab}).`, { console: true });
+			const message = `✅ The pokémon move "${pokemonMove.name}" has been updated from "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab}).`;
+			hideInfoMessages ? console.log(message) : ui.notifications.info(message, { console: true });
 		}
 	});
 }
@@ -233,6 +236,7 @@ function logUnidentifiedDescription(name, unidentifiedDescription) {
 function getCurrentValue(weaponType, pokemonMove, targetActivity) {
 	if (weaponType === IIDS.HEALING) return targetActivity.healing.custom.formula;
 	if (weaponType === IIDS.DMG_ATK) return targetActivity.damage.parts[0].custom.formula;
+	if (weaponType === IIDS.DMG_AUTO) return targetActivity.damage.parts[0].custom.formula;
 	if (weaponType === IIDS.DMG_SAVE) return targetActivity.damage.parts[0].custom.formula;
 	if (weaponType === IIDS.SIMPLE_DICE) return targetActivity.roll.formula;
 }

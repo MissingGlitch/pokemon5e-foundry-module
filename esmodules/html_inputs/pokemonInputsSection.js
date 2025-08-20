@@ -35,6 +35,7 @@ Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
 		rawInputContainer.classList.add("form-fields");
 		rawInputContainer.appendChild(input.htmlElement);
 		inputSubsection.appendChild(rawInputContainer);
+		if (input.formFieldsStyles) rawInputContainer.setAttribute("style", input.formFieldsStyles);
 
 		// Description
 		const description = document.createElement("p");

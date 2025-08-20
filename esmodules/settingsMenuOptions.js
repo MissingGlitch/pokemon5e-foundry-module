@@ -108,4 +108,16 @@ Hooks.once("init", () => {
 		// onChange: value => { console.log(`"Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
 		requiresReload: true
 	});
+
+	// Hide "Update Moves" Button Info Messages
+	game.settings.register("pokemon5e", "hideUpdateMovesButtonMessages", {
+		name: "Hide messages from the \"Update Moves\" button",
+		hint: "When the button is pressed, the update will simply be applied without any messages indicating the changes. Error messages, however, will still be shown if any occur.",
+		scope: "user",
+		config: true,
+		type: new foundry.data.fields.BooleanField(),
+		default: false,
+		// onChange: value => { console.log(`"Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
+		requiresReload: false
+	});
 });

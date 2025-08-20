@@ -21,7 +21,7 @@
 				{
 					"name": "Pokémon Assets",
 					"sorting": "m",
-					"packs": ["pokemon_moves", "pokemon_features", "pokemon_classes"],
+					"packs": ["pokemon_moves", "pokemon_features"],
 					"color": "#ffcc01"
 				}
 			]
@@ -67,13 +67,6 @@
 			"name": "pokemon_features",
 			"label": "Pokémon Features",
 			"path": "./packs/pokemon_features",
-			"type": "Item",
-			"system": "dnd5e"
-		},
-		{
-			"name": "pokemon_classes",
-			"label": "Pokémon Classes",
-			"path": "./packs/pokemon_classes",
 			"type": "Item",
 			"system": "dnd5e"
 		}

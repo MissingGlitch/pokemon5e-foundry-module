@@ -16,14 +16,14 @@ evolutionButton.setAttribute("data-tooltip", "NOT IMPLEMENTED YET (DONT PRESS!)"
 const link = document.createElement("a")
 link.setAttribute("href", rickrollLink);
 link.setAttribute("target", "_blank");
-link.setAttribute("style", "display:block; width:fit-content; margin-left:auto;");
 link.appendChild(evolutionButton);
-const container = document.createElement("p");
-container.appendChild(link);
+// const container = document.createElement("p");
+// container.appendChild(link);
 
 //* Input Data to Export
 export const evolvePokemon = {
-	name: "Evolve Pokémon",
+	name: "Evolve Pokémon:\nNOT IMPLEMENTED YET (DONT PRESS!)",
 	description: "Evolve the Pokémon to its next stage if the minimum requirements are met.",
-	htmlElement: container
+	htmlElement: link,
+	formFieldsStyles: "max-width:fit-content"
 };
