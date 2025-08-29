@@ -1,8 +1,23 @@
-2025/08/19-08:58:43.427 2a64 Recovering log #232
-2025/08/19-08:58:43.663 2a64 Delete type=0 #232
-2025/08/19-08:58:43.664 2a64 Delete type=3 #230
-2025/08/19-09:13:21.510 16ac Level-0 table #237: started
-2025/08/19-09:13:21.510 16ac Level-0 table #237: 0 bytes OK
-2025/08/19-09:13:21.595 16ac Delete type=0 #235
-2025/08/19-09:13:21.697 16ac Manual compaction at level-0 from '!folders!0978RJOGttUBVSiy' @ 72057594037927935 : 1 .. '!items.effects!zelzxNEblASHTCRa.zLXz5Z0sXU6my7VW' @ 0 : 0; will stop at (end)
-2025/08/19-09:13:21.698 16ac Manual compaction at level-1 from '!folders!0978RJOGttUBVSiy' @ 72057594037927935 : 1 .. '!items.effects!zelzxNEblASHTCRa.zLXz5Z0sXU6my7VW' @ 0 : 0; will stop at (end)
+2025/08/28-16:59:53.367 2a8c Recovering log #289
+2025/08/28-16:59:53.416 2a8c Level-0 table #291: started
+2025/08/28-16:59:53.602 2a8c Level-0 table #291: 451834 bytes OK
+2025/08/28-16:59:53.832 2a8c Delete type=0 #289
+2025/08/28-16:59:53.833 2a8c Delete type=3 #288
+2025/08/28-21:52:15.517 20cc Level-0 table #294: started
+2025/08/28-21:52:15.642 20cc Level-0 table #294: 0 bytes OK
+2025/08/28-21:52:16.069 20cc Delete type=0 #292
+2025/08/28-21:52:16.377 20cc Manual compaction at level-0 from '!folders!0978RJOGttUBVSiy' @ 72057594037927935 : 1 .. '!items.effects!zelzxNEblASHTCRa.zLXz5Z0sXU6my7VW' @ 0 : 0; will stop at '!items!zkUzCiFgbTb6Ox7p' @ 1613 : 1
+2025/08/28-21:52:16.377 20cc Compacting 1@0 + 0@1 files
+2025/08/28-21:52:17.236 20cc Generated table #295@0: 430 keys, 375063 bytes
+2025/08/28-21:52:17.302 20cc Compacted 1@0 + 0@1 files => 375063 bytes
+2025/08/28-21:52:17.516 20cc compacted to: files[ 0 1 1 0 0 0 0 ]
+2025/08/28-21:52:17.516 20cc Delete type=2 #291
+2025/08/28-21:52:17.516 20cc Manual compaction at level-0 from '!items!zkUzCiFgbTb6Ox7p' @ 1613 : 1 .. '!items.effects!zelzxNEblASHTCRa.zLXz5Z0sXU6my7VW' @ 0 : 0; will stop at (end)
+2025/08/28-21:52:17.520 20cc Manual compaction at level-1 from '!folders!0978RJOGttUBVSiy' @ 72057594037927935 : 1 .. '!items.effects!zelzxNEblASHTCRa.zLXz5Z0sXU6my7VW' @ 0 : 0; will stop at '!items!zkUzCiFgbTb6Ox7p' @ 1613 : 1
+2025/08/28-21:52:17.520 20cc Compacting 1@1 + 1@2 files
+2025/08/28-21:52:17.966 20cc Generated table #296@1: 515 keys, 461576 bytes
+2025/08/28-21:52:17.966 20cc Compacted 1@1 + 1@2 files => 461576 bytes
+2025/08/28-21:52:18.152 20cc compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/08/28-21:52:18.152 20cc Delete type=2 #281
+2025/08/28-21:52:18.267 20cc Delete type=2 #295
+2025/08/28-21:52:18.267 20cc Manual compaction at level-1 from '!items!zkUzCiFgbTb6Ox7p' @ 1613 : 1 .. '!items.effects!zelzxNEblASHTCRa.zLXz5Z0sXU6my7VW' @ 0 : 0; will stop at (end)

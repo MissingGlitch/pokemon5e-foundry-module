@@ -97,7 +97,7 @@ Hooks.once("init", () => {
 			if (currency === currencyToChange) {
 				CONFIG.DND5E.currencies[currency].abbreviation = "₽";
 				CONFIG.DND5E.currencies[currency].label = currencyName;
-				CONFIG.DND5E.currencies[currency].icon = `https://raw.githubusercontent.com/MissingGlitch/pokemon-images/refs/heads/main/currency/pokedollar-${iconType}.png`;
+				CONFIG.DND5E.currencies[currency].icon = `https://raw.githubusercontent.com/MissingGlitch/pokemon-images/refs/heads/main/others/pokedollar-${iconType}.png`;
 
 			} else {
 				delete CONFIG.DND5E.currencies[currency];
@@ -114,7 +114,8 @@ Hooks.once("init", () => {
 		subtypes: {
 			type: "Pokémon Type",
 			nature: "Pokémon Nature",
-			ability: "Pokémon Ability"
+			ability: "Pokémon Ability",
+			species: "Species Trait"
 		}
 	}
 });

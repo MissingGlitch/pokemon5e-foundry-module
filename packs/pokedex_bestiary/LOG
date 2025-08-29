@@ -1,7 +1,24 @@
-2025/08/19-09:15:16.814 28bc Recovering log #144
-2025/08/19-09:15:17.183 28bc Delete type=0 #144
-2025/08/19-09:15:17.183 28bc Delete type=3 #142
-2025/08/19-22:39:49.116 2fb8 Level-0 table #149: started
-2025/08/19-22:39:49.117 2fb8 Level-0 table #149: 0 bytes OK
-2025/08/19-22:39:49.477 2fb8 Delete type=0 #147
-2025/08/19-22:39:50.088 2fb8 Manual compaction at level-0 from 'undefined' @ 72057594037927935 : 1 .. 'undefined' @ 0 : 0; will stop at (end)
+2025/08/29-07:09:05.234 223c Recovering log #194
+2025/08/29-07:09:05.385 223c Delete type=0 #194
+2025/08/29-07:09:05.385 223c Delete type=3 #192
+2025/08/29-09:21:28.492 ba0 Level-0 table #199: started
+2025/08/29-09:21:29.022 ba0 Level-0 table #199: 4936947 bytes OK
+2025/08/29-09:21:29.053 ba0 Delete type=0 #197
+2025/08/29-09:21:29.072 ba0 Manual compaction at level-0 from '!actors!0Ajm4oYxMDY7lX3C' @ 72057594037927935 : 1 .. '!actors.items.effects!zyw9HfSwF70hKJl1.wXSmmembyiBXzHz1.Ca3fUQoMR7lt6unI' @ 0 : 0; will stop at (end)
+2025/08/29-09:21:29.074 ba0 Manual compaction at level-1 from '!actors!0Ajm4oYxMDY7lX3C' @ 72057594037927935 : 1 .. '!actors.items.effects!zyw9HfSwF70hKJl1.wXSmmembyiBXzHz1.Ca3fUQoMR7lt6unI' @ 0 : 0; will stop at '!actors!zyw9HfSwF70hKJl1' @ 14447 : 1
+2025/08/29-09:21:29.090 ba0 Compacting 1@1 + 1@2 files
+2025/08/29-09:21:29.367 ba0 Generated table #200@1: 393 keys, 2118745 bytes
+2025/08/29-09:21:29.622 ba0 Generated table #201@1: 391 keys, 2115206 bytes
+2025/08/29-09:21:29.837 ba0 Generated table #202@1: 499 keys, 2114851 bytes
+2025/08/29-09:21:30.087 ba0 Generated table #203@1: 1603 keys, 2127214 bytes
+2025/08/29-09:21:30.328 ba0 Generated table #204@1: 1604 keys, 2126933 bytes
+2025/08/29-09:21:30.588 ba0 Generated table #205@1: 1589 keys, 2125759 bytes
+2025/08/29-09:21:30.747 ba0 Generated table #206@1: 1579 keys, 2125032 bytes
+2025/08/29-09:21:30.897 ba0 Generated table #207@1: 1608 keys, 2125228 bytes
+2025/08/29-09:21:31.070 ba0 Generated table #208@1: 2965 keys, 2135758 bytes
+2025/08/29-09:21:31.152 ba0 Generated table #209@1: 1305 keys, 541151 bytes
+2025/08/29-09:21:31.152 ba0 Compacted 1@1 + 1@2 files => 19655877 bytes
+2025/08/29-09:21:31.187 ba0 compacted to: files[ 0 0 10 0 0 0 0 ]
+2025/08/29-09:21:31.187 ba0 Delete type=2 #195
+2025/08/29-09:21:31.187 ba0 Delete type=2 #199
+2025/08/29-09:21:31.328 ba0 Manual compaction at level-1 from '!actors!zyw9HfSwF70hKJl1' @ 14447 : 1 .. '!actors.items.effects!zyw9HfSwF70hKJl1.wXSmmembyiBXzHz1.Ca3fUQoMR7lt6unI' @ 0 : 0; will stop at (end)
