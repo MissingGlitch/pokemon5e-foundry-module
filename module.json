@@ -1,107 +1,117 @@
 {
-	"id": "pokemon5e",
-	"title": "Pokémon 5e",
-	"description": "(BETA VERSION)\nEverything you need to play Pokémon 5e: Pokémon Bestiary, Items, Moves, Types, Trainer Class, and more!",
-	"version": "0.0.0",
-	"esmodules": [
-		"esmodules/utils/logs.js",
-		"esmodules/settingsMenuOptions.js",
-		"esmodules/addPokemonSystemProperties.js",
-		"esmodules/html_inputs/pokemonInputsSection.js",
-		"esmodules/html_inputs/inputUpdateMoves.js",
-		"esmodules/html_inputs/inputEvolvePokemon.js"
-	],
-	"packFolders": [
-		{
-			"name": "Pokémon 5e",
-			"sorting": "m",
-			"packs": ["trainers", "pokedex_bestiary", "items_and_consumables", "rules"],
-			"color": "#ffcc01",
-			"folders": [
-				{
-					"name": "Pokémon Assets",
-					"sorting": "m",
-					"packs": ["pokemon_moves", "pokemon_features"],
-					"color": "#ffcc01"
-				}
-			]
-		}
-	],
-	"packs": [
-		{
-			"name": "trainers",
-			"label": "Trainers",
-			"path": "./packs/trainers",
-			"type": "Item",
-			"system": "dnd5e"
-		},
-		{
-			"name": "pokedex_bestiary",
-			"label": "Pokédex (Bestiary)",
-			"path": "./packs/pokedex_bestiary",
-			"type": "Actor",
-			"system": "dnd5e"
-		},
-		{
-			"name": "items_and_consumables",
-			"label": "Items & Consumables",
-			"path": "./packs/items_and_consumables",
-			"type": "Item",
-			"system": "dnd5e"
-		},
-		{
-			"name": "rules",
-			"label": "Rules",
-			"path": "./packs/rules",
-			"type": "JournalEntry",
-			"system": "dnd5e"
-		},
-		{
-			"name": "pokemon_moves",
-			"label": "Pokémon Moves",
-			"path": "./packs/pokemon_moves",
-			"type": "Item",
-			"system": "dnd5e"
-		},
-		{
-			"name": "pokemon_features",
-			"label": "Pokémon Features",
-			"path": "./packs/pokemon_features",
-			"type": "Item",
-			"system": "dnd5e"
-		}
-	],
-	"compatibility": {
-		"minimum": "13",
-		"verified": "13.342"
-	},
-	"relationships": {
-		"systems": [
-			{
-				"id": "dnd5e",
-				"type": "system",
-				"manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
-				"compatibility": { "verified": "5.0.4" }
-			}
-		]
-	},
-	"authors": [
-		{
-			"name": "Moge",
-			"discord": "moge_kov"
-		},
-		{
-			"name": "Missing Glitch",
-			"discord": "missing.glitch"
-		},
-		{
-			"name": "Estratega583",
-			"discord": "estratega583"
-		},
-		{
-			"name": "Darkizard",
-			"discord": "darkizard"
-		}
-	],
-	"url": "https://github.com/MissingGlitch/pokemon5e-foundry-module"
+  "id": "pokemon5e",
+  "title": "Pokémon 5e",
+  "description": "(BETA VERSION)\nEverything you need to play Pokémon 5e: Pokémon Bestiary, Items, Moves, Types, Trainer Class, and more!",
+  "version": "0.0.0",
+  "esmodules": [
+    "esmodules/utils/logs.js",
+    "esmodules/settingsMenuOptions.js",
+    "esmodules/addPokemonSystemProperties.js",
+    "esmodules/html_inputs/pokemonInputsSection.js",
+    "esmodules/html_inputs/inputUpdateMoves.js",
+    "esmodules/html_inputs/inputEvolvePokemon.js"
+  ],
+  "packFolders": [
+    {
+      "name": "Pokémon 5e",
+      "sorting": "m",
+      "packs": [
+        "trainers",
+        "pokedex_bestiary",
+        "items_and_consumables",
+        "rules"
+      ],
+      "color": "#ffcc01",
+      "folders": [
+        {
+          "name": "Pokémon Assets",
+          "sorting": "m",
+          "packs": [
+            "pokemon_moves",
+            "pokemon_features"
+          ],
+          "color": "#ffcc01"
+        }
+      ]
+    }
+  ],
+  "packs": [
+    {
+      "name": "trainers",
+      "label": "Trainers",
+      "path": "./packs/trainers",
+      "type": "Item",
+      "system": "dnd5e"
+    },
+    {
+      "name": "pokedex_bestiary",
+      "label": "Pokédex (Bestiary)",
+      "path": "./packs/pokedex_bestiary",
+      "type": "Actor",
+      "system": "dnd5e"
+    },
+    {
+      "name": "items_and_consumables",
+      "label": "Items & Consumables",
+      "path": "./packs/items_and_consumables",
+      "type": "Item",
+      "system": "dnd5e"
+    },
+    {
+      "name": "rules",
+      "label": "Rules",
+      "path": "./packs/rules",
+      "type": "JournalEntry",
+      "system": "dnd5e"
+    },
+    {
+      "name": "pokemon_moves",
+      "label": "Pokémon Moves",
+      "path": "./packs/pokemon_moves",
+      "type": "Item",
+      "system": "dnd5e"
+    },
+    {
+      "name": "pokemon_features",
+      "label": "Pokémon Features",
+      "path": "./packs/pokemon_features",
+      "type": "Item",
+      "system": "dnd5e"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.342"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
+        "compatibility": {
+          "verified": "5.0.4"
+        }
+      }
+    ]
+  },
+  "authors": [
+    {
+      "name": "Moge",
+      "discord": "moge_kov"
+    },
+    {
+      "name": "Missing Glitch",
+      "discord": "missing.glitch"
+    },
+    {
+      "name": "Estratega583",
+      "discord": "estratega583"
+    },
+    {
+      "name": "Darkizard",
+      "discord": "darkizard"
+    }
+  ],
+  "url": "https://github.com/MissingGlitch/pokemon5e-foundry-module"
 }
