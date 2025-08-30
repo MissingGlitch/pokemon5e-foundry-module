@@ -2,7 +2,7 @@
   "id": "pokemon5e",
   "title": "Pokémon 5e",
   "description": "(BETA VERSION)\nEverything you need to play Pokémon 5e: Pokémon Bestiary, Items, Moves, Types, Trainer Class, and more!",
-  "version": "0.0.0",
+  "version": "0.7.2",
   "esmodules": [
     "esmodules/utils/logs.js",
     "esmodules/settingsMenuOptions.js",
