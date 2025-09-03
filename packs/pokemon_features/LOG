@@ -1,13 +1,8 @@
-2025/08/29-19:56:26.167 13f8 Recovering log #115
-2025/08/29-19:56:26.250 13f8 Delete type=2 #87
-2025/08/29-19:56:26.250 13f8 Delete type=0 #102
-2025/08/29-19:56:26.251 13f8 Delete type=0 #109
-2025/08/29-19:56:26.251 13f8 Delete type=0 #115
-2025/08/29-19:56:26.252 13f8 Delete type=3 #100
-2025/08/29-19:56:26.252 13f8 Delete type=3 #106
-2025/08/29-19:56:26.253 13f8 Delete type=3 #113
-2025/08/29-19:59:55.127 f84 Level-0 table #120: started
-2025/08/29-19:59:55.127 f84 Level-0 table #120: 0 bytes OK
-2025/08/29-19:59:55.267 f84 Delete type=0 #118
-2025/08/29-19:59:55.267 f84 Manual compaction at level-0 from '!folders!02HRTCX00DyTGf9j' @ 72057594037927935 : 1 .. '!items.effects!ybso10jH2oLGOGmu.TArSMkJ9bEUUa1th' @ 0 : 0; will stop at (end)
-2025/08/29-19:59:55.381 f84 Manual compaction at level-1 from '!folders!02HRTCX00DyTGf9j' @ 72057594037927935 : 1 .. '!items.effects!ybso10jH2oLGOGmu.TArSMkJ9bEUUa1th' @ 0 : 0; will stop at (end)
+2025/09/03-09:58:55.368 1f94 Recovering log #137
+2025/09/03-09:58:55.463 1f94 Delete type=0 #137
+2025/09/03-09:58:55.463 1f94 Delete type=3 #135
+2025/09/03-10:20:32.937 2aa4 Level-0 table #142: started
+2025/09/03-10:20:32.937 2aa4 Level-0 table #142: 0 bytes OK
+2025/09/03-10:20:32.977 2aa4 Delete type=0 #140
+2025/09/03-10:20:32.977 2aa4 Manual compaction at level-0 from '!folders!02HRTCX00DyTGf9j' @ 72057594037927935 : 1 .. '!items.effects!ybso10jH2oLGOGmu.TArSMkJ9bEUUa1th' @ 0 : 0; will stop at (end)
+2025/09/03-10:20:32.977 2aa4 Manual compaction at level-1 from '!folders!02HRTCX00DyTGf9j' @ 72057594037927935 : 1 .. '!items.effects!ybso10jH2oLGOGmu.TArSMkJ9bEUUa1th' @ 0 : 0; will stop at (end)

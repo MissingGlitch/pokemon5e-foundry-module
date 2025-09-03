@@ -1,14 +1,15 @@
-2025/08/29-19:56:24.865 20b0 Recovering log #178
-2025/08/29-19:56:24.988 20b0 Delete type=2 #162
-2025/08/29-19:56:24.989 20b0 Delete type=0 #165
-2025/08/29-19:56:24.989 20b0 Delete type=0 #172
-2025/08/29-19:56:24.990 20b0 Delete type=2 #175
-2025/08/29-19:56:24.990 20b0 Delete type=0 #178
-2025/08/29-19:56:24.990 20b0 Delete type=3 #163
-2025/08/29-19:56:24.993 20b0 Delete type=3 #169
-2025/08/29-19:56:24.994 20b0 Delete type=3 #176
-2025/08/29-19:59:54.073 f84 Level-0 table #184: started
-2025/08/29-19:59:54.073 f84 Level-0 table #184: 0 bytes OK
-2025/08/29-19:59:54.197 f84 Delete type=0 #182
-2025/08/29-19:59:54.584 f84 Manual compaction at level-0 from '!folders!1L5DPX5ziNm6ArYY' @ 72057594037927935 : 1 .. '!items.effects!nNtd9rGXg2YvsGGs.QWe4HGTPol4Z8rsQ' @ 0 : 0; will stop at (end)
-2025/08/29-19:59:54.585 f84 Manual compaction at level-1 from '!folders!1L5DPX5ziNm6ArYY' @ 72057594037927935 : 1 .. '!items.effects!nNtd9rGXg2YvsGGs.QWe4HGTPol4Z8rsQ' @ 0 : 0; will stop at (end)
+2025/09/03-09:58:54.253 25a8 Recovering log #201
+2025/09/03-09:58:54.337 25a8 Delete type=0 #201
+2025/09/03-09:58:54.337 25a8 Delete type=3 #199
+2025/09/03-10:20:32.552 2aa4 Level-0 table #206: started
+2025/09/03-10:20:32.597 2aa4 Level-0 table #206: 46680 bytes OK
+2025/09/03-10:20:32.647 2aa4 Delete type=0 #204
+2025/09/03-10:20:32.647 2aa4 Manual compaction at level-0 from '!folders!1L5DPX5ziNm6ArYY' @ 72057594037927935 : 1 .. '!items.effects!nNtd9rGXg2YvsGGs.QWe4HGTPol4Z8rsQ' @ 0 : 0; will stop at (end)
+2025/09/03-10:20:32.647 2aa4 Manual compaction at level-1 from '!folders!1L5DPX5ziNm6ArYY' @ 72057594037927935 : 1 .. '!items.effects!nNtd9rGXg2YvsGGs.QWe4HGTPol4Z8rsQ' @ 0 : 0; will stop at '!items!SPIHgold5JkOE40r' @ 736 : 1
+2025/09/03-10:20:32.677 2aa4 Compacting 1@1 + 1@2 files
+2025/09/03-10:20:32.767 2aa4 Generated table #207@1: 115 keys, 102438 bytes
+2025/09/03-10:20:32.767 2aa4 Compacted 1@1 + 1@2 files => 102438 bytes
+2025/09/03-10:20:32.797 2aa4 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/09/03-10:20:32.797 2aa4 Delete type=2 #180
+2025/09/03-10:20:32.812 2aa4 Delete type=2 #206
+2025/09/03-10:20:32.977 2aa4 Manual compaction at level-1 from '!items!SPIHgold5JkOE40r' @ 736 : 1 .. '!items.effects!nNtd9rGXg2YvsGGs.QWe4HGTPol4Z8rsQ' @ 0 : 0; will stop at (end)
