@@ -116,7 +116,19 @@ Hooks.once("init", () => {
 		scope: "user",
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
-		default: false,
+		default: true,
+		// onChange: value => { console.log(`"Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
+		requiresReload: false
+	});
+
+	// Enable Auto Update Moves
+	game.settings.register("pokemon5e", "enableAutoUpdateMoves", {
+		name: "Enable \"Auto Update Moves\"",
+		hint: "Enable the automatic update of pokémon moves without needing to manually press the button.",
+		scope: "user",
+		config: true,
+		type: new foundry.data.fields.BooleanField(),
+		default: true,
 		// onChange: value => { console.log(`"Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
 		requiresReload: false
 	});

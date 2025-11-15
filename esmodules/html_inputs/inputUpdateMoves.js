@@ -48,16 +48,19 @@ const ACTIVITIES = {};
 	ACTIVITIES[IIDS.SIMPLE_DICE] = "utility";
 
 //* Update Moves Functionality
-function updatePokemonMoves(event) {
+function updatePokemonMoves(event, sheetForAutoUpdate) {
 	pokemonModuleLog("<-- Pokémon 5e Update Pokémon Moves -->");
 	const hideInfoMessages = game.settings.get("pokemon5e", "hideUpdateMovesButtonMessages");
+	let sheet = sheetForAutoUpdate;
 
-	// Identify the type of actor (synthetic or normal)
-	const rawUUID = event.target.form.id; // HTML Form Element ID
-	console.info(`Sheet UUID from HTML: ${rawUUID}`);
-	const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
-	const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
-	const sheet = fromUuidSync(parsedUUID);
+	if (!sheetForAutoUpdate) {
+		// Identify the type of actor (synthetic or normal)
+		const rawUUID = event.target.form.id; // HTML Form Element ID
+		console.info(`Sheet UUID from HTML: ${rawUUID}`);
+		const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
+		const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
+		sheet = fromUuidSync(parsedUUID);
+	}
 
 	if (!sheet) {
 		ui.notifications.error("No valid sheet found.", { console: true });
@@ -70,7 +73,8 @@ function updatePokemonMoves(event) {
 		.filter(weapon => weapon.system.type.value === "pokemon");
 
 	if (allPokemonMoves.length === 0) {
-		ui.notifications.warn(`No pokémon moves found in this sheet.`, { console: true });
+		const message = "No pokémon moves found in this sheet.";
+		hideInfoMessages ? console.log(message) : ui.notifications.warn(message, { console: true });
 		return;
 	}
 
@@ -90,7 +94,8 @@ function updatePokemonMoves(event) {
 
 		// No Scaling, No STAB
 		if (scaleHtmlData === IIDS.NO_SCALE) {
-			ui.notifications.info(`✅ The pokémon move "${pokemonMove.name}" does not scale or use stab.`, { console: true });
+			const message = `✅ The pokémon move "${pokemonMove.name}" does not scale or use stab.`;
+			hideInfoMessages ? console.log(message) : ui.notifications.info(message, { console: true });
 			return;
 		}
 
@@ -284,4 +289,14 @@ Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
 	headerButtons.style.gap = "3px";
 	headerButtons?.insertAdjacentElement("beforeend", buttonSeparator);
 	headerButtons?.insertAdjacentElement("beforeend", shortcutButton);
+});
+
+Hooks.on("updateActor", (actor, unknownLog1, unknownLog2, unknownId) => {
+	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
+	if (enableAutoUpdateMoves) updatePokemonMoves(null, actor);
+});
+
+Hooks.on("updateItem", (item, unknownLog1, unknownLog2, unknownId) => {
+	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
+	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent);
 });
