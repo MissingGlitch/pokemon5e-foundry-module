@@ -49,6 +49,7 @@ const ACTIVITIES = {};
 
 //* Update Moves Functionality
 function updatePokemonMoves(event, sheetForAutoUpdate) {
+	if (!event && !sheetForAutoUpdate) return;
 	pokemonModuleLog("<-- Pokémon 5e Update Pokémon Moves -->");
 	const hideInfoMessages = game.settings.get("pokemon5e", "hideUpdateMovesButtonMessages");
 	let sheet = sheetForAutoUpdate;
@@ -291,12 +292,23 @@ Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
 	headerButtons?.insertAdjacentElement("beforeend", shortcutButton);
 });
 
-Hooks.on("updateActor", (actor, unknownLog1, unknownLog2, unknownId) => {
+// Hooks for Auto Updating:
+Hooks.on("updateActor", (actor, changes, options, userId) => {
 	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
 	if (enableAutoUpdateMoves) updatePokemonMoves(null, actor);
 });
 
-Hooks.on("updateItem", (item, unknownLog1, unknownLog2, unknownId) => {
+Hooks.on("updateItem", (item, changes, options, userId) => {
+	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
+	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent);
+});
+
+Hooks.on("createItem", (item, options, userId) => {
+	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
+	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent);
+});
+
+Hooks.on("deleteItem", (item, options, userId) => {
 	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
 	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent);
 });
