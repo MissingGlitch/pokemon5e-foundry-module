@@ -110,6 +110,9 @@ function updatePokemonMoves(event, sheetForAutoUpdate) {
 			return;
 		}
 
+		// Auto Choose Best Ability
+		autoChooseBestAbility(pokemonMove, weaponType);
+
 		// Weapon Type (Without Ability Definition) Validation
 		if ( rollFormula.includes("@mod") && ( !(weaponType === IIDS.DMG_ATK) && !(weaponType === IIDS.DMG_SAVE) ) ) {
 			const pokemonMoveAbility = pokemonMove.system.activities.find(a => a.type === "cast")?.spell?.ability;
@@ -312,3 +315,68 @@ Hooks.on("deleteItem", (item, options, userId) => {
 	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
 	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent);
 });
+
+//* Paths for the different types of weapons (attacks, saves, healings, etc.) to define/get the ability to use
+const ALL_ABILITIES_PATHS = {};
+	ALL_ABILITIES_PATHS[IIDS.DMG_ATK] = "attack.ability";
+	ALL_ABILITIES_PATHS[IIDS.DMG_SAVE] = "save.dc.calculation";
+	ALL_ABILITIES_PATHS[IIDS.DMG_AUTO] = "spell.ability";
+	ALL_ABILITIES_PATHS[IIDS.HEALING] = "spell.ability";
+	ALL_ABILITIES_PATHS[IIDS.SIMPLE_DICE] = "spell.ability";
+
+const GET_CURRENT_ABILITY = {};
+	GET_CURRENT_ABILITY[IIDS.DMG_ATK] = (activity) => activity.toObject().attack.ability;
+	GET_CURRENT_ABILITY[IIDS.DMG_SAVE] = (activity) => activity.toObject().save.dc.calculation;
+	GET_CURRENT_ABILITY[IIDS.DMG_AUTO] = (activity) => activity.toObject().spell.ability;
+	GET_CURRENT_ABILITY[IIDS.HEALING] = (activity) => activity.toObject().spell.ability;
+	GET_CURRENT_ABILITY[IIDS.SIMPLE_DICE] = (activity) => activity.toObject().spell.ability;
+
+function autoChooseBestAbility(pokemonMove, weaponType) {
+	// Get the abilities the move can use
+	const moveDescription = document.createElement("div");
+	moveDescription.innerHTML = pokemonMove.toObject().system.description.value;
+	const movePower = moveDescription.querySelector("ul li p");
+	const movePowerTitle = movePower.querySelector("span");
+	movePowerTitle.remove();
+	let moveAbilities = movePower.textContent.replace(".", "").split(",").map(s => s.trim());
+
+	// Only 1 ability
+	if (moveAbilities.length === 1 && moveAbilities[0] !== "any") return;
+	if (moveAbilities[0] === "any") moveAbilities = ["str", "dex", "con", "int", "wis", "cha"];
+
+	// Spanish Patch + Lower Case
+	formatAbilities(moveAbilities);
+
+	// Get highest ability
+	const highestAbilityScore = { name: "", value: 0 };
+	const sheet = pokemonMove.parent.toObject();
+	moveAbilities.forEach(ability => {
+		const abilityScore = sheet.system.abilities[ability].value;
+		if (abilityScore > highestAbilityScore.value) {
+			highestAbilityScore.name = ability;
+			highestAbilityScore.value = abilityScore;
+		}
+	});
+
+	const activityType = ACTIVITIES[weaponType].replace("heal", "cast").replace("damage", "cast"); // Healing and AutoDMG use Cast to define the ability to use.
+	const targetActivity = pokemonMove.system.activities.find(a => a.type === activityType);
+	const currentUsedAbility = GET_CURRENT_ABILITY[weaponType](targetActivity);
+
+	// It already has the best ability
+	if (currentUsedAbility === highestAbilityScore.name) return;
+
+	else {
+		const abilityUpdate = {};
+		const updatePath = ALL_ABILITIES_PATHS[weaponType];
+		const updateValue = highestAbilityScore.name;
+		abilityUpdate[updatePath] = updateValue;
+
+		targetActivity.update(abilityUpdate);
+	}
+}
+
+function formatAbilities(abilities) {
+	abilities.forEach((ab, index) => {
+		abilities[index] = ab.replace("FUE", "STR").replace("DES", "DEX").replace("SAB", "WIS").replace("CAR", "CHA").toLocaleLowerCase();
+	});
+}
