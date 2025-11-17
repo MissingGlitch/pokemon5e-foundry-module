@@ -222,6 +222,7 @@ extras
 media
 macros
 testing.js
+como-sacar-una-release
 
 # Exclusion for .log files in the 'packs' folder and its subfolders
 !packs/**/*.log
