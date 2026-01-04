@@ -3,7 +3,8 @@ import { pokemonModuleLog } from "../utils/logs.js";
 //* Inputs Info
 import { updateMoves } from "./inputUpdateMoves.js";
 import { evolvePokemon } from "./inputEvolvePokemon.js";
-const inputs = [updateMoves, evolvePokemon];
+import { manageMoves } from "./inputMoveManager.js";
+const inputs = [updateMoves, evolvePokemon, manageMoves];
 
 //* HTML Pokémon Section
 Hooks.on("renderBaseActorSheet", (app, html, context, options) => {

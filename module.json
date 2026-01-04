@@ -9,7 +9,8 @@
     "esmodules/addPokemonSystemProperties.js",
     "esmodules/html_inputs/pokemonInputsSection.js",
     "esmodules/html_inputs/inputUpdateMoves.js",
-    "esmodules/html_inputs/inputEvolvePokemon.js"
+    "esmodules/html_inputs/inputEvolvePokemon.js",
+    "esmodules/html_inputs/inputMoveManager.js"
   ],
   "packFolders": [
     {
