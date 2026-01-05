@@ -713,20 +713,22 @@ async function managePokemonMoves(event) {
 					const releasePlaceOfDropping = event.target;
 					const moveToDrop = JSON.parse(event.dataTransfer.getData("text/json"));
 
-					const isMaxMovesReached = verifyIfMaxMovesReached();
 					const isSelectedMoveAlreadyInTheList = verifyIfSelectedMoveIsAlreadyInTheList(moveToDrop.name);
-					if (!isMaxMovesReached && !isSelectedMoveAlreadyInTheList) {
+					if (!isSelectedMoveAlreadyInTheList) {
 						const newSelectedMove = createMoveItemHTML(moveToDrop);
 						const newSelectedMoveName = newSelectedMove.dataset.moveName;
 
 						// Add as a new one
 						if (releasePlaceOfDropping.classList.contains("selected-moves-list")) {
-							const proceed = await foundry.applications.api.DialogV2.confirm({
-								window: { title: `Confirmation` },
-								content: `<p>Do you want to learn <b>${newSelectedMoveName}</b>?</p>`,
-							});
+							const isMaxMovesReached = verifyIfMaxMovesReached();
+							if (!isMaxMovesReached) {
+								const proceed = await foundry.applications.api.DialogV2.confirm({
+									window: { title: `Confirmation` },
+									content: `<p>Do you want to learn <b>${newSelectedMoveName}</b>?</p>`,
+								});
 
-							if (proceed) selectedMovesList.appendChild(newSelectedMove);
+								if (proceed) selectedMovesList.appendChild(newSelectedMove);
+							}
 						}
 
 						// Replace an old one
