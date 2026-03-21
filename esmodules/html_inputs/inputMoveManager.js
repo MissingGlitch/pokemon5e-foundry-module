@@ -365,7 +365,7 @@ async function managePokemonMoves(event) {
 			#${dID} .pk5e-move-item img {
 				width: 30px;
 			}
-			
+
 			#${dID} .pk5e-move-item:hover {
 				cursor: pointer;
 				box-shadow: ${foundryItemHoverStyle};
@@ -871,5 +871,4 @@ export const manageMoves = {
 	name: "Move Manager",
 	description: "An interface to change the pokémon's moves",
 	htmlElement: moveManagerButton
-
 };

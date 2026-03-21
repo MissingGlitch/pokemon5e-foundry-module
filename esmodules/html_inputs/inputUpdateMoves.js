@@ -48,15 +48,18 @@ const ACTIVITIES = {};
 	ACTIVITIES[IIDS.SIMPLE_DICE] = "utility";
 
 //* Update Moves Functionality
-function updatePokemonMoves(event, sheetForAutoUpdate) {
-	if (!event && !sheetForAutoUpdate) return;
-	pokemonModuleLog("<-- Pokémon 5e Update Pokémon Moves -->");
+function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerIdForAutoUpdate) {
+	if (!manualUpdateByClickEvent && !sheetForAutoUpdate) return;
+	const isAutoUpdate = !manualUpdateByClickEvent;
+
 	const hideInfoMessages = game.settings.get("pokemon5e", "hideUpdateMovesButtonMessages");
-	let sheet = sheetForAutoUpdate;
+	const currentUserId = game.user.id; // ID of the current user. Note: This may differ from the Actor's actual Owner ID (the one who triggered the autoUpdate).
+	let sheet = isAutoUpdate ? sheetForAutoUpdate : null;
+	const ownerId = isAutoUpdate ? ownerIdForAutoUpdate : currentUserId;
 
 	if (!sheetForAutoUpdate) {
-		// Identify the type of actor (synthetic or normal)
-		const rawUUID = event.target.form.id; // HTML Form Element ID
+		// Get sheet from HTML Form ID (Manual Update by Click)
+		const rawUUID = manualUpdateByClickEvent.target.form.id; // HTML Form Element ID
 		console.info(`Sheet UUID from HTML: ${rawUUID}`);
 		const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
 		const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
@@ -68,10 +71,15 @@ function updatePokemonMoves(event, sheetForAutoUpdate) {
 		return;
 	}
 
+	// If current user is not the owner of the sheet, do not proceed
+	if (currentUserId !== ownerId) return;
+
 	// Get all Pokémon Moves
 	const allPokemonMoves = sheet.items
 		.filter(item => item.type === "weapon")
 		.filter(weapon => weapon.system.type.value === "pokemon");
+
+	pokemonModuleLog("<-- Pokémon 5e Update Pokémon Moves -->");
 
 	if (allPokemonMoves.length === 0) {
 		const message = "No pokémon moves found in this sheet.";
@@ -298,22 +306,22 @@ Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
 // Hooks for Auto Updating:
 Hooks.on("updateActor", (actor, changes, options, userId) => {
 	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
-	if (enableAutoUpdateMoves) updatePokemonMoves(null, actor);
+	if (enableAutoUpdateMoves) updatePokemonMoves(null, actor, userId);
 });
 
 Hooks.on("updateItem", (item, changes, options, userId) => {
 	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
-	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent);
+	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent, userId);
 });
 
 Hooks.on("createItem", (item, options, userId) => {
 	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
-	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent);
+	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent, userId);
 });
 
 Hooks.on("deleteItem", (item, options, userId) => {
 	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
-	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent);
+	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent, userId);
 });
 
 //* Paths for the different types of weapons (attacks, saves, healings, etc.) to define/get the ability to use
