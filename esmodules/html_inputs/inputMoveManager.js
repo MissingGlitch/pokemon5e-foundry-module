@@ -136,7 +136,7 @@ async function managePokemonMoves(event) {
 			// Section Title
 			availableMovesSection.innerHTML = `
 				<div style="position: relative;">
-					<h3>Available to Lern</h3>
+					<h3>Available to Learn</h3>
 					<i class="fa-solid fa-gear pk5e-dialog-toggle-settings" style="right: 3px;"></i>
 				</div>
 			`;

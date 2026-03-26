@@ -1,20 +1,8 @@
-2026/03/22-13:45:45.002 3100 Recovering log #928
-2026/03/22-13:45:45.026 3100 Delete type=2 #391
-2026/03/22-13:45:45.026 3100 Delete type=2 #393
-2026/03/22-13:45:45.026 3100 Delete type=2 #401
-2026/03/22-13:45:45.026 3100 Delete type=2 #405
-2026/03/22-13:45:45.031 3100 Delete type=2 #407
-2026/03/22-13:45:45.034 3100 Delete type=2 #409
-2026/03/22-13:45:45.034 3100 Delete type=2 #411
-2026/03/22-13:45:45.034 3100 Delete type=2 #414
-2026/03/22-13:45:45.034 3100 Delete type=2 #415
-2026/03/22-13:45:45.034 3100 Delete type=2 #416
-2026/03/22-13:45:45.034 3100 Delete type=0 #671
-2026/03/22-13:45:45.034 3100 Delete type=0 #928
-2026/03/22-13:45:45.034 3100 Delete type=3 #669
-2026/03/22-13:45:45.034 3100 Delete type=3 #926
-2026/03/22-13:46:54.939 232c Level-0 table #933: started
-2026/03/22-13:46:54.939 232c Level-0 table #933: 0 bytes OK
-2026/03/22-13:46:54.948 232c Delete type=0 #931
-2026/03/22-13:46:54.980 232c Manual compaction at level-0 from '!actors!0Ajm4oYxMDY7lX3C' @ 72057594037927935 : 1 .. '!actors.items.effects!zyw9HfSwF70hKJl1.wXSmmembyiBXzHz1.Ca3fUQoMR7lt6unI' @ 0 : 0; will stop at (end)
-2026/03/22-13:46:54.988 232c Manual compaction at level-1 from '!actors!0Ajm4oYxMDY7lX3C' @ 72057594037927935 : 1 .. '!actors.items.effects!zyw9HfSwF70hKJl1.wXSmmembyiBXzHz1.Ca3fUQoMR7lt6unI' @ 0 : 0; will stop at (end)
+2026/03/25-08:52:35.631 2c80 Recovering log #932
+2026/03/25-08:52:35.635 2c80 Delete type=0 #932
+2026/03/25-08:52:35.636 2c80 Delete type=3 #930
+2026/03/25-11:12:20.871 2494 Level-0 table #937: started
+2026/03/25-11:12:20.871 2494 Level-0 table #937: 0 bytes OK
+2026/03/25-11:12:20.872 2494 Delete type=0 #935
+2026/03/25-11:12:20.878 2494 Manual compaction at level-0 from '!actors!0Ajm4oYxMDY7lX3C' @ 72057594037927935 : 1 .. '!actors.items.effects!zyw9HfSwF70hKJl1.wXSmmembyiBXzHz1.Ca3fUQoMR7lt6unI' @ 0 : 0; will stop at (end)
+2026/03/25-11:12:20.878 2494 Manual compaction at level-1 from '!actors!0Ajm4oYxMDY7lX3C' @ 72057594037927935 : 1 .. '!actors.items.effects!zyw9HfSwF70hKJl1.wXSmmembyiBXzHz1.Ca3fUQoMR7lt6unI' @ 0 : 0; will stop at (end)
