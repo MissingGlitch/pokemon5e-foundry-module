@@ -1,3 +1,6 @@
+import { pk5eHelpersMenu } from "./applications/helpersMenu.js";
+import { pokemonModuleLog } from "./utils/logs.js";
+
 Hooks.once("init", () => {
 	// Add Pokémon Region Languages
 	game.settings.register("pokemon5e", "addPokemonLanguages", {
@@ -7,7 +10,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: true,
-		// onChange: value => { console.log(`"Add Pokémon Region Languages" has been set to <${value}>.`) },
+		onChange: value => { pokemonModuleLog(`pk5e (settings): "Add Pokémon Region Languages" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -19,7 +22,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		// onChange: value => { console.log(`"Remove DnD Languages" has been set to <${value}>.`) },
+		onChange: value => { pokemonModuleLog(`pk5e (settings): "Remove DnD Languages" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -38,26 +41,7 @@ Hooks.once("init", () => {
 			}
 		}),
 		default: "pokedollars",
-		// onChange: value => { console.log(`"${value}" currency name has been set.`) },
-		requiresReload: true
-	});
-
-	// Currency Icon
-	game.settings.register("pokemon5e", "currencyIcon", {
-		name: "Currency Icon",
-		hint: "This will be the icon of the pokémon setting currency.",
-		scope: "world",
-		config: true,
-		type: new foundry.data.fields.StringField({
-			required: true,
-			nullable: false,
-			choices: {
-				"gold": "Gold Icon",
-				"silver": "Silver Icon"
-			},
-		}),
-		default: "gold",
-		// onChange: value => { console.log(`"${value}" currency icon has been set.`) },
+		onChange: value => { pokemonModuleLog(`pk5e (settings): "${value}" currency name has been set.`) },
 		requiresReload: true
 	});
 
@@ -69,7 +53,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: true,
-		// onChange: value => { console.log(`"Replace DnD Currencies" has been set to <${value}>.`) },
+		onChange: value => { pokemonModuleLog(`pk5e (settings): "Replace DnD Currencies" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -81,7 +65,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		// onChange: value => { console.log(`"Remove DnD Damage Types" has been set to <${value}>.`) },
+		onChange: value => { pokemonModuleLog(`pk5e (settings): "Remove 'Type' word from Pokémon Types" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -93,7 +77,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		// onChange: value => { console.log(`"Remove Type word from Pokémon Types" has been set to <${value}>.`) },
+		onChange: value => { pokemonModuleLog(`pk5e (settings): "Remove DnD Damage Types" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -105,31 +89,19 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		// onChange: value => { console.log(`"Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
+		onChange: value => { pokemonModuleLog(`pk5e (settings): "Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
-	// Hide "Update Moves" Button Info Messages
-	game.settings.register("pokemon5e", "hideUpdateMovesButtonMessages", {
-		name: "Hide messages from the \"Update Moves\" button",
-		hint: "When the button is pressed, the update will simply be applied without any messages indicating the changes. Error messages, however, will still be shown if any occur.",
+	// Enable Debug Logs
+	game.settings.register("pokemon5e", "enableDebugLogs", {
+		name: "Enable Debug Logs",
+		hint: "This will enable debug logs for the module. Useful for development and troubleshooting.",
 		scope: "user",
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
-		default: true,
-		// onChange: value => { console.log(`"Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
-		requiresReload: false
-	});
-
-	// Enable Auto Update Moves
-	game.settings.register("pokemon5e", "enableAutoUpdateMoves", {
-		name: "Enable \"Auto Update Moves\"",
-		hint: "Enable the automatic update of pokémon moves without needing to manually press the button.",
-		scope: "user",
-		config: true,
-		type: new foundry.data.fields.BooleanField(),
-		default: true,
-		// onChange: value => { console.log(`"Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
+		default: false,
+		onChange: value => { pokemonModuleLog(`pk5e (settings): "Enable Debug Logs" has been set to <${value}>.`) },
 		requiresReload: false
 	});
 });

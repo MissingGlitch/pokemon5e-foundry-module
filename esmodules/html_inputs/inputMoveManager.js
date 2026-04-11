@@ -8,12 +8,12 @@ moveManagerButton.setAttribute("aria-label", moveManagerButtonName);
 moveManagerButton.setAttribute("data-tooltip", moveManagerButtonName);
 moveManagerButton.addEventListener("click", managePokemonMoves);
 const moveManagerButtonIcon = document.createElement("i");
-moveManagerButtonIcon.classList.add("fa-duotone", "fa-solid", "fa-bars-progress");
+moveManagerButtonIcon.classList.add("fa-solid", "fa-duotone", "fa-bars-progress");
 moveManagerButton.appendChild(moveManagerButtonIcon);
 
 //* HTML Button Injection
 Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
-	pokemonModuleLog("<-- Pokémon 5e Move Manager Button Shortcut Rendered on Actor Sheet -->");
+	pokemonModuleLog("pk5e (renders): Move Manager");
 
 	// Place where everything will be rendered: Header Buttons (Short/Long Rest Buttons)
 	const searchBarContainerForFeatures = html.querySelector(".dnd5e2.actor .window-content .tab-body .tab[data-tab=\"features\"] search").parentElement;
@@ -33,12 +33,14 @@ Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
 });
 
 async function managePokemonMoves(event) {
+	const showDebugLogs = game.settings.get("pokemon5e", "enableDebugLogs");
+
 	// Variables
 	const { Dialog } = foundry.applications.api;
 	const dID = "pk5e-move-manager-dialog";
 	// Identify the type of actor (synthetic or normal)
 	const rawUUID = event.target.form.id; // HTML Form Element ID
-	console.info(`Sheet UUID from HTML: ${rawUUID}`);
+	if (showDebugLogs) console.log(`Sheet UUID from HTML: ${rawUUID}`);
 	const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
 	const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
 	const sheet = fromUuidSync(parsedUUID);
@@ -420,23 +422,24 @@ async function managePokemonMoves(event) {
 			id: dID,
 			window: {
 				title: `${sheet.name}'s Move Manager`,
-				icon: "fa-duotone fa-solid fa-bars-progress"
+				icon: "fa-solid fa-duotone fa-bars-progress"
 			},
 			content: allContent,
 			position: {},
 			buttons: [
 			{
-				icon: "fas fa-times",
+				icon: "fa-solid fa-times",
 				label: "Cancel",
 				action: "cancel",
 				callback: (event, button, dialog) => null
 			},
 			{
-				icon: "fas fa-check",
+				icon: "fa-solid fa-check",
 				label: "Confirm",
 				action: "confirm",
 				default: true,
 				callback: async (event, button, dialog) => {
+					const showDebugLogs = game.settings.get("pokemon5e", "enableDebugLogs");
 					const dialogHtml = dialog.element.querySelector(".pk5e-move-manager-dialog__main-content");
 
 					// Sheet Old Moves
@@ -455,9 +458,12 @@ async function managePokemonMoves(event) {
 					// Moves to Upload
 					const namesOfMovesToAdd = dialogSelectedMovesNames.filter(newMove => !sheetOldMovesNames.some(oldMove => oldMove === newMove));
 					const namesOfMovesToRemove = sheetOldMovesNames.filter(oldMove => !dialogSelectedMovesNames.some(newMove => oldMove === newMove));
-					console.log(`PK5E: Move Manager Logs`);
-					console.log(`- Moves to add: ${namesOfMovesToAdd.join(", ").trim()}.`);
-					console.log(`- Moves to remove: ${namesOfMovesToRemove.join(", ").trim()}.`);
+
+					if (showDebugLogs) {
+						console.log(`PK5E: Move Manager Logs`);
+						console.log(`- Moves to add: ${namesOfMovesToAdd.join(", ").trim()}.`);
+						console.log(`- Moves to remove: ${namesOfMovesToRemove.join(", ").trim()}.`);
+					}
 
 					try {
 						// Removes
@@ -471,7 +477,7 @@ async function managePokemonMoves(event) {
 						const movesCompendium = game.packs.get("pokemon5e.pokemon_moves");
 						namesOfMovesToAdd.forEach(moveName => {
 							const moveToAdd = movesCompendium.getName(moveName);
-							if (!moveToAdd) console.log(`Move "${moveName}" not found`);
+							if (!moveToAdd && showDebugLogs) console.log(`Move "${moveName}" not found`);
 							else movesToAdd.push(moveToAdd.toObject());
 						});
 						sheet.createEmbeddedDocuments("Item", movesToAdd);
@@ -831,7 +837,7 @@ async function managePokemonMoves(event) {
 				unsortedMoves[label].push({ ...move, UUID });
 			});
 		});
-		console.log(unsortedMoves);
+		if (showDebugLogs) console.log(unsortedMoves);
 
 		const sortedMoves = {};
 		// Sorting Object Properties

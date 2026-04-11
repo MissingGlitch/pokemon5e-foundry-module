@@ -8,7 +8,7 @@ const evolutionButtonName = "Evolve Pokémon";
 evolutionButton.setAttribute("aria-label", evolutionButtonName);
 evolutionButton.setAttribute("data-tooltip", evolutionButtonName);
 const evolutionButtonIcon = document.createElement("i");
-evolutionButtonIcon.classList.add("fas", "fa-dna");
+evolutionButtonIcon.classList.add("fa-solid", "fa-dna");
 evolutionButton.appendChild(evolutionButtonIcon);
 
 // Cositas para el Rickroll

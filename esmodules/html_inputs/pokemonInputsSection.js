@@ -5,10 +5,12 @@ import { updateMoves } from "./inputUpdateMoves.js";
 import { evolvePokemon } from "./inputEvolvePokemon.js";
 import { manageMoves } from "./inputMoveManager.js";
 const inputs = [updateMoves, evolvePokemon, manageMoves];
+// Podríamos reescribir esto para que en vez de solo traer los botones, traigamos las funciones que usan y crear los botones aquí.
+// De esa forma los demás archivos no tendrían la palabra input y se podría renombrar la carpeta a Automatizaciones, y sacar este archivo fuera que solo contenga los botones (y todo lo relacionado con la renderización de los mismos).
 
 //* HTML Pokémon Section
 Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
-	pokemonModuleLog("<-- Pokémon 5e Inputs Section Rendered on Actor Sheet -->");
+	pokemonModuleLog("pk5e (renders): Inputs Section");
 
 	// Place where everything will be rendered: Special Traits Tab
 	const specialTraitsTab = html.querySelector(".dnd5e2 .window-content .tab-body [data-tab=\"specialTraits\"]");
