@@ -4,7 +4,10 @@
  * @param {string} text - The message to display in the console.
  */
 export function pokemonModuleLog(text) {
+	const enableDebugLogs = game.settings.get("pokemon5e", "enableDebugLogs");
+	if (!enableDebugLogs) return;
+
 	const pokemonYellowColor = "#ffcc01";
-	const fancyStyle = `font-size: 15px; background-color: black; color: ${pokemonYellowColor}`;
+	const fancyStyle = `background-color: black; color: ${pokemonYellowColor}`;
 	console.log(`%c${text}`, fancyStyle);
 }
