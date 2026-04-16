@@ -1,0 +1,5 @@
+/** Imports **/
+/* Los urls de las rutas son relativas a la ubicación de este mismo archivo */
+/* Applications */
+@import url("./../esmodules/applications/helpersMenu/helpersMenu.css");
+	@import url("./../esmodules/applications/helpersMenu/helpers/npcHpFixer/npcHpFixer.css");

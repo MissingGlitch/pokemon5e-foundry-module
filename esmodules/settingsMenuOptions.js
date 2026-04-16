@@ -1,4 +1,4 @@
-import { pk5eHelpersMenu } from "./applications/helpersMenu.js";
+import { pk5eHelpersMenu } from "./applications/helpersMenu/helpersMenu.js";
 import { pokemonModuleLog } from "./utils/logs.js";
 
 Hooks.once("init", () => {
@@ -103,5 +103,15 @@ Hooks.once("init", () => {
 		default: false,
 		onChange: value => { pokemonModuleLog(`pk5e (settings): "Enable Debug Logs" has been set to <${value}>.`) },
 		requiresReload: false
+	});
+
+	// Show all Helpers
+	game.settings.registerMenu("pokemon5e", "helpers", {
+		name: "Helpers",
+		label: "Abrir el Menú de Helpers",
+		hint: "Accede a todos los helpers que incluye el módulo para resolver incompatibilidades y errores.",
+		icon: "fa-solid fa-screwdriver-wrench",
+		type: pk5eHelpersMenu,
+		restricted: true
 	});
 });
