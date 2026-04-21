@@ -1,4 +1,4 @@
-import { pokemonModuleLog } from "./../utils/logs.js";
+import { pk5eLog } from "./../utils/logs.js";
 import { POKEMON_TYPES } from "./../addPokemonSystemProperties.js";
 
 //* HTML Button Creation
@@ -86,7 +86,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 		.filter(item => item.type === "weapon")
 		.filter(weapon => weapon.system.type.value === "pokemon");
 
-	pokemonModuleLog("pk5e (update moves):");
+	pk5eLog("pk5e (update moves):");
 
 	if (allPokemonMoves.length === 0) {
 		const message = "No pokémon moves found in this sheet.";
@@ -96,7 +96,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 
 	const sheetLevel = Number(sheet.system.details.level) || 1;
 	allPokemonMoves.forEach(pokemonMove => {
-		pokemonModuleLog(`Trying to Update "${pokemonMove.name}"`);
+		pk5eLog(`Trying to Update "${pokemonMove.name}"`);
 
 		const unidentifiedDescription = pokemonMove.system.unidentified.description;
 		const scaleHtmlData = getScaleDataFromText(unidentifiedDescription);

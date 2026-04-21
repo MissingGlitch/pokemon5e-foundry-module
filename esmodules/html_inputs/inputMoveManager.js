@@ -1,4 +1,4 @@
-import { pokemonModuleLog } from "./../utils/logs.js";
+import { pk5eLog } from "./../utils/logs.js";
 
 //* HTML Button Creation
 const moveManagerButton = document.createElement("button");
@@ -13,7 +13,7 @@ moveManagerButton.appendChild(moveManagerButtonIcon);
 
 //* HTML Button Injection
 Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
-	pokemonModuleLog("pk5e (renders): Move Manager");
+	pk5eLog("pk5e (renders): Move Manager");
 
 	// Place where everything will be rendered: Header Buttons (Short/Long Rest Buttons)
 	const searchBarContainerForFeatures = html.querySelector(".dnd5e2.actor .window-content .tab-body .tab[data-tab=\"features\"] search").parentElement;

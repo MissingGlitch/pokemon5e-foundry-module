@@ -3,7 +3,7 @@
  *
  * @param {string} text - The message to display in the console.
  */
-export function pokemonModuleLog(text) {
+export function pk5eLog(text) {
 	const enableDebugLogs = game.settings.get("pokemon5e", "enableDebugLogs");
 	if (!enableDebugLogs) return;
 

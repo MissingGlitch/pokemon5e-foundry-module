@@ -1,5 +1,8 @@
+import { NpcHpFixer } from "./applications/helpersMenu/helpers/npcHpFixer/npcHpFixer.js";
+
+
 //* Definitions and Variables
-import { pokemonModuleLog } from "./utils/logs.js";
+import { pk5eLog } from "./utils/logs.js";
 const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 const formatPropertyName = (string) => string.split("_").reduce((acc, word) => `${acc} ${capitalize(word)}`, "").trim();
 export const POKEMON_TYPES = ["typeless", "steel", "water", "bug", "dragon", "electric", "ghost", "fire", "fairy", "ice", "fighting",	"normal", "grass", "psychic", "rock", "dark", "ground", "poison", "flying"];
@@ -30,7 +33,7 @@ const PK5E_PREFIX = {
 
 //* Initializations and Loaded Settings (Init Hook)
 Hooks.once("init", () => {
-	pokemonModuleLog("pk5e (init): Settings Loaded");
+	pk5eLog("pk5e (init): Settings Loaded");
 
 	// Pokemon Types
 	const theDndDamageTypesWillBeRemoved = game.settings.get("pokemon5e", "removeDndDamageTypes");
@@ -134,3 +137,13 @@ Hooks.once("init", () => {
 		}
 	}
 });
+
+Hooks.once("ready", () => {
+    game.modules.get("pokemon5e").api = {
+        NpcHpFixer
+    };
+});
+
+// Macro para abrir rápido el NpcHpFixer
+// const { NpcHpFixer } = game.modules.get("pokemon5e").api;
+// new NpcHpFixer().render({ force: true });

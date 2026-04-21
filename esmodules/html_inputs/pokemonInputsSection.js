@@ -1,4 +1,4 @@
-import { pokemonModuleLog } from "../utils/logs.js";
+import { pk5eLog } from "../utils/logs.js";
 
 //* Inputs Info
 import { updateMoves } from "./inputUpdateMoves.js";
@@ -10,7 +10,7 @@ const inputs = [updateMoves, evolvePokemon, manageMoves];
 
 //* HTML Pokémon Section
 Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
-	pokemonModuleLog("pk5e (renders): Inputs Section");
+	pk5eLog("pk5e (renders): Inputs Section");
 
 	// Place where everything will be rendered: Special Traits Tab
 	const specialTraitsTab = html.querySelector(".dnd5e2 .window-content .tab-body [data-tab=\"specialTraits\"]");

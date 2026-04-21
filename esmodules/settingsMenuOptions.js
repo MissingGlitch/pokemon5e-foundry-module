@@ -1,5 +1,5 @@
 import { pk5eHelpersMenu } from "./applications/helpersMenu/helpersMenu.js";
-import { pokemonModuleLog } from "./utils/logs.js";
+import { pk5eLog } from "./utils/logs.js";
 
 Hooks.once("init", () => {
 	// Add Pokémon Region Languages
@@ -10,7 +10,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: true,
-		onChange: value => { pokemonModuleLog(`pk5e (settings): "Add Pokémon Region Languages" has been set to <${value}>.`) },
+		onChange: value => { pk5eLog(`pk5e (settings): "Add Pokémon Region Languages" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -22,7 +22,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		onChange: value => { pokemonModuleLog(`pk5e (settings): "Remove DnD Languages" has been set to <${value}>.`) },
+		onChange: value => { pk5eLog(`pk5e (settings): "Remove DnD Languages" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -41,7 +41,7 @@ Hooks.once("init", () => {
 			}
 		}),
 		default: "pokedollars",
-		onChange: value => { pokemonModuleLog(`pk5e (settings): "${value}" currency name has been set.`) },
+		onChange: value => { pk5eLog(`pk5e (settings): "${value}" currency name has been set.`) },
 		requiresReload: true
 	});
 
@@ -53,7 +53,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: true,
-		onChange: value => { pokemonModuleLog(`pk5e (settings): "Replace DnD Currencies" has been set to <${value}>.`) },
+		onChange: value => { pk5eLog(`pk5e (settings): "Replace DnD Currencies" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -65,7 +65,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		onChange: value => { pokemonModuleLog(`pk5e (settings): "Remove 'Type' word from Pokémon Types" has been set to <${value}>.`) },
+		onChange: value => { pk5eLog(`pk5e (settings): "Remove 'Type' word from Pokémon Types" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -77,7 +77,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		onChange: value => { pokemonModuleLog(`pk5e (settings): "Remove DnD Damage Types" has been set to <${value}>.`) },
+		onChange: value => { pk5eLog(`pk5e (settings): "Remove DnD Damage Types" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -89,7 +89,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		onChange: value => { pokemonModuleLog(`pk5e (settings): "Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
+		onChange: value => { pk5eLog(`pk5e (settings): "Remove DnD Similar Conditions (Poisoned and Paralyzed)" has been set to <${value}>.`) },
 		requiresReload: true
 	});
 
@@ -101,7 +101,7 @@ Hooks.once("init", () => {
 		config: true,
 		type: new foundry.data.fields.BooleanField(),
 		default: false,
-		onChange: value => { pokemonModuleLog(`pk5e (settings): "Enable Debug Logs" has been set to <${value}>.`) },
+		onChange: value => { pk5eLog(`pk5e (settings): "Enable Debug Logs" has been set to <${value}>.`) },
 		requiresReload: false
 	});
 

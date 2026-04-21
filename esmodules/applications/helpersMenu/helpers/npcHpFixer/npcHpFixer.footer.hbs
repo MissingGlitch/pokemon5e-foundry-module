@@ -1,0 +1,23 @@
+<div class="footer-part">
+	{{#if views.actorsSelection.active}}
+		<section class="hidden-summary">
+		</section>
+		<div class="true-footer">
+			<div class="brief-summary">
+				<div class="current-counter-container">
+					<span class="number">{{selectedActors.length}}</span>
+					<span class="title">Pokémon Seleccionados</span>
+				</div>
+
+				<button class="expand-summary-button" type="button"> <i class="fa-solid fa-arrow-up-wide-short"></i> </button>
+				{{!-- Otros íconos para probar luego cuál queda mejor --}}
+				{{!--
+				<button type="button"> <i class="fa-solid fa-chevrons-up"></i> </button>
+				<button type="button"> <i class="fa-solid fa-caret-up"></i> </button>
+				--}}
+			</div>
+
+			<button class="submit-button" type="submit">Corregir Seleccionados</button>
+		</div>
+	{{/if}}
+</div>

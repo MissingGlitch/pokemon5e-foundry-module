@@ -1,11 +1,163 @@
-/* id: #pk5e-npc-hp-fixer */
+/** NPC HP Fixer */
+#pk5e-npc-hp-fixer {
 
-#pk5e-npc-hp-fixer .pk5e-npc-hp-fixer__content
-.pk5e-npc-hp-fixer__title {
-	text-align: center;
-}
+	/** Variables */
+	--fs-title: 20px;
 
-#pk5e-npc-hp-fixer .pk5e-npc-hp-fixer__content
-.pk5e-npc-hp-fixer__subtitle {
-	text-align: center;
+	/** Header Part */
+	.header-part {
+
+		.tabs-container {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+
+			button {
+				outline: none;
+				box-shadow: none;
+				border-top: none;
+				border-left: none;
+				border-right: none;
+				font-size: 18px;
+
+				i {
+					margin-right: 4px;
+				}
+			}
+
+			button:not(.active) {
+				border-bottom-color: transparent;
+			}
+
+			button:hover {
+				background: none;
+			}
+		}
+	}
+
+	/** Content Part */
+	.content-part {
+
+		/** All Views */
+		.view {
+
+		}
+
+		/** Intro View */
+		.intro-view {
+
+			.title, .subtitle {
+				text-align: center;
+			}
+
+			.button-container {
+				display: flex;
+				margin-top: 20px;
+				margin-bottom: 10px;
+				justify-content: space-evenly;
+			}
+
+			.button {
+				font-size: var(--fs-title);
+				padding: 0 30px;
+
+				i {
+					margin-left: 8px;
+					transition: transform 0.2s ease;
+				}
+			}
+
+			.button:hover i {
+				transform: translateX(10px);
+			}
+
+		}
+
+		/** Actors Selection View */
+		.actors-selection-view {
+
+			/** Drop Tab */
+			.drop-tab {
+				padding: 15px;
+
+				.drop-zone {
+					width: 100%;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 120px 0px;
+					border-radius: 15px;
+					border: 4px dashed var(--color-text-light-5);
+
+					.drop-info {
+						color: var(--color-text-light-5);
+
+						.icon {
+							font-size: 60px;
+							display: block;
+							text-align: center;
+							margin-bottom: 8px;
+						}
+
+						.text {
+							margin: 0;
+							text-align: center;
+							font-size: var(--fs-title);
+							color: var(--color-text-light-5);
+							line-height: 25px;
+						}
+					}
+				}
+
+				.drop-zone.highlight {
+					box-shadow: 0 0 8px #c9593f;
+					background: #802e1b99;
+					border-color: var(--color-form-label);
+
+					.icon, .text {
+						color: var(--color-form-label);
+						text-shadow: 0 0 8px var(--color-form-label-hover);
+					}
+				}
+			}
+		}
+	}
+
+	/** Footer Part */
+	.footer-part {
+
+		.true-footer {
+			display: flex;
+			justify-content: space-between;
+
+			.brief-summary {
+				display: flex;
+				align-items: center;
+
+				.current-counter-container {
+					font-size: 16px;
+					font-weight: bold;
+
+					.number {
+						padding: 4px 10px;
+						border-radius: 10px;
+						background-color: var(--color-dark-3);
+					}
+
+					.title {
+						margin-left: 2px;
+					}
+				}
+
+				.expand-summary-button {
+					border: none;
+					margin-left: 8px;
+				}
+			}
+
+			.submit-button {
+				font-size: var(--fs-title);
+				padding: 0 35px;
+			}
+		}
+	}
 }

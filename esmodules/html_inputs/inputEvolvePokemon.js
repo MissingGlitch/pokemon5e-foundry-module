@@ -1,4 +1,4 @@
-import { pokemonModuleLog } from "../utils/logs.js";
+import { pk5eLog } from "../utils/logs.js";
 const rickrollLink = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
 //* HTML RickRoll Button Creation
