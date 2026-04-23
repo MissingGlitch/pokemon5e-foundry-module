@@ -12,7 +12,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		},
 		position: {
 			width: 900,
-			height: "auto",
+			height: 550,
 			top: 100
 		},
 		form: {
@@ -61,9 +61,12 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	// Propiedad donde se guardarán todos los actores elegidos.
 	#selectedActors = [];
 
-	// Por este método es que se le pasan variables al template para
-	// mostrar u ocultar cosas dependiendo de la vista o pestaña activa,
-	// o para mostrar la información de los actores seleccionados.
+	#isLoading = false;
+
+	/**
+	 * Prepares the context for the Handlebars, providing variables that can be used inside the templates.
+	 * @returns {Promise<Object>} The context object for the template.
+	 */
 	async _prepareContext() {
 		return {
 			views: {
@@ -75,7 +78,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				actors: { active: this.#currentTab === this.#TABS.ACTORS },
 				compendiums: { active: this.#currentTab === this.#TABS.COMPENDIUMS }
 			},
-			selectedActors: this.#selectedActors
+			selectedActors: this.#selectedActors,
+			isLoading: this.#isLoading
 		};
 	}
 
@@ -94,6 +98,40 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		if ( !selectedTab ) return;
 		this.#currentTab = selectedTab;
 		this.render();
+	}
+
+	/**
+	 * Toggles the loading state of the app, blocking or unblocking interaction and re-rendering to show or hide the spinner.
+	 * @param {boolean} isLoading - True to show the spinner and block interaction, false to hide it and unblock.
+	 */
+	async #toggleLoading (isLoading) {
+		pk5eLog(`pk5e (npc hp fixer): loading state <${isLoading}>`);
+		this.#isLoading = isLoading;
+		this.element.inert = isLoading;
+		await this.render();
+	}
+
+	/**
+	 * Animates the counter to indicate that new actors have been added.
+	 * Uses double requestAnimationFrame to ensure the browser has fully processed
+	 * the inert=false state change before starting the animation.
+	 */
+	#animateCounter() {
+		// It has a double requestAnimationFrame to ensure that the animation runs after the DOM has been updated and the
+		// inert state has been removed, which can interfere with animations if not handled properly.
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => {
+				const counterNumber = this.element.querySelector(".current-counter-container .number");
+				counterNumber?.animate(
+					[
+						{ backgroundColor: "#333", transform: "scale(1)", boxShadow: "0 0 0px rgba(255, 255, 255, 0)" },
+						{ backgroundColor: "#c9593f", transform: "scale(1.3)", boxShadow: "0 0 15px #c9593f", filter: "brightness(1.5)", offset: 0.5 },
+						{ backgroundColor: "#333", transform: "scale(1)", boxShadow: "0 0 0px rgba(255, 255, 255, 0)" }
+					],
+					{ duration: 800, easing: "ease-out" }
+				);
+			});
+		});
 	}
 
 	// ! Handle Submit
@@ -224,7 +262,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 			entries.push(...folderDocs.map(item => ({
 				name: item.name,
 				uuid: item.uuid,
-				containerPath: folderPath
+				containerPath: folderPath,
+				doc: item
 			})));
 
 			// Subfolders under this folder in the compendium (Recursive call for each subfolder)
@@ -236,7 +275,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 			entries.push(...currentFolder.contents.map(item => ({
 				name: item.name,
 				uuid: item.uuid,
-				containerPath: folderPath
+				containerPath: folderPath,
+				data: item
 			})));
 
 			// Subfolders under this folder in the sidebar (Recursive call for each subfolder)
@@ -259,7 +299,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		entries.push(...rootDocs.map(item => ({
 			name: item.name,
 			uuid: item.uuid,
-			containerPath: compendiumRootPath
+			containerPath: compendiumRootPath,
+			data: item
 		})));
 
 		// Root folders in the compendium (those that don't have a parent folder) and recursive collection of their entries
@@ -281,7 +322,78 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		for (const child of folder.children) await this.#collectFolderWithCompendiumsEntries(child.folder, entries);
 	}
 
+
+	/**
+	 * Validates that a document is an Actor of type NPC with at least one class item whose name contains "Level".
+	 * @param {foundry.abstract.Document} entryData - The document data to validate.
+	 * @returns {boolean} True if the document is a valid NPC Actor, false otherwise.
+	 */
+	#isValidEntry (entryData) {
+		// 1. Must be an Actor document
+		if ( !(entryData instanceof Actor) ) return false;
+
+		// 2. Must be of type "npc"
+		if (entryData.type !== "npc") return false;
+
+		// 3. Must have at least one class item with "Level" in its name
+		if ( !entryData.items.some(item => item.type === "class" && item.name.includes("Level")) ) return false;
+
+		return true;
+	}
+
+	/**
+	 * Processes the collected entries, separating them into valid entries to add, duplicates, and invalid types, then adds the valid entries to the selected actors and shows notifications for each case.
+	 * @param {Array} entries - The array of entries to process.
+	 * @returns {number} The number of valid entries that were added.
+	 */
+	#processAndAddEntries (entries) {
+		const duplicates = [];
+		const invalidType = [];
+		const toAdd = [];
+
+		for (const entry of entries) {
+			// Duplicates
+			if (this.#selectedActors.some(actor => actor.uuid === entry.uuid)) {
+				duplicates.push(entry);
+				continue;
+			}
+
+			// Invalid Type
+			if ( !this.#isValidEntry(entry.data) ) {
+				invalidType.push(entry);
+				continue;
+			}
+
+			// Valid
+			toAdd.push(entry);
+		}
+
+		this.#selectedActors.push(...toAdd);
+
+		// Notifications
+		if (duplicates.length > 0) {
+			ui.notifications.warn(`Se han encontrado ${duplicates.length} entradas duplicadas que no han sido agregadas.`);
+		}
+
+		if (invalidType.length > 0) {
+			ui.notifications.warn(`Se han encontrado ${invalidType.length} entradas que no son Pokémon NPC, así que no han sido agregados.`);
+		}
+
+		if (toAdd.length > 0) {
+			ui.notifications.info(`Se han agregado ${toAdd.length} entradas nuevas.`);
+		}
+
+		return toAdd.length;
+	}
+
+	/**
+	 * Handles the drop event on the drop zone, processing the dropped data to collect valid Document entries and add them to the selected documents.
+	 * Supports dropping Docs, Folders (with or without compendiums), and Compendiums.
+	 * @param {DragEvent} event - The drag event triggered on drop.
+	 */
 	async _handleDrop (event) {
+		let entries = [];
+		let addedCount = 0;
 		const data = TextEditor.implementation.getDragEventData(event);
 
 		// Debug Logs
@@ -290,90 +402,118 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 			console.log(data);
 		}
 
-		// * Folder Dropped
-		if (data.type === "Folder") {
-			let entries = [];
-			const folder = await fromUuid(data.uuid);
+		// Loading State ON
+		await this.#toggleLoading(true);
 
-			// Case A: A folder that contains compendiums
-			if (folder.type === "Compendium") {
-				await this.#collectFolderWithCompendiumsEntries(folder, entries);
+		try {
+			// * Folder Dropped
+			if (data.type === "Folder") {
+				const folder = await fromUuid(data.uuid);
 
-			// Case B: A folder that contains docs and subfolders, but no compendiums
-			// Can be from the sidebar or from a compendium, the method will handle both cases
-			} else {
-				const isFromCompendium = Boolean(folder.pack);
+				// Case A: A folder that contains compendiums
+				if (folder.type === "Compendium") {
+					await this.#collectFolderWithCompendiumsEntries(folder, entries);
 
-				// When the folder is from a compendium, we need to pre-load all the documents and folders
-				// from that compendium to be able to build the paths of the entries correctly.
-				let allCompendiumDocs, allCompendiumFolders;
-				if (isFromCompendium) {
-					const compendium = game.packs.get(folder.pack);
-					allCompendiumFolders = compendium.folders;
-					allCompendiumDocs = await compendium.getDocuments();
+				// Case B: A folder that contains docs and subfolders, but no compendiums
+				// Can be from the sidebar or from a compendium, the method will handle both cases
+				} else {
+					const isFromCompendium = Boolean(folder.pack);
+
+					// When the folder is from a compendium, we need to pre-load all the documents and folders
+					// from that compendium to be able to build the paths of the entries correctly.
+					let allCompendiumDocs, allCompendiumFolders;
+					if (isFromCompendium) {
+						const compendium = game.packs.get(folder.pack);
+						allCompendiumFolders = compendium.folders;
+						allCompendiumDocs = await compendium.getDocuments();
+					}
+
+					// Same function for both cases (sidebar and compendium)
+					this.#collectFolderEntries(folder, entries, allCompendiumDocs ?? null, allCompendiumFolders ?? null);
 				}
-
-				// Same function for both cases (sidebar and compendium)
-				this.#collectFolderEntries(folder, entries, allCompendiumDocs ?? null, allCompendiumFolders ?? null);
 			}
 
-			// TODO: Agregar todos los pokémon npc, pero lanzar una alerta si la carpeta está vacía osi tiene documentos que no son pokémon npc
+			// * Compendium Dropped
+			else if (data.type === "Compendium") {
+				const compendium = game.packs.get(data.collection);
+				await this.#collectCompendiumEntries(compendium, entries);
+			}
+
+			// * Actor Dropped
+			else if (data.type === "Actor") {
+				let containerPath;
+				const actor = await fromUuid(data.uuid);
+				const isFromCompendium = Boolean(actor.pack);
+
+				// Case A: Actor from a compendium
+				if (isFromCompendium) {
+					const compendium = game.packs.get(actor.pack);
+					containerPath = actor.folder ? this.#buildFolderPath(actor.folder) : this.#buildCompendiumRootPath(compendium);
+
+				// Case B: Actor from the sidebar
+				} else {
+					containerPath = actor.folder ? this.#buildFolderPath(actor.folder) : "Actors Tab";
+				}
+
+				entries.push({
+					name: actor.name,
+					uuid: actor.uuid,
+					containerPath,
+					data: actor
+				});
+			}
+
+			// * Other Type Dropped
+			else {
+				ui.notifications.warn(`El tipo de documento "${data.type}" no es válido. Solo se pueden agregar actores o carpetas y compendios que contengan actores.`);
+			}
+
 			console.log(entries);
+			addedCount = this.#processAndAddEntries(entries);
+
+		} catch (error) {
+			ui.notifications.error("Ocurrió un error al procesar el drop. Revisa la consola para más detalles.");
+			console.error("Error processing drop:", error);
+
+		} finally {
+			// Loading State OFF
+			await this.#toggleLoading(false);
+			if (addedCount > 0) this.#animateCounter();
 		}
-
-		// * Compendium Dropped
-		if (data.type === "Compendium") {
-			let entries = [];
-			const compendium = game.packs.get(data.collection);
-			await this.#collectCompendiumEntries(compendium, entries);
-
-			// TODO: Agregar todos los pokémon npc, pero lanzar una alerta si la carpeta está vacía osi tiene documentos que no son pokémon npc
-			console.log(entries);
-		}
-
-		// * Actor Dropped
-		if (data.type === "Actor") {
-
-			// TODO: Pendiente
-		}
-
-		// if ( data?.type !== "Actor" ) return;
-
-		// const actor = await fromUuid(data.uuid);
-		// if ( !actor ) return;
-
-		// // Evitar duplicados
-		// if ( this.#selectedActors.some(a => a.uuid === actor.uuid) ) return;
-
-		// this.#selectedActors.push(actor);
-		// this.render();
 	}
 
-	// Drag and Drop hightlighting
+	/**
+	 * Called when the application is rendered.
+	 * Currently used to set up drag and drop event listeners on the drop zone, allowing actors, folders, and compendiums to be dragged and dropped into the app for selection.
+	 * @param {Object} context - The rendering context.
+	 * @param {Object} options - Additional options for rendering.
+	 */
 	_onRender(context, options) {
 		super._onRender(context, options);
 
+		//* Drag and Drop hightlighting
 		const dropZone = this.element.querySelector(".drop-zone");
 		if ( !dropZone || !this._canBeDroppedHere() ) return;
 
-		// Drag Over
-		dropZone.addEventListener("dragover", (event) => {
-			event.preventDefault();
-			dropZone.classList.add("highlight");
-		});
+			// Drag Over
+			dropZone.addEventListener("dragover", (event) => {
+				event.preventDefault();
+				dropZone.classList.add("highlight");
+			});
 
-		// Drag Leave
-		dropZone.addEventListener("dragleave", (event) => {
-			// Evitar que se quite la clase al pasar sobre un hijo del drop-zone
-			if ( dropZone.contains(event.relatedTarget) ) return;
-			dropZone.classList.remove("highlight");
-		});
+			// Drag Leave
+			dropZone.addEventListener("dragleave", (event) => {
+				// Evitar que se quite la clase al pasar sobre un hijo del drop-zone
+				if ( dropZone.contains(event.relatedTarget) ) return;
+				dropZone.classList.remove("highlight");
+			});
 
-		// Drop
-		dropZone.addEventListener("drop", (event) => {
-			dropZone.classList.remove("highlight");
-		});
+			// Drop
+			dropZone.addEventListener("drop", (event) => {
+				dropZone.classList.remove("highlight");
+			});
 
+		//* Set Drag and Drop Handler
 		new DragDrop({
 			dropSelector: ".drop-zone",
 			callbacks: { drop: this._handleDrop.bind(this) }

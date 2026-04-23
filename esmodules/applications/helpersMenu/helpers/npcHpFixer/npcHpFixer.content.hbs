@@ -34,4 +34,13 @@
 		<section class="tab {{#if tabs.compendiums.active}}active{{/if}}" data-group="content" data-tab="compendiums">Sección de Compendios</section>
 	</div>
 	{{/if}}
+
+	{{!-- Loading Overlay --}}
+	{{#if isLoading}}
+	<div class="loading-overlay">
+		<div class="spinner">
+			<i class="fa-solid fa-spinner-third fa-spin fa-10x"></i>
+		</div>
+	</div>
+	{{/if}}
 </div>
