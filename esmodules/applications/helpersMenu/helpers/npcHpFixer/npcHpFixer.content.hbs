@@ -11,6 +11,10 @@
 				<i class="fa-solid fa-arrow-right"></i>
 			</button>
 		</div>
+
+		<video class="video" controls>
+			<source src="modules/pokemon5e/extras/fixed-hp-example.mp4" type="video/mp4">
+		</video>
 	</div>
 	{{/if}}
 
@@ -28,10 +32,63 @@
 		</section>
 
 		{{!-- Actors Tab --}}
-		<section class="tab {{#if tabs.actors.active}}active{{/if}}" data-group="content" data-tab="actors">Sección de Actores</section>
+		<section class="tab {{#if tabs.actors.active}}active{{/if}} actors-tab" data-group="content" data-tab="actors">  
+			{{#if actorsTab}}
+				{{!-- Tree Navigation Sidebar --}}
+				<section class="tree-nav">
+					Tree Nav
+				</section>
+
+				{{!-- Selection Pane --}}
+				<section class="selection-pane">
+					<div class="header">
+						{{!-- Current Route --}}
+						<h3 class="current-route">
+							{{#if actorsTab.currentLocation}}
+								{{actorsTab.currentLocation.name}}
+							{{else}}
+								Actors Tab
+							{{/if}}
+								<span> > </span>
+						</h3>
+
+						{{!-- Search Bar --}}
+						<div class="search-bar-container">
+							<i class="icon fa-solid fa-magnifying-glass"></i>
+							<input class="search-bar" type="text" placeholder="Buscar por nombre...">
+						</div>
+					</div>
+
+					{{!-- Content Grid --}}
+					<div class="content">
+						{{#each actorsTab.items}}
+						<div class="item-container">
+							{{#if isFolder}}
+								{{!-- Folders --}}
+								<div class="item folder-item" data-folder-id="{{id}}">
+									{{#if color}}
+										<i class="icon fa-solid fa-folder" style="color: {{color}}"></i>
+									{{else}}
+										<i class="icon fa-light fa-folder"></i>
+									{{/if}}
+									<div class="name"> <span>{{name}}</span> </div>
+								</div>
+							{{else}}
+								{{!-- Actors --}}
+								<div class="item actor-item" data-uuid="{{uuid}}">
+									<img class="img" src="{{img}}" alt="{{name}}">
+									<div class="name"> <span>{{name}}</span> </div>
+								</div>
+							{{/if}}
+						</div>
+						{{/each}}
+					</div>
+				</section>
+			{{/if}}
+		</section>
 
 		{{!-- Compendiums Tab --}}
-		<section class="tab {{#if tabs.compendiums.active}}active{{/if}}" data-group="content" data-tab="compendiums">Sección de Compendios</section>
+		<section class="tab {{#if tabs.compendiums.active}}active{{/if}} compendiums-tab" data-group="content" data-tab="compendiums">Sección de Compendios</section>
 	</div>
 	{{/if}}
 

@@ -52,18 +52,20 @@
 
 	/** Content Part */
 	.content-part {
-		flex: 1;
+		flex-grow: 1;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 
 		/** All Views */
-		/* .view {
-
-		} */
+		.view {
+			width: 100%;
+			height: 100%;
+		}
 
 		/** Intro View */
 		.intro-view {
+			text-align: center;
 
 			.title, .subtitle {
 				text-align: center;
@@ -90,18 +92,25 @@
 				transform: translateX(10px);
 			}
 
+			.video {
+				margin-top: 10px;
+				height: 370px;
+			}
+
 		}
 
 		/** Actors Selection View */
 		.actors-selection-view {
-			width: 100%;
 
 			/** Drop Tab */
-			.drop-tab {
+			.drop-tab.active {
+				width: 100%;
+				height: 100%;
 				padding: 15px;
 
 				.drop-zone {
 					width: 100%;
+					height: 100%;
 					display: flex;
 					align-items: center;
 					justify-content: center;
@@ -137,6 +146,157 @@
 					.icon, .text {
 						color: var(--color-form-label);
 						text-shadow: 0 0 8px var(--color-form-label-hover);
+					}
+				}
+			}
+
+			/** Actors Tab */
+			.actors-tab.active {
+				width: 100%;
+				height: 100%;
+				display: grid;
+				grid-template-columns: 250px 1fr;
+
+				.tree-nav {
+					width: 100%;
+					height: 100%;
+					outline: 1px solid red;
+				}
+
+				.selection-pane {
+					height: 100%;
+					padding: 15px;
+					outline: 1px solid white;
+					display: flex;
+					flex-grow: 1;
+					flex-direction: column;
+					gap: 10px;
+
+					.header {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+
+						.current-route {
+							margin: 0;
+							font-size: 18px;
+						}
+
+						.search-bar-container {
+							width: 200px;
+							position: relative;
+							display: inline-block;
+
+							.icon {
+								position: absolute;
+								left: 10px;
+								top: 50%;
+								transform: translateY(-50%);
+								color: #888;
+								pointer-events: none;
+							}
+
+							.search-bar {
+								width: 100%;
+								padding: 10px 10px 10px 32px;
+							}
+						}
+					}
+
+					.content {
+						flex-grow: 1;
+						outline: 1px solid cyan;
+
+						display: grid;
+						grid-template-columns: repeat(6, minmax(0, 1fr));
+						gap: 15px 5px;
+						align-content: start;
+
+						/* Scroll */
+						overflow-y: auto;
+						max-height: 100%;
+						padding: 10px;
+
+						.item-container {
+							width: 100%;
+							height: 100%;
+							display: flex;
+							justify-content: center;
+							min-width: 0;
+
+							.item {
+								display: flex;
+								flex-direction: column;
+								align-items: center;
+								text-align: center;
+								cursor: pointer;
+								width: 80%;
+								height: 100%;
+								padding: 8px 0;
+
+								.icon, .img {
+									width: 50px;
+									height: 50px;
+									font-size: 50px;
+									display: flex;
+									align-items: center;
+									justify-content: center;
+									object-fit: contain;
+									margin-bottom: 3px;
+								}
+
+								.name {
+									--line-height: 16px;
+
+									height: calc(var(--line-height) * 2);
+									display: flex;
+									align-items: center;
+									justify-content: center;
+									width: 100%;
+
+									span {
+										font-size: 12px;
+										display: -webkit-box;
+										line-clamp: 2;
+										-webkit-line-clamp: 2;
+										-webkit-box-orient: vertical;
+										overflow: hidden;
+										line-height: var(--line-height);
+										max-height: calc(var(--line-height) * 2);
+									}
+								}
+							}
+
+							/* TODO: Me gustaría entender esta animación, sigo siendo muy amateur con animaciones css */
+							.item:hover {
+								transform: scale(1.1);
+								transition: transform 0.2s ease;
+								box-shadow: 0 0 8px var(--color-form-label);
+								border-radius: 10px;
+								outline: 2px solid var(--color-form-label);
+								background-color: var(--color-dark-3);
+								color: var(--color-form-label);
+								text-shadow: 0 0 8px var(--color-form-label-hover);
+								opacity: 0.9;
+								filter: drop-shadow(0 0 4px var(--color-form-label));
+								z-index: 1;
+								position: relative;
+								transition: all 0.2s ease;
+								animation: pulseAnimation 1.5s infinite;
+								@keyframes pulseAnimation {
+									0% {
+										box-shadow: 0 0 8px var(--color-form-label);
+									}
+									50% {
+										box-shadow: 0 0 16px var(--color-form-label);
+									}
+									100% {
+										box-shadow: 0 0 8px var(--color-form-label);
+									}
+								}
+							}
+
+						}
 					}
 				}
 			}

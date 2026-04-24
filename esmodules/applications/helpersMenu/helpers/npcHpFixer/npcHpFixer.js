@@ -11,8 +11,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 			contentTag: "form"
 		},
 		position: {
-			width: 900,
-			height: 550,
+			width: 1200,
+			height: 600,
 			top: 100
 		},
 		form: {
@@ -58,7 +58,9 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 	#currentView = this.#VIEWS.INTRO;
 
-	// Propiedad donde se guardarán todos los actores elegidos.
+	#currentLocationOnActorsTab = null; // "Actors Tab"
+	#currentLocationOnCompendiumsTab = null; // "Compendiums Tab"
+
 	#selectedActors = [];
 
 	#isLoading = false;
@@ -69,6 +71,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 */
 	async _prepareContext() {
 		return {
+			isLoading: this.#isLoading,
+			selectedActors: this.#selectedActors,
 			views: {
 				intro: { active: this.#currentView === this.#VIEWS.INTRO },
 				actorsSelection: { active: this.#currentView === this.#VIEWS.ACTORS_SELECTION }
@@ -78,8 +82,54 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				actors: { active: this.#currentTab === this.#TABS.ACTORS },
 				compendiums: { active: this.#currentTab === this.#TABS.COMPENDIUMS }
 			},
-			selectedActors: this.#selectedActors,
-			isLoading: this.#isLoading
+			actorsTab: this.#currentTab === this.#TABS.ACTORS
+				? this.#prepareActorsTabContext()
+				: null,
+			compendiumsTab: this.#currentTab === this.#TABS.COMPENDIUMS
+				? this.#prepareCompendiumsTabContext()
+				: null
+		};
+	}
+
+	/**
+	 * Prepares the context for the Actors tab, building the list of folders and actors
+	 * at the current location. Only called when the Actors tab is active.
+	 * @returns {Object} The context object for the Actors tab.
+	 */
+	#prepareActorsTabContext() {
+		const location = this.#currentLocationOnActorsTab;
+		const folders = game.folders
+			.filter(f => f.type === "Actor" && f.folder?.id === location?.id)
+			.map(f => ({
+				id: f.id,
+				name: f.name,
+				color: f.color,
+				isFolder: true
+			}));
+		const actors = game.actors
+			.filter(a => a.folder?.id === location?.id)
+			.map(a => ({
+				uuid: a.uuid,
+				name: a.name,
+				img: a.img,
+				isFolder: false
+			}));
+		return {
+			currentLocation: location,
+			items: [...folders, ...actors]
+		};
+	}
+
+	/**
+	 * Prepares the context for the Compendiums tab.
+	 * Only called when the Compendiums tab is active.
+	 * @returns {Object} The context object for the Compendiums tab.
+	 */
+	#prepareCompendiumsTabContext() {
+		// TODO: implementar cuando se desarrolle la tab de compendios
+		return {
+			currentLocation: this.#currentLocationOnCompendiumsTab,
+			items: []
 		};
 	}
 
