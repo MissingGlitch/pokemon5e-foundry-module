@@ -1,0 +1,16 @@
+<div class="tree-node {{#if isCurrent}}current{{/if}}" data-folder-id="{{id}}">
+    {{#if color}}
+        <i class="fa-solid fa-folder-open" style="color: {{color}}"></i>
+    {{else}}
+        <i class="fa-light fa-folder-open"></i>
+    {{/if}}
+    <span class="tree-node-name" data-tooltip="{{name}}">{{name}}</span>
+</div>
+
+{{#if children.length}}
+	<div class="tree-children">
+		{{#each children}}
+			{{> pk5e-tree-node this}}
+		{{/each}}
+	</div>
+{{/if}}

@@ -115,3 +115,17 @@ Hooks.once("init", () => {
 		restricted: true
 	});
 });
+
+// Partials for Apps:
+Hooks.once("init", async () => {
+	// Load partials for Helpers
+    await loadTemplates([
+        "modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/tree-node.hbs"
+    ]);
+
+    // Registrar con nombre corto para poder usarlo en los hbs más fácilmente
+    Handlebars.registerPartial(
+        "pk5e-tree-node",
+        Handlebars.partials["modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/tree-node.hbs"]  
+    );
+});

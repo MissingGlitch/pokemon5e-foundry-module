@@ -170,7 +170,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 		}
 
 		// Raw Scale Validation
-		if (rawScale.length !== 4 || !rawScale[0]) {
+		if (rawScale.length === 0 || !rawScale[0]) {
 			ui.notifications.warn(`❌ The pokémon move "${pokemonMove.name}" does not have a valid @scale attribute.`, { console: true });
 			return;
 		}
@@ -189,7 +189,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 		if (showDebugLogs) {
 			console.log(`"${pokemonMove.name}" pokémon move scaling found:`);
 			console.log(moveScaling);
-			console.log(`Current Level: ${sheetLevel}, Corresponding Move Level: ${correspondingLevel},\nCurrent Value: "${currentValue}", Corresponding Value: "${correspondingFinalValue}"\nCast Ability Score: "${castDefinedAbilityScore}"`);
+			console.log(`Current Level: ${sheetLevel}, Corresponding Move Level: ${correspondingLevel},\nCurrent Value: "${currentValue}", Corresponding Value: "${correspondingFinalValue}"\nCast Activity Ability Score (only for dmg_auto, healing or simple_dice): "${castDefinedAbilityScore}"`);
 		}
 
 		if (correspondingFinalValue === currentValue) {

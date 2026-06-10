@@ -1,8 +1,46 @@
+// todo: pasar con la tab de compendios.
+// Tras la tab de compendios, faltaría implementar que al tú soltar pokémon en la tab de soltar, automáticamente identifique qué actores son y se marquen en sus respectivas casillas de las tabs de actors y compendios.
+// Luego también implementar el footer, y luego el botón de submit, por supuesto.
+
+// ? para cuando se saque la update, también se hizo una pequeña corrección en el autoUpdateMoves y en el kriketot (no sé si se escribe así).
+// todo: Cuando se marca la casilla de una carpeta, a diferencia de cuando se marca la casilla de un actor, si se tenían desplegados los actores inválidos, éstos se vuelven a ocultar porque se renderiza toda la app desde el principio (quizás haya que guardar un estado para el desplegado de esa zona o quizás intentar hacer que al marcar la casilla de las carpetas funcione como la de los actores)
+// todo: No se puede abrir el move manager desde una ficha del compendio (lo cual tiene sentido). Hay que hacer una alerta que indique que la razón es esa: Que no se puede abrir el move manager desde una ficha de compendio, tiene que ser una ficha de un actor del mundo, no del compendio.
+// TODO: Lista de mejoras para la Tab de Actors (Explorador de Archivos):
+// 1. Agregar una ventanita hover (no un tooltip) a las carpetas que indiquen cuántos elementos tiene dentro: Cuántos son carpetas, cuántos son actores válidos y cuántos son actores inválidos
+// TODO: La checkbox de los actores, al marcarla, no está centrada como la de las carpetas.
+// Quizás en chrome difiera, pero ahora mismo en firefox es cierto que no se ven del todo centradas, lo mismo con los candados de los actores no válidos. Están ligeramente más hacia abajo. Y la de los actores ligeramente más hacia arriba en vez de centradas.
+// no no, por lo visto es que solo sucede con aquellos items de la segunda fila en adelante, si una carpeta está en la segunda fila, su checkbox marcada también está ligeramente descentrada como la de los actores.
+// Esto es algo bastante menor así que lo dejaré para otro momento, no lo voy a corregir ahora mismo.
+
+// todo: Documentar lo que falta y luego traducir todo a inglés antes de subirlo
+// todo: Ver si podemos hacer JSDocs para las propiedades privadas de la clase para saber qué son con solo pasar el mouse por encima como con las funciones
+
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const { TextEditor, DragDrop } = foundry.applications.ux;
 import { pk5eLog } from "../../../../utils/logs.js";
 
 export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
+	constructor (options = {}) {
+		super(options);
+
+		// Registro del Hook que usamos para eliminar el loading spinner de los actor item cuando foundry renderice la ficha
+		this.#renderedActorHookIdForRemoveSpinner = Hooks.on("renderBaseActorSheet", (sheet) => {
+			const uuid = sheet.actor.uuid;
+			if (this.#loadingActorsOnExplorer.has(uuid)) {
+				this.#loadingActorsOnExplorer.get(uuid).classList.remove("loading");
+				this.#loadingActorsOnExplorer.delete(uuid);
+			}
+		});
+
+		// ? Info: Cuando se hace clic sobre un actor item en el explorador de archivos de la app, se abre su ficha,
+		// ? sin embargo ese proceso puede tardar; no es inmediato, así que mientras la ficha carga, se muestra un spinner 🌀.
+		// ? En cuanto foundry termina de cargar la ficha y la renderiza, se debe eliminar ese spinner del explorador: Para eso es la función de arriba.
+		// ? Cuando se dispara el hook de que se renderizó una ficha, se verifica si la ficha renderizó foundry es una de las fichas que
+		// ? estaban en "espera a ser renderizadas" de nuestro explorador (que guardamos dentro de la variable #loadingActorsOnExplorer).
+		// ? En caso de que sí, la ubicamos y eliminamos su spinner ✨. De esta forma al cerrar la ficha en el explorador ya no está el spinner.
+	}
+
+	// todo: Explicación de qué son las DEFAULT_OPTIONS
 	static DEFAULT_OPTIONS = {
 		id: "pk5e-npc-hp-fixer",
 		window: {
@@ -16,54 +54,69 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 			top: 100
 		},
 		form: {
-			handler: NpcHpFixer.#handleSubmit, // Esto es lo que va a manejar el envío del formulario
+			handler: NpcHpFixer.#handleSubmit, // todo: Esto es lo que va a manejar el envío del formulario
 			closeOnSubmit: false // No se cerrará porque luego de enviar se mostrará un dialog de confirmación
 		},
 		actions: {
-			cancel: NpcHpFixer.#onCancel, // Cerrar
-			selectTab: NpcHpFixer.#selectTab, // Seleccionar alguna de las 3 pestañas: Drop, Actors o Compendiums
-			moveToIntroView: NpcHpFixer.#moveToIntroView, // Volver a la vista inicial de intro
-			moveToActorsSelectionView: NpcHpFixer.#moveToActorsSelectionView // Ir a la vista de selección de actores (con drop, actors y compendiums)
+			cancel: NpcHpFixer.#onCancel, 										// Cerrar
+			selectTab: NpcHpFixer.#selectTab, 									// Seleccionar alguna de las 3 pestañas: Drop, Actors o Compendiums
+			moveToIntroView: NpcHpFixer.#moveToIntroView, 						// Volver a la vista inicial de intro
+			moveToActorsSelectionView: NpcHpFixer.#moveToActorsSelectionView 	// Ir a la vista de selección de actores (con drop, actors y compendiums)
 		}
 	};
 
+	// todo: Explicación de qué son las PARTS
 	static PARTS = {
 		// Header con las pestañas
 		header: { template: "modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/npcHpFixer.header.hbs" },
+
 		// Content con la información y opciones para cada pestaña
 		content: { template: "modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/npcHpFixer.content.hbs" },
+
 		// Footer con el botón de submit y el resumen expandible
 		footer: { template: "modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/npcHpFixer.footer.hbs" }
 	};
 
-	// De momento solo hay 2 vistas, pero seguramente pasen a 3 o 4 al final.
-	// Intro: Vista inicial con explicación y botón para ir a la selección de actores
-	// Actors Selection: Vista con las opciones para seleccionar los actores a corregir (drop, actors o compendiums)
-	// Cargando: Vista con un spinner mientras se aplican los cambios
-	// Resultados: Vista final con el resultado de la corrección (éxito o error)
+	// todo: Explicación de qué son las VIEWS
 	#VIEWS = {
-		INTRO: Symbol("NPC HP Fixer View ID"),
-		ACTORS_SELECTION: Symbol("NPC HP Fixer View ID")
+		// De momento solo hay 2 vistas, pero seguramente pasen a 3 o 4 al final.
+		INTRO: Symbol("NPC HP Fixer View ID"),				// Intro: 				Vista inicial con explicación y botón para ir a la selección de actores
+		ACTORS_SELECTION: Symbol("NPC HP Fixer View ID"),	// Actors Selection: 	Vista con las opciones para seleccionar los actores a corregir (drop, actors o compendiums)
+		// LOADING: Symbol("NPC HP Fixer View ID"),			// todo: Loading: 		Vista con un spinner mientras se aplican los cambios
+		// RESULTS: Symbol("NPC HP Fixer View ID")			// todo: Results: 		Vista final con el resultado de la corrección (éxito o error)
 	};
 
 	// Las tabs son las opciones dentro de la vista de selección de actores,
 	// para elegir la fuente desde donde seleccionar los actores a corregir: drop, actors o compendiums
 	#TABS = {
-		DROP: "drop",
-		ACTORS: "actors",
-		COMPENDIUMS: "compendiums"
+		DROP: "drop",				// Drop:		// todo: Explicación de la tab
+		ACTORS: "actors",			// Actors:		// todo: Explicación de la tab
+		COMPENDIUMS: "compendiums" 	// Compendiums:	// todo: Explicación de la tab
 	}
 
-	#currentTab = this.#TABS.DROP;
-
-	#currentView = this.#VIEWS.INTRO;
-
-	#currentLocationOnActorsTab = null; // "Actors Tab"
-	#currentLocationOnCompendiumsTab = null; // "Compendiums Tab"
-
+	// todo: Explicación de la propiedad
 	#selectedActors = [];
 
-	#isLoading = false;
+	// La View y La Tab que se están mostrando ahora mismo.
+	// La inicialización definida son las que se mostrarán al inicio.
+	// ? En este caso para hacer las pruebas se muestra de una vez la View de Actors Selection y la Tab en la que estamos trabajando
+	#currentTab = this.#TABS.ACTORS;
+	#currentView = this.#VIEWS.ACTORS_SELECTION;
+
+	// todo: Explicación de las propiedades
+	#currentLocationOnActorsTab = [];
+	#currentLocationOnCompendiumsTab = [];
+	// ¿Cómo se guardan las rutas? Se guarda directamente el Objeto Folder de foundry, no un nombre sino el mismo objeto.
+		// [] = root,
+		// [folderA] = root → folderA,
+		// [folderA, folderB] = root → folderA → folderB
+
+	// * Loading States and Values
+	#isAppLoading = false; 							// Full App Loading
+	#renderedActorHookIdForRemoveSpinner = null; 	// Guarda el id del hook que usamos para remover el spinner de los actores en el explordor de archivos
+	#loadingActorsOnExplorer = new Map(); 			// Map que guarda los actores del explorador de archivos (uuid → elemento DOM del actor-item) que están esperando por foundry para que su ficha se renderice
+
+	#searchQuery = ""; // término de búsqueda de la barra para filtrar items del explorador de archivos
 
 	/**
 	 * Prepares the context for the Handlebars, providing variables that can be used inside the templates.
@@ -71,7 +124,6 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 */
 	async _prepareContext() {
 		return {
-			isLoading: this.#isLoading,
 			selectedActors: this.#selectedActors,
 			views: {
 				intro: { active: this.#currentView === this.#VIEWS.INTRO },
@@ -82,10 +134,10 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				actors: { active: this.#currentTab === this.#TABS.ACTORS },
 				compendiums: { active: this.#currentTab === this.#TABS.COMPENDIUMS }
 			},
-			actorsTab: this.#currentTab === this.#TABS.ACTORS
+			actorsTab: (this.#currentTab === this.#TABS.ACTORS)
 				? this.#prepareActorsTabContext()
 				: null,
-			compendiumsTab: this.#currentTab === this.#TABS.COMPENDIUMS
+			compendiumsTab: (this.#currentTab === this.#TABS.COMPENDIUMS)
 				? this.#prepareCompendiumsTabContext()
 				: null
 		};
@@ -97,26 +149,60 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 * @returns {Object} The context object for the Actors tab.
 	 */
 	#prepareActorsTabContext() {
-		const location = this.#currentLocationOnActorsTab;
+		// Ubicación actual
+		const location = this.#currentLocationOnActorsTab.at(-1) ?? null;
+
+		// Carpetas de la ubicación actual
 		const folders = game.folders
-			.filter(f => f.type === "Actor" && f.folder?.id === location?.id)
-			.map(f => ({
-				id: f.id,
-				name: f.name,
-				color: f.color,
-				isFolder: true
+			.filter(folder => folder.type === "Actor" && folder.folder?.id === location?.id)
+			.map(folder => {
+				const { isSelected, validCount } = this.#getFolderSummaryData(folder);
+				return {
+					id: folder.id,
+					name: folder.name,
+					color: folder.color,
+					isFolder: true,
+					isSelected,
+					validCount // La cantidad de "items válidos" que contiene la carpeta
+				};
+			});
+
+		// Actores de la ubicación actual (no los que están dentro de las carpetas de la ubicación actual, solo los "sueltos")
+		const actorsRaw = game.actors.filter(actor => actor.folder?.id === location?.id);
+
+		// Filtrado de los actores para dejar solo los válidos
+		const validActors = actorsRaw
+			.filter(actor => this.#isValidEntry(actor))
+			.map(actor => ({
+				uuid: actor.uuid,
+				name: actor.name,
+				img: actor.img,
+				isFolder: false,
+				isSelected: this.#selectedActors.some(selectedActor => selectedActor.uuid === actor.uuid)
 			}));
-		const actors = game.actors
-			.filter(a => a.folder?.id === location?.id)
-			.map(a => ({
-				uuid: a.uuid,
-				name: a.name,
-				img: a.img,
+
+		// Filtrado de los actores para dejar solo los inválidos
+		const invalidActors = actorsRaw
+			.filter(actor => !this.#isValidEntry(actor))
+			.map(actor => ({
+				uuid: actor.uuid,
+				name: actor.name,
+				img: actor.img,
 				isFolder: false
 			}));
+
+		// Término escrito en la barra de búsqueda
+		const query = this.#searchQuery.toLowerCase().trim();
+
 		return {
-			currentLocation: location,
-			items: [...folders, ...actors]
+			breadcrumb: this.#currentLocationOnActorsTab.map((folder, index) => ({
+				name: folder.name,
+				index
+			})),
+			items: [...folders, ...validActors].filter(item => !query || item.name.toLowerCase().includes(query)),
+			invalidItems: invalidActors,
+			treeFolders: this.#buildNestedTree(),
+    		currentFolderId: this.#currentLocationOnActorsTab.at(-1)?.id ?? null
 		};
 	}
 
@@ -154,11 +240,11 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 * Toggles the loading state of the app, blocking or unblocking interaction and re-rendering to show or hide the spinner.
 	 * @param {boolean} isLoading - True to show the spinner and block interaction, false to hide it and unblock.
 	 */
-	async #toggleLoading (isLoading) {
+	#toggleLoading (isLoading) {
 		pk5eLog(`pk5e (npc hp fixer): loading state <${isLoading}>`);
-		this.#isLoading = isLoading;
+		this.#isAppLoading = isLoading;
 		this.element.inert = isLoading;
-		await this.render();
+		this.element.classList.toggle("is-loading", isLoading);
 	}
 
 	/**
@@ -184,8 +270,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		});
 	}
 
-	// ! Handle Submit
-	// Esto todavía no lo hemos hecho, está pendiente
+	// todo: Handle Submit
 	static async #handleSubmit (event, form, formData) {
 		// Lo que está acá dentro es código genérico de prueba para mostrar cómo se puede manejar el submit del formulario,
 		// recolectar los datos y mostrar un resumen antes de ejecutar la lógica real de corrección de HP.
@@ -236,11 +321,50 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	}
 
 	/**
-	 * Indicates if the app is in the view and tab where elements can be dropped.
+	 * Indicates if the app is in the specified tab.
 	 * @returns {boolean} True if the app is in the correct view and tab, false otherwise.
 	 */
-	_canBeDroppedHere () {
-		return (this.#currentView === this.#VIEWS.ACTORS_SELECTION) && (this.#currentTab === this.#TABS.DROP);
+	isTheActiveTab(tab) {
+		return (this.#currentView === this.#VIEWS.ACTORS_SELECTION) && (this.#currentTab === tab);
+	}
+
+	/**
+	 * Builds a nested tree of Actor folders for the tree nav sidebar.  
+	 * @returns {Array} Array of root "folder nodes", each with { id, name, color, isCurrent, children }.  
+	 */  
+	#buildNestedTree() {  
+		const currentFolderId = this.#currentLocationOnActorsTab.at(-1)?.id ?? null;  
+	
+		const buildNode = (folder) => ({  
+			id: folder.id,  
+			name: folder.name,  
+			color: folder.color ?? null,  
+			isCurrent: folder.id === currentFolderId,  
+			children: folder.children.map(child => buildNode(child.folder))  
+		});  
+	
+		return game.folders  
+			.filter(f => f.type === "Actor" && !f.folder)  
+			.map(buildNode);  
+	}
+
+	/**  
+	 * Builds the full breadcrumb path (array of folders from root to the given folder).  
+	 * @param {Folder} folder - The target folder.  
+	 * @returns {Folder[]} Array of folders from root to the target.  
+	 */  
+	#buildBreadcrumbPath(folder) {
+		const path = [];  
+		let current = folder;  
+		while (current) {  
+			path.unshift(current); 		// ? Info: Usa .unshift porque llena el array desde el último elemento hasta el primero: Desde la carpeta pasada como argumento hasta la raíz
+			current = current.folder;	// ? .folder es la carpeta padre. Si no tiene carpeta padre es porque es una carpeta que ya está en la raíz (no está contenida en ninguna otra carpeta).
+		}  
+		return path;
+
+		// Ejemplo: Si doy como input la carpeta que se encuentra en "/ Hoenn / Fuego / Bebés" (la carpeta Bebés)
+		// El array se va llenando así: [Bebés] → [Fuego, Bebés] → [Hoenn, Fuego, Bebés]
+		// Se llena desde la carpeta dada hasta la raíz agregando a sus carpetas padres una a una al inicio del array
 	}
 
 	/**
@@ -255,6 +379,9 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		if (packageType === "module") return game.modules.get(packageName)?.title ?? packageName;
 	}
 
+	// ? Tal vez esto ya no se use. Hay que revisar. Ahora mismo las rutas para el breadcrumb las manejamos dentro de
+	// ? un array donde cada folder es un elemento, no como un único string, así que quizás a futuro toque adaptar esto
+	// ? o construir una función que pueda transformar el string a el array.
 	/**
 	 * Builds the root path for a compendium with its source: "Compendiums Tab / [Source] Label".
 	 * @param {Pack} compendium - The compendium for which to build the root path.
@@ -264,6 +391,9 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		return `Compendiums Tab / [${this.#getSourceName(compendium)}] ${compendium.metadata.label}`;
 	}
 
+	// ? Tal vez esto ya no se use. Hay que revisar. Ahora mismo las rutas para el breadcrumb las manejamos dentro de
+	// ? un array donde cada folder es un elemento, no como un único string, así que quizás a futuro toque adaptar esto
+	// ? o construir una función que pueda transformar el string a el array.
 	/**
 	 * Recursively builds the full path of a folder, including its parent folders (and compendium if applicable).
 	 * The path is built in the format "Compendiums (or Actors) Tab / [Source] Compendium Label (if applicable) / Parent Folder / Subfolder".
@@ -292,6 +422,22 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		else {
 			return `Actors Tab / ${folder.name}`;
 		}
+	}
+
+	/**
+	 * Recursively collects all documents in a folder and its subfolders, then returns
+	 * summary data about them: Whether all valid actors are selected, and the total count of valid actors.
+	 * @param {Folder} folder - The folder to analyze.
+	 * @returns {{ isSelected: boolean, validCount: number }} Returns { isSelected: false, validCount: 0 } if the folder has no valid actors.
+	 */
+	#getFolderSummaryData(folder) {
+		const entries = [];
+		this.#collectFolderEntries(folder, entries);
+		const validEntries = entries.filter(entry => this.#isValidEntry(entry.data));
+		const validCount = validEntries.length;
+		if (validCount === 0) return { isSelected: false, validCount: 0 };
+		const isSelected = validEntries.every(entry => this.#selectedActors.some(a => a.uuid === entry.uuid));
+		return { isSelected, validCount };
 	}
 
 	/**
@@ -371,7 +517,6 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		// Subfolders under this folder (Recursive call for each subfolder)
 		for (const child of folder.children) await this.#collectFolderWithCompendiumsEntries(child.folder, entries);
 	}
-
 
 	/**
 	 * Validates that a document is an Actor of type NPC with at least one class item whose name contains "Level".
@@ -453,7 +598,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		}
 
 		// Loading State ON
-		await this.#toggleLoading(true);
+		this.#toggleLoading(true);
+		await new Promise(resolve => setTimeout(resolve, 0)); // Para dar tiempo a renderizar el spinner en los casos síncronos
 
 		try {
 			// * Folder Dropped
@@ -527,9 +673,16 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 		} finally {
 			// Loading State OFF
-			await this.#toggleLoading(false);
+			this.#toggleLoading(false);
+			await this.render({ parts: ["footer"] });
 			if (addedCount > 0) this.#animateCounter();
 		}
+	}
+
+	async _onClose(options) {
+		await super._onClose(options);
+		Hooks.off("renderBaseActorSheet", this.#renderedActorHookIdForRemoveSpinner); // En cuanto se cierra la app hay que borrar el hook porque si no se sigue ejecutando incluso aunque la app esté cerrada. Y se pueden acumular porque se crea uno nuevo cada vez que se abre una nueva app. Esto es para evitar memory leaks.
+		this.#renderedActorHookIdForRemoveSpinner = null;
 	}
 
 	/**
@@ -540,11 +693,35 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 */
 	_onRender(context, options) {
 		super._onRender(context, options);
+		const contentWasRerendered = !options.parts || options.parts.includes("content");
+
+		//* Restaurar valor de la search bar (la searchQuery) tras re-renders del content
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {  
+			const searchBar = this.element.querySelector(".search-bar");  
+			if (searchBar) searchBar.value = this.#searchQuery;  
+		}
+
+		//* Search bar filtering
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {  
+			const searchBar = this.element.querySelector(".search-bar");  
+			searchBar?.addEventListener("input", (event) => {  
+				this.#searchQuery = event.target.value;  
+				const query = this.#searchQuery.toLowerCase().trim();  
+		
+				// El filtrado simplemente se encarga de ocultar (con css display none) aquellos
+				// elementos cuyos nombres no coincidan con la searchQuery
+				const content = this.element.querySelector(".selection-pane .content");  
+				content?.querySelectorAll(".item-container").forEach(itemContainer => {  
+					const nameHtmlElement = itemContainer.querySelector(".item .name span");  
+					const itemName = nameHtmlElement?.textContent?.toLowerCase() ?? "";  
+					itemContainer.style.display = (!query || itemName.includes(query)) ? "" : "none";  
+				});  
+			});  
+		}
 
 		//* Drag and Drop hightlighting
-		const dropZone = this.element.querySelector(".drop-zone");
-		if ( !dropZone || !this._canBeDroppedHere() ) return;
-
+		const dropZone = this.element.querySelector(".drop-zone"); // todo: Para mantener la misma estructura, en vez de tener la dropzone aquí quizás deberíamos hacer como los demás ifs que obtienen sus "content" dentro usando el querySelector dentro
+		if ( dropZone && this.isTheActiveTab(this.#TABS.DROP) ) {
 			// Drag Over
 			dropZone.addEventListener("dragover", (event) => {
 				event.preventDefault();
@@ -563,10 +740,258 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				dropZone.classList.remove("highlight");
 			});
 
-		//* Set Drag and Drop Handler
-		new DragDrop({
-			dropSelector: ".drop-zone",
-			callbacks: { drop: this._handleDrop.bind(this) }
-		}).bind(this.element);
+			//* Set Drag and Drop Handler
+			new DragDrop({
+				dropSelector: ".drop-zone",
+				callbacks: { drop: this._handleDrop.bind(this) }
+			}).bind(this.element);
+		}
+
+		//* Folder navigation (enter folder on click)
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {
+			const content = this.element.querySelector(".selection-pane .content");
+			content?.addEventListener("click", (event) => {
+				// Ignore clicks on the checkbox
+				if (event.target.classList.contains("check-button")) return;
+
+				const folderItem = event.target.closest(".folder-item");
+				if (!folderItem) return;
+
+				const folder = game.folders.get(folderItem.dataset.folderId);
+				if (!folder) return;
+
+				this.#currentLocationOnActorsTab.push(folder);
+				this.#searchQuery = "";
+				this.render({ parts: ["content"] });
+			});
+		}
+
+		//* Breadcrumb navigation
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {
+			const currentRoute = this.element.querySelector(".selection-pane .current-route");
+			currentRoute?.addEventListener("click", (event) => {
+				const segment = event.target.closest(".breadcrumb-segment[data-breadcrumb-index]");
+				if (!segment) return;
+
+				const index = parseInt(segment.dataset.breadcrumbIndex);
+
+				if (index === -1) {
+					// Navigate to root (ignore if already there)
+					if (this.#currentLocationOnActorsTab.length === 0) return;
+					this.#currentLocationOnActorsTab = [];
+				} else {
+					// Navigate to a specific point in the breadcrumb (slice up to and including that index)
+					this.#currentLocationOnActorsTab = this.#currentLocationOnActorsTab.slice(0, index + 1);
+				}
+
+				this.#searchQuery = "";
+				this.render({ parts: ["content"] });
+			});
+		}
+
+		//* Actor sheet open (click on actor) for Actors Tab
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {
+			const content = this.element.querySelector(".selection-pane");
+			content?.addEventListener("click", (event) => {
+				// Ignore clicks on the checkbox
+				if (event.target.classList.contains("check-button")) return;
+				if (event.target.classList.contains("lock-icon")) return;
+
+				const actorItem = event.target.closest(".actor-item");
+				if (!actorItem) return;
+
+				// Ignore if already loading
+				if (actorItem.classList.contains("loading")) return;
+
+				const uuid = actorItem.dataset.uuid;
+				actorItem.classList.add("loading");
+				this.#loadingActorsOnExplorer.set(uuid, actorItem); // Guarda el actor item en el map de actor items que están en espera por que sus fichas se rendericen (y que tienen el spinner loading activo)
+
+				fromUuidSync(uuid)?.sheet.render(true);
+			});
+		}
+
+		//* Invalid section toggle
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {
+			const invalidHeader = this.element.querySelector(".selection-pane .invalid-section-header");
+			invalidHeader?.addEventListener("click", () => {
+				invalidHeader.closest(".invalid-section").classList.toggle("expanded");
+			});
+		}
+
+		//* Actor checkbox toggle (for Actors tab)
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {
+			const content = this.element.querySelector(".selection-pane .content");
+			content?.addEventListener("change", (event) => {
+				if (!event.target.classList.contains("check-button")) return;
+				const actorItem = event.target.closest(".actor-item");
+				if (!actorItem) return;
+
+				const uuid = actorItem.dataset.uuid;
+				if (event.target.checked) {
+					if (this.#selectedActors.some(a => a.uuid === uuid)) return;
+					const actor = fromUuidSync(uuid);
+					const containerPath = actor.folder ? this.#buildFolderPath(actor.folder) : "Actors Tab";
+					this.#selectedActors.push({ name: actor.name, uuid, containerPath, data: actor });
+				} else {
+					this.#selectedActors = this.#selectedActors.filter(a => a.uuid !== uuid);
+				}
+
+				this.render({ parts: ["footer"] });
+				this.#animateCounter();
+			});
+		}
+
+		//* Folder checkbox toggle (for Actors tab)
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {
+			const content = this.element.querySelector(".selection-pane .content");
+			content?.addEventListener("change", async (event) => {
+				if (!event.target.classList.contains("check-button")) return;
+				const folderItem = event.target.closest(".folder-item");
+				if (!folderItem) return;
+
+				const folder = game.folders.get(folderItem.dataset.folderId);
+				if (!folder) return;
+
+				const isChecked = event.target.checked;
+				const validActorCount = parseInt(folderItem.dataset.validActorCount) || 0;
+
+				// Loading Spinner for 100 actors or more
+				if (validActorCount >= 100) {
+					this.#toggleLoading(true);
+					await new Promise(resolve => setTimeout(resolve, 0)); // Para dar tiempo a renderizar el spinner en los casos síncronos
+				}
+
+				const entries = [];
+				this.#collectFolderEntries(folder, entries);
+
+				// Empty folder: do nothing. The checkbox stays as-is until the next re-render (ex: by navigation).
+				const hasValidEntries = entries.some(e => this.#isValidEntry(e.data));
+				if (!hasValidEntries) {
+					this.#toggleLoading(false);
+					return;
+				}
+
+				let shouldAnimateFooterCounter = false;
+
+				try {
+					if (isChecked) {
+						// Add all valid actors from the folder
+						const addedCount = this.#processAndAddEntries(entries);
+						if (addedCount > 0) shouldAnimateFooterCounter = true;
+					} else {
+						// Remove all actors from the folder (and subfolders)
+						const uuidsToRemove = new Set(entries.map(e => e.uuid));
+						const previousCount = this.#selectedActors.length;
+						this.#selectedActors = this.#selectedActors.filter(a => !uuidsToRemove.has(a.uuid));
+						const removedCount = previousCount - this.#selectedActors.length;
+						if (removedCount > 0) {
+							ui.notifications.info(`Se han eliminado ${removedCount} entradas.`);
+							shouldAnimateFooterCounter = true;
+						}
+					}
+				} catch (error) {
+					ui.notifications.error("Ocurrió un error al procesar la carpeta. Revisa la consola para más detalles."); // todo: Reescribir ese mensaje de error
+					console.error("Error processing folder checkbox:", error);
+				} finally {
+					this.#toggleLoading(false);
+					this.render({ parts: ["footer"] }); // contador del footer
+					if (shouldAnimateFooterCounter) this.#animateCounter();
+				}
+			});
+		}
+
+		//* Select All button
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {
+			const selectAllBtn = this.element.querySelector(".select-all-button");
+			selectAllBtn?.addEventListener("click", async () => {
+				// Spinner siempre, sin excepción
+				this.#toggleLoading(true);
+				await new Promise(resolve => setTimeout(resolve, 0)); // Para dar tiempo a renderizar el spinner en los casos síncronos
+
+				const location = this.#currentLocationOnActorsTab.at(-1) ?? null;
+				const entries = [];
+				let shouldAnimateFooterCounter = false;
+
+				try {
+					// Dentro de una folder
+					if (location) {
+						this.#collectFolderEntries(location, entries);
+
+					// En la raíz de la tab
+					} else {
+						const rootFolders = game.folders.filter(f => f.type === "Actor" && !f.folder);
+						for (const folder of rootFolders) this.#collectFolderEntries(folder, entries);
+						const rootActors = game.actors.filter(a => !a.folder);
+						entries.push(...rootActors.map(a => ({
+							name: a.name,
+							uuid: a.uuid,
+							containerPath: "Actors Tab",
+							data: a
+						})));
+					}
+
+					const validEntries = entries.filter(e => this.#isValidEntry(e.data));
+					const areAllEntriesAlreadySelected = (validEntries.length > 0)
+						&& validEntries.every(e => this.#selectedActors.some(a => a.uuid === e.uuid));
+
+					const content = this.element.querySelector(".selection-pane .content");
+
+					if (areAllEntriesAlreadySelected) {
+						// Deseleccionar todas
+						const previousCount = this.#selectedActors.length;
+						const uuidsToRemove = new Set(validEntries.map(e => e.uuid)); 							// ? Info: Hacemos un set para poder hacer uso del método .has que es mucho más eficiente para verificar existencia que buscar dentro de un array con .some
+						this.#selectedActors = this.#selectedActors.filter(a => !uuidsToRemove.has(a.uuid)); 	// ? Este filtrado es mucho más rápido que trabajar con el array original de validEntries, y como seguramente esta app trabaje con una enorme cantidad de elementos, la eficiencia es crucial.
+						const removedCount = previousCount - this.#selectedActors.length;
+						if (removedCount > 0) {
+							ui.notifications.info(`Se han eliminado ${removedCount} entradas.`);
+							shouldAnimateFooterCounter = true;
+						}
+						content?.querySelectorAll(".check-button:not(:disabled)").forEach(cb => cb.checked = false);
+					} else {
+						// Seleccionar las que falten
+						const addedCount = this.#processAndAddEntries(entries);
+						content?.querySelectorAll(".check-button:not(:disabled)").forEach(cb => cb.checked = true);
+						if (addedCount > 0) shouldAnimateFooterCounter = true;
+					}
+
+				} catch (error) {
+					ui.notifications.error("Ocurrió un error al seleccionar todos. Revisa la consola para más detalles."); // todo: mejorar este log
+					console.error("Error selecting all:", error);
+				} finally {
+					this.#toggleLoading(false);
+					this.render({ parts: ["footer"] });  
+					if (shouldAnimateFooterCounter) this.#animateCounter();
+				}
+			});
+		}
+
+		//* Tree nav navigation  
+		if (contentWasRerendered && this.isTheActiveTab(this.#TABS.ACTORS)) {  
+			const treeNav = this.element.querySelector(".tree-nav");  
+			treeNav?.addEventListener("click", (event) => {  
+				const treeNode = event.target.closest(".tree-node");  
+				if (!treeNode) return;  
+		
+				const folderId = treeNode.dataset.folderId;  
+		
+				if (!folderId) {  
+					// Clic en el nodo raíz  
+					if (this.#currentLocationOnActorsTab.length === 0) return;  
+					this.#currentLocationOnActorsTab = [];  
+				} else {  
+					// Clic en un nodo carpeta  
+					if (this.#currentLocationOnActorsTab.at(-1)?.id === folderId) return; // Ya estamos allí: Se hizo clic en la carpeta actual en la que nos encontramos
+					const folder = game.folders.get(folderId);  
+					if (!folder) return;  
+					this.#currentLocationOnActorsTab = this.#buildBreadcrumbPath(folder);  
+				}  
+		
+				this.#searchQuery = "";
+				this.render({ parts: ["content"] });  
+			});  
+		}
+
 	}
+
 }

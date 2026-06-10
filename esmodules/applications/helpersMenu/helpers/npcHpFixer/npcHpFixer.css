@@ -1,21 +1,21 @@
 /** NPC HP Fixer */
 #pk5e-npc-hp-fixer form {
-	display: flex;
-	flex-direction: column;
 	height: 100%;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
 
 	/** Variables */
 	--fs-title: 20px;
 
 	/** Loading Overlay */
 	.loading-overlay {
+		display: none;
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
 		background-color: rgba(0, 0, 0, 0.5);
-		display: flex;
 		justify-content: center;
 		align-items: center;
 	}
@@ -52,10 +52,9 @@
 
 	/** Content Part */
 	.content-part {
-		flex-grow: 1;
 		display: flex;
-		align-items: center;
 		justify-content: center;
+		height: 455px;
 
 		/** All Views */
 		.view {
@@ -101,6 +100,7 @@
 
 		/** Actors Selection View */
 		.actors-selection-view {
+			height: 100%;
 
 			/** Drop Tab */
 			.drop-tab.active {
@@ -150,27 +150,110 @@
 				}
 			}
 
+			/* Tree Nav */
+			.tree-nav {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				min-height: 0;
+				grid-column: 1;
+				grid-row: 2;
+
+				.tree-content {
+					flex-grow: 1;
+					min-height: 0;
+					overflow-y: auto;
+					padding: 0 15px;
+					margin-right: 3px;
+
+					.tree-node {
+						display: flex;
+						align-items: center;
+						gap: 6px;
+						padding: 4px 10px;
+						cursor: pointer;
+						border-radius: 4px;
+						color: var(--color-text-light-5);
+						user-select: none;
+
+						i {
+							flex-shrink: 0;
+							font-size: 14px;
+						}
+
+						.tree-node-name {
+							font-size: 15px;
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
+						}
+
+						&:hover {
+							background-color: var(--color-dark-3);
+							color: var(--color-text-primary);
+							transition: all 0.2s ease;
+						}
+
+						&.current {
+							background-color: var(--color-dark-3);
+							color: var(--color-text-primary);
+							font-weight: bold;
+						}
+					}
+
+					.tree-children {
+						padding-left: 18px;
+					}
+				}
+			}
+
 			/** Actors Tab */
 			.actors-tab.active {
 				width: 100%;
 				height: 100%;
 				display: grid;
-				grid-template-columns: 250px 1fr;
+				grid-template-rows: auto 1fr auto;
+				grid-template-columns: 250px auto 1fr;
+				gap: 0;
 
-				.tree-nav {
-					width: 100%;
-					height: 100%;
-					outline: 1px solid red;
+				/* Líneas divisorias */
+				.tab-divider {
+					background-color: var(--color-text-dark-5);
+					opacity: 0.3;
+
+					&.horizontal-top {
+						grid-column: 1 / -1;
+						grid-row: 1;
+						height: 0px;
+						margin: 10px;
+					}
+
+					&.vertical-mid {
+						grid-column: 2;
+						grid-row: 2;
+						width: 1px;
+						height: calc(100% - 20px);
+						align-self: center;
+					}
+
+					&.horizontal-bottom {
+						grid-column: 1 / -1;
+						grid-row: 3;
+						height: 1px;
+						margin: 20px;
+						margin-top: 15px;
+					}
 				}
 
 				.selection-pane {
 					height: 100%;
-					padding: 15px;
-					outline: 1px solid white;
+					padding-right: 15px;
 					display: flex;
-					flex-grow: 1;
 					flex-direction: column;
-					gap: 10px;
+					gap: 15px;
+					min-height: 0;
+					grid-column: 3;
+					grid-row: 2;
 
 					.header {
 						display: flex;
@@ -180,14 +263,43 @@
 						.current-route {
 							margin: 0;
 							font-size: 18px;
+							margin-left: 30px;
+							max-width: 600px;
+							color: var(--color-text-light-5);
+
+							.breadcrumb-segment {
+								cursor: pointer;
+								max-width: 200px;
+								white-space: nowrap;
+								overflow: hidden;
+								text-overflow: ellipsis;
+								display: inline-block;
+								vertical-align: middle;
+							}
+
+							.breadcrumb-segment:hover {
+								color: var(--color-text-primary);
+								transition: all 0.5s ease;
+							}
+
+							.separator {
+								margin: 0 5px;
+							}
+
+							.breadcrumb-segment.current {
+								cursor: default;
+								color: var(--color-text-primary);
+							}
+
 						}
 
 						.search-bar-container {
-							width: 200px;
+							width: 250px;
 							position: relative;
-							display: inline-block;
+							display: flex;
+							align-items: center;
 
-							.icon {
+							> .icon {
 								position: absolute;
 								left: 10px;
 								top: 50%;
@@ -200,31 +312,43 @@
 								width: 100%;
 								padding: 10px 10px 10px 32px;
 							}
+
+							.select-all-button {
+								border: none;
+								padding: 0;
+								margin-left: 10px;
+
+								.icon {
+									font-size: 30px;
+								}
+
+								&:focus-visible, &:focus {
+									outline: none;
+									box-shadow: none;
+								}
+							}
 						}
 					}
 
-					.content {
+					.content, .invalid-content {
 						flex-grow: 1;
-						outline: 1px solid cyan;
+						min-height: 0;
+						overflow-y: scroll;
 
 						display: grid;
 						grid-template-columns: repeat(6, minmax(0, 1fr));
 						gap: 15px 5px;
-						align-content: start;
-
-						/* Scroll */
-						overflow-y: auto;
-						max-height: 100%;
 						padding: 10px;
 
 						.item-container {
 							width: 100%;
-							height: 100%;
+							height: fit-content;
 							display: flex;
 							justify-content: center;
 							min-width: 0;
 
 							.item {
+								border-radius: 10px;
 								display: flex;
 								flex-direction: column;
 								align-items: center;
@@ -233,11 +357,48 @@
 								width: 80%;
 								height: 100%;
 								padding: 8px 0;
+								position: relative;
+								outline: 2px solid transparent;
+
+								.item-spinner {
+									display: none;
+									position: absolute;
+									inset: 0;
+									border-radius: 10px;
+									justify-content: center;
+									align-items: center;
+									font-size: 30px;
+									color: white;
+									z-index: 1;
+								}
+
+								.check-button {
+									position: absolute;
+									top: 3px;
+									right: 3px;
+									width: 20px;
+									height: 20px;
+									display: flex;
+									justify-content: center;
+									align-items: center;
+									background-color: var(--checkbox-background-color);
+
+									&::before {
+										outline: 1px solid var(--color-form-label);
+									}
+
+									&::after {
+										width: fit-content;
+										height: fit-content;
+										line-height: normal;
+										text-align: center;
+									}
+								}
 
 								.icon, .img {
-									width: 50px;
-									height: 50px;
-									font-size: 50px;
+									width: 80px;
+									height: 80px;
+									font-size: 60px;
 									display: flex;
 									align-items: center;
 									justify-content: center;
@@ -255,7 +416,7 @@
 									width: 100%;
 
 									span {
-										font-size: 12px;
+										font-size: 13px;
 										display: -webkit-box;
 										line-clamp: 2;
 										-webkit-line-clamp: 2;
@@ -267,35 +428,133 @@
 								}
 							}
 
-							/* TODO: Me gustaría entender esta animación, sigo siendo muy amateur con animaciones css */
 							.item:hover {
-								transform: scale(1.1);
-								transition: transform 0.2s ease;
-								box-shadow: 0 0 8px var(--color-form-label);
-								border-radius: 10px;
-								outline: 2px solid var(--color-form-label);
+								outline-color: var(--color-form-label);
 								background-color: var(--color-dark-3);
-								color: var(--color-form-label);
-								text-shadow: 0 0 8px var(--color-form-label-hover);
-								opacity: 0.9;
-								filter: drop-shadow(0 0 4px var(--color-form-label));
-								z-index: 1;
-								position: relative;
-								transition: all 0.2s ease;
-								animation: pulseAnimation 1.5s infinite;
-								@keyframes pulseAnimation {
-									0% {
-										box-shadow: 0 0 8px var(--color-form-label);
-									}
-									50% {
-										box-shadow: 0 0 16px var(--color-form-label);
-									}
-									100% {
-										box-shadow: 0 0 8px var(--color-form-label);
-									}
+								transition: all 0.5s ease;
+							}
+
+							.item.invalid {
+								opacity: 0.4;
+
+								.check-button {
+									cursor: not-allowed;
 								}
 							}
 
+							.item.invalid:hover {
+								outline-color: transparent;
+								background-color: transparent;
+							}
+
+							.actor-item.loading {
+								pointer-events: none;
+
+								.item-spinner {
+									display: flex;
+								}
+
+								.img {
+									opacity: 0.3;
+								}
+							}
+
+							.actor-item.invalid.loading {
+								opacity: 1;
+
+								.img {
+									opacity: 0.15;
+								}
+							}
+						}
+					}
+
+					.content.empty {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+						align-items: center;
+
+						.empty-location-msg {
+							color: var(--color-dark-5);
+							text-align: center;
+
+							.icon {
+								font-size: 80px;
+								margin-bottom: 10px;
+							}
+
+							.text {
+								margin: 0;
+								color: var(--color-dark-5);
+							}
+						}
+					}
+
+
+					.invalid-section {
+						flex-shrink: 0;
+
+						.invalid-section-header {
+							cursor: pointer;
+							display: flex;
+							align-items: center;
+							gap: 8px;
+							padding: 5px 20px;
+							color: var(--color-text-light-5);
+							user-select: none;
+
+							.icon {
+								margin-left: 3px;
+								transition: all 0.2s ease;
+							}
+
+							.text {
+								flex-shrink: 0;
+								width: fit-content;
+							}
+
+							.separator-line {
+								height: 1px;
+								width: 100%;
+								border-bottom: 1px solid var(--color-text-dark-5);
+							}
+						}
+
+						.invalid-section-header:hover {
+							color: var(--color-text-primary);
+						}
+
+						.invalid-content {
+							height: 0;
+							padding: 0;
+							display: grid;
+							overflow: hidden;
+							transition: all 0.2s ease;
+
+							.item-container {
+								position: relative;
+
+								.lock-icon {
+									position: absolute;
+									top: 10px;
+									right: 10px;
+									cursor: not-allowed;
+								}
+							}
+						}
+
+						&.expanded {
+							.invalid-section-header .icon {
+								transform: rotate(-180deg);
+							}
+
+							.invalid-content {
+								height: 150px;
+								padding: 10px;
+								overflow-y: scroll;
+								transition: all 0.2s ease;
+							}
 						}
 					}
 				}
@@ -342,4 +601,9 @@
 			}
 		}
 	}
+}
+
+/* Show Loading Overlay */
+#pk5e-npc-hp-fixer.is-loading form .loading-overlay {
+	display: flex;
 }
