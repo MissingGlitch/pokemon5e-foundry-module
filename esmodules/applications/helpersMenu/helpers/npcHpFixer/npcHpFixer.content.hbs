@@ -2,12 +2,12 @@
 	{{!-- Intro View --}}
 	{{#if views.intro.active}}
 	<div class="view intro-view">
-		<h3 class="title">Corrector de Actualizado de HP de Pokémon</h3>
-		<p class="subtitle">Antes de la 0.11, muchos pokémon del módulo no actualizaban su hp cuando se cambiaba su modificador de constitución.<br/>Este corrector realiza los ajustes necesarios dentro de los actores npc de los pokémon para que la actualización de su hp sí funcione según se cambie su modificador de constitución.</p>
+		<h3 class="title">Pokémon HP Update Fixer</h3>
+		<p class="subtitle">Before version 0.11, many Pokémon in the module did not update their HP when their Constitution modifier was changed.<br/>This fixer applies the necessary adjustments inside the Pokémon NPC actors so that HP updates correctly whenever the Constitution modifier is changed.</p>
 
 		<div class="button-container">
 			<button class="button" data-action="moveToActorsSelectionView">
-				Seleccionar los pokémon npc a corregir
+    			Select the Pokémon NPCs to fix
 				<i class="fa-solid fa-arrow-right"></i>
 			</button>
 		</div>
@@ -26,157 +26,33 @@
 			<div class="drop-zone">
 				<div class="drop-info">
 					<i class="icon fa-light fa-folder-arrow-up"></i>
-					<h3 class="text">Arrastra y suelta aquí tus actores npc pokémon<br/>(también carpetas o compendios)</h3>
+					<h3 class="text">Drag and drop your Pokémon NPC actors here<br/>(folders and compendiums also supported)</h3>
 				</div>
 			</div>
 		</section>
 
 		{{!-- Actors Tab --}}
-		{{!-- todo: Como la Compenidums Tab será exactamente igual, quizás podríamos hacer todo esto un partial para luego usarlo en ambas tabs, simplemente cambiando lo que haga falta --}}
-		<section class="tab actors-tab {{#if tabs.actors.active}}active{{/if}}" data-group="content" data-tab="actors">  
-			{{#if actorsTab}}
-
-				{{!-- Línea divisoria superior: Es solo margen, separa la "header part" del content de la tab --}}
-				<div class="tab-divider horizontal-top"></div>
-
-				{{!-- Tree Navigation Sidebar --}}
-				<section class="tree-nav">
-					<div class="tree-content">
-						{{!-- Nodo raíz --}}
-						<div class="tree-node root-node {{#unless actorsTab.currentFolderId}}current{{/unless}}" data-folder-id="">  
-							<i class="fa-solid fa-house"></i>
-							<span class="tree-node-name">Actors Tab</span>
-						</div>
-
-						{{!-- Árbol de carpetas --}}
-						{{#each actorsTab.treeFolders}}
-							<div class="tree-children">
-								{{> pk5e-tree-node this}}
-							</div>
-						{{/each}}
-					</div>
-				</section>
-
-				{{!-- Línea divisoria vertical intermedia: Separa el tree nav del selection pane --}}
-				<div class="tab-divider vertical-mid"></div>
-
-				{{!-- Selection Pane --}}
-				<section class="selection-pane">
-					<div class="header">
-						{{!-- Current Route --}}
-						<h3 class="current-route">
-							<span class="breadcrumb-segment {{#unless actorsTab.breadcrumb.length}}current{{/unless}}" data-breadcrumb-index="-1" data-tooltip="Actors Tab">
-								Actors Tab
-							</span>
-							{{#each actorsTab.breadcrumb}}
-								<span class="separator"> > </span>
-								{{#if @last}}
-									<span class="breadcrumb-segment current" data-tooltip="{{name}}">
-										{{name}}
-									</span>
-								{{else}}
-									<span class="breadcrumb-segment" data-breadcrumb-index="{{index}}" data-tooltip="{{name}}">
-										{{name}}
-									</span>
-								{{/if}}
-							{{/each}}
-							<span class="separator"> > </span>
-						</h3>
-
-						{{!-- Search Bar --}}
-						<div class="search-bar-container">
-							<i class="icon fa-solid fa-magnifying-glass"></i>
-							<input class="search-bar" type="text" placeholder="Buscar por nombre...">
-							<button class="select-all-button" type="button" data-tooltip="Select All">
-								<i class="icon fa-light fa-square-check"></i>
-							</button>
-						</div>
-					</div>
-
-					{{!-- Content Grid --}}
-					<div class="content {{#unless actorsTab.items.length}}empty{{/unless}}">
-						{{#each actorsTab.items}}
-						<div class="item-container">
-							{{#if isFolder}}
-								{{!-- Folders --}}
-								<div class="item folder-item" data-folder-id="{{id}}" data-valid-actor-count="{{validCount}}">
-									<input type="checkbox" class="check-button" {{#if isSelected}}checked{{/if}}>
-									{{#if color}}
-										<i class="icon fa-solid fa-folder" style="color: {{color}}"></i>
-									{{else}}
-										<i class="icon fa-light fa-folder"></i>
-									{{/if}}
-									<div class="name" data-tooltip="{{name}}"> <span>{{name}}</span> </div>
-								</div>
-							{{else}}
-								{{!-- Actors --}}
-								<div class="item actor-item" data-uuid="{{uuid}}" data-tooltip="{{name}}">
-									<input type="checkbox" class="check-button" {{#if isSelected}}checked{{/if}}>
-									<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
-									<img class="img" src="{{img}}" alt="{{name}}">
-									<div class="name"> <span>{{name}}</span> </div>
-								</div>
-							{{/if}}
-						</div>
-						{{/each}}
-
-						{{#unless actorsTab.items.length}}
-						<div class="empty-location-msg">
-							<i class="icon fa-duotone fa-regular fa-folder-open"></i>
-							{{#if actorsTab.breadcrumb.length}}
-								<h3 class="text">Esta carpeta está vacía</h3>
-							{{else}}
-								<h3 class="text">La Actor Sidebar está vacía</h3>
-							{{/if}}
-						</div>
-						{{/unless}}
-					</div>
-
-					{{!-- Invalid Actors Section --}}
-					{{#if actorsTab.invalidItems.length}}
-					<div class="invalid-section">
-
-						<div class="invalid-section-header">
-							<div class="separator-line"></div>
-
-							<div class="text">
-								Actores Inválidos ({{actorsTab.invalidItems.length}})
-								<i class="icon fa-solid fa-chevrons-down"></i>
-							</div>
-
-							<div class="separator-line"></div>
-						</div>
-
-						<div class="invalid-content">
-							{{#each actorsTab.invalidItems}}
-							<div class="item-container">
-								<div class="item actor-item invalid" data-uuid="{{uuid}}" data-tooltip="{{name}}">
-									{{!-- Checkbox Bloqueada --}}
-									<input type="checkbox" class="check-button" disabled>
-									<i class="lock-icon fa-solid fa-lock"></i>
-
-									{{!-- Spinner para cuando se abra la ficha --}}
-									<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
-
-									{{!-- Imagen y Nombre del Actor --}}
-									<img class="img" src="{{img}}" alt="{{name}}">
-									<div class="name"> <span>{{name}}</span> </div>
-								</div>
-							</div>
-							{{/each}}
-						</div>
-
-					</div>
-					{{/if}}
-				</section>
-
-				{{!-- 5. Línea divisoria inferior: Separa el content de la Footer Part --}}
-				<div class="tab-divider horizontal-bottom"></div>
-			{{/if}}
+		<section class="tab actors-tab {{#if tabs.actors.active}}active{{/if}}" data-group="content" data-tab="actors">
+			{{> pk5e-file-explorer
+				tabData=actorsTab
+				rootLabel="Actors Tab"
+				emptyRootIconClass="fa-duotone fa-regular fa-folder-open"
+				emptyRootMsg="The Actor Sidebar is empty"
+				emptyFolderMsg="This folder is empty"
+			}}
 		</section>
 
 		{{!-- Compendiums Tab --}}
-		<section class="tab compendiums-tab {{#if tabs.compendiums.active}}active{{/if}}" data-group="content" data-tab="compendiums">Sección de Compendios</section>
+		<section class="tab compendiums-tab {{#if tabs.compendiums.active}}active{{/if}}" data-group="content" data-tab="compendiums">
+            {{> pk5e-file-explorer
+                tabData=compendiumsTab
+                rootLabel="Compendiums Tab"
+                emptyRootIconClass="fa-duotone fa-regular fa-book-open-reader"
+                emptyRootMsg="The Compendiums Sidebar is empty"
+                emptyFolderMsg="This folder is empty"
+                emptyCompendiumMsg="This compendium is empty"
+            }}
+		</section>
 	</div>
 	{{/if}}
 

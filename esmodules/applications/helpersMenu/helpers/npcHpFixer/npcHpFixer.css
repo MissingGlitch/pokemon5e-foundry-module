@@ -207,8 +207,9 @@
 				}
 			}
 
-			/** Actors Tab */
-			.actors-tab.active {
+			/** Actors and Compendiums Tab (Explorer) */
+			.actors-tab.active,
+			.compendiums-tab.active {
 				width: 100%;
 				height: 100%;
 				display: grid;
@@ -275,6 +276,14 @@
 								text-overflow: ellipsis;
 								display: inline-block;
 								vertical-align: middle;
+
+								i {
+									font-size: 16px;
+								}
+
+								i.fa-book-atlas {
+									margin-right: 2px;
+								}
 							}
 
 							.breadcrumb-segment:hover {
@@ -463,6 +472,19 @@
 								opacity: 1;
 
 								.img {
+									opacity: 0.15;
+								}
+							}
+
+							.invalid-compendium-item.loading {
+								pointer-events: none;
+								opacity: 1;
+
+								.item-spinner {
+									display: flex;
+								}
+
+								.icon {
 									opacity: 0.15;
 								}
 							}

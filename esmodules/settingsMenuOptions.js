@@ -120,12 +120,17 @@ Hooks.once("init", () => {
 Hooks.once("init", async () => {
 	// Load partials for Helpers
     await loadTemplates([
-        "modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/tree-node.hbs"
+        "modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/tree-node.hbs",
+        "modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/file-explorer.hbs"
     ]);
 
     // Registrar con nombre corto para poder usarlo en los hbs más fácilmente
     Handlebars.registerPartial(
         "pk5e-tree-node",
-        Handlebars.partials["modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/tree-node.hbs"]  
+        Handlebars.partials["modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/tree-node.hbs"]
+    );
+    Handlebars.registerPartial(
+        "pk5e-file-explorer",
+        Handlebars.partials["modules/pokemon5e/esmodules/applications/helpersMenu/helpers/npcHpFixer/file-explorer.hbs"]
     );
 });
