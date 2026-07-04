@@ -1,4 +1,6 @@
-{{!-- todo: Agregar comentarios como los del file explorer que expliquen que esto es un partial y en qué consiste y qué usa --}}
+{{!-- Recursive partial for a single tree navigation node (folder or compendium) --}}
+{{!-- Used by: pk5e-file-explorer.hbs (tree nav sidebar), and recursively by itself for child nodes --}}
+{{!-- Parameters: id, nodeType, isCurrent, isCompendium, color, name, children --}}
 
 <div class="tree-node {{#if isCurrent}}current{{/if}}" data-node-id="{{id}}" data-node-type="{{nodeType}}">
 

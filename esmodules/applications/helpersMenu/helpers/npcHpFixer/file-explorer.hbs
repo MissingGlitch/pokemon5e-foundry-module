@@ -48,7 +48,7 @@
 			{{!-- Search Bar --}}
 			<div class="search-bar-container">
 				<i class="icon fa-solid fa-magnifying-glass"></i>
-				<input class="search-bar" type="text" placeholder="Buscar por nombre...">
+				<input class="search-bar" type="text" placeholder="Search by name...">
 				<button class="select-all-button" type="button" data-tooltip="Select All">
 					<i class="icon fa-light fa-square-check"></i>
 				</button>
@@ -103,44 +103,44 @@
 		{{!-- Invalid Entries Section --}}
 		{{!-- todo: Revisar y reescribir   --}}
 		{{#if tabData.invalidItems.length}}
-		<div class="invalid-section">
+			<div class="invalid-section">
 
-			<div class="invalid-section-header">
-				<div class="separator-line"></div>
-				<div class="text">
-    				Invalid Entries ({{tabData.invalidItems.length}})
-					<i class="icon fa-solid fa-chevrons-down"></i>
+				<div class="invalid-section-header">
+					<div class="separator-line"></div>
+					<div class="text">
+						Invalid Entries ({{tabData.invalidItems.length}})
+						<i class="icon fa-solid fa-chevrons-down"></i>
+					</div>
+					<div class="separator-line"></div>
 				</div>
-				<div class="separator-line"></div>
-			</div>
 
-			<div class="invalid-content">
-				{{#each tabData.invalidItems}}
-				<div class="item-container">
-					{{#if isInvalidCompendium}}
-						{{!-- Non-actor compendium: not navigable, can only be opened --}}
-						<div class="item invalid-compendium-item invalid" data-node-id="{{id}}" data-tooltip="{{name}}">
-							<input type="checkbox" class="check-button" disabled>
-							<i class="lock-icon fa-solid fa-lock"></i>
-							<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
-							<i class="icon fa-solid fa-book-atlas"></i>
-							<div class="name"> <span>{{name}}</span> </div>
+				<div class="invalid-content">
+					{{#each tabData.invalidItems}}
+						<div class="item-container">
+							{{#if isInvalidCompendium}}
+								{{!-- Non-actor compendium: not navigable, can only be opened --}}
+								<div class="item invalid-compendium-item invalid" data-node-id="{{id}}" data-tooltip="{{name}}">
+									<input type="checkbox" class="check-button" disabled>
+									<i class="lock-icon fa-solid fa-lock"></i>
+									<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+									<i class="icon fa-solid fa-book-atlas"></i>
+									<div class="name"> <span>{{name}}</span> </div>
+								</div>
+							{{else}}
+								{{!-- Invalid actor --}}
+								<div class="item actor-item invalid" data-uuid="{{uuid}}" data-tooltip="{{name}}">
+									<input type="checkbox" class="check-button" disabled>
+									<i class="lock-icon fa-solid fa-lock"></i>
+									<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+									<img class="img" src="{{img}}" alt="{{name}}">
+									<div class="name"> <span>{{name}}</span> </div>
+								</div>
+							{{/if}}
 						</div>
-					{{else}}
-						{{!-- Invalid actor --}}
-						<div class="item actor-item invalid" data-uuid="{{uuid}}" data-tooltip="{{name}}">
-							<input type="checkbox" class="check-button" disabled>
-							<i class="lock-icon fa-solid fa-lock"></i>
-							<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
-							<img class="img" src="{{img}}" alt="{{name}}">
-							<div class="name"> <span>{{name}}</span> </div>
-						</div>
-					{{/if}}
+					{{/each}}
 				</div>
-				{{/each}}
-			</div>
 
-		</div>
+			</div>
 		{{/if}}
 	</section>
 

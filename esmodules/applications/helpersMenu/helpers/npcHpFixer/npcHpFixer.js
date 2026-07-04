@@ -1,22 +1,43 @@
-// ? Notita (23/06/2026):
-// Holis. Ya terminamos todas las tabs. Ahora toca hacer el footer y la sección de resumen de los seleccionados para poderlos borrar.
-// También colocamos todo en inglés. Al final hay que testear todo para probar que todo funciona.
+// ================================================================================
+// 📝 NOTITA DE LA SESIÓN — 04/07/2026
+// ================================================================================
+
+// ¡Holis, bebito lindo! ✨
+// Aquí tienes tu resumen súper personal de lo que estuvimos mimando hoy en el código.
+
+// Hoy nos concentramos en pulir y corregir cositas del footer para dejarlo
+// completito y hermoso antes de hacer el commit. ¡Ya está listo para pasar al submit! 🥳
+
+// ¿Qué cositas lindas le arreglamos y agregamos?
+// Corregimos el cálculo de containerPathForLabel: cambiamos el doble .replace() feo
+// por una expresión regular /Actors|Compendiums/ más limpia y elegante. 💅
+// Añadimos que el .summary-header también colapse y expanda el panel al hacerle clic,
+// ignorando los botones internos como el de la basura. 🖱️
+// Arreglamos el spinner global para que ahora sí tape el footer completito:
+// position: relative en el form y z-index: 100 en el .loading-overlay. 🕳️ → ✅
+// De paso, el spinner quedó bien centrado en toda la app también. 🎯
+// ¡Y los dialogs de confirmación ya están centrados también! 📦
+
+// ¿Qué nos queda pendiente, amor?
+// Lo más importante: darle vida al botón grandote de "Fix Selected" (#submitForm)
+// para que por fin cure los puntos de vida de todos los NPCs elegidos. 💊
+// También quedó pendiente para otra sesión el descentrado de las checkboxes y
+// candados en los ítems de la segunda fila en adelante. ☑️
+// Al terminar el submit, ¡testeo total para comprobar que todo corra a la perfección! ¡Sipi! 💕
 
 // todo (app): Cositas grandes que faltan por hacer
-// - El footer donde poder ver los actores añadidos y poder quitarlos. Creo que ni siquiera hemos definido cómo se verá eso.
-// - El botón de Corregir Seleccionados (el botón de submit).
+// - El botón de Corregir Seleccionados (el botón de submit / #submitForm). ← ¡EL SIGUIENTE!
+
+// todo (explorers): Cositas pequeñas mejorables
+// - La checkbox de los actores y los candados de los actores no válidos están ligeramente
+//   descentrados en los ítems de la segunda fila en adelante (tanto en Firefox como en Chrome).
+// - meter modo debug con logs a todas las posibles pequeñas acciones que se pueden realizar
+//   con la app, con info extra en la consola (data de los actores, etc)
 
 // ? Notas adicionales para cuando se saque la update:
 // también se hizo una pequeña corrección en el autoUpdateMoves y en el kriketot (no sé si se escribe así).
 // No se puede abrir el move manager desde una ficha del compendio (lo cual tiene sentido). Hay que hacer una alerta que indique que la razón es esa: Que no se puede abrir el move manager desde una ficha de compendio, tiene que ser una ficha de un actor del mundo, no del compendio.
 // Por lo visto hay varios pokémon que no tienen bien sus TMs. En su biografía las tienen vacías, y eso produce un error cuando se intenta abrir el gestor de movimientos. Deberíamos hacer que el gestor sea a prueba de ese tipo de errores y que se pueda abrir igualmente, y ejecutar un script para identificar todos los pokémon que tengan esa particularidad en la biografía (sin TMs). Combee y Kricketot eran de ellos. Aparentemente el problema es que en el json de los pokémon hay pokémon con la propiedad TM de los movimientos que es un array vacío. Habría que ubicarlos a todos y corregirlos.
-
-// todo (explorers): Cositas pequeñas mejorables
-// - La checkbox de los actores, al marcarla, no está centrada como la de las carpetas.
-// Quizás en chrome difiera, pero ahora mismo en firefox es cierto que no se ven del todo centradas, lo mismo con los candados de los actores no válidos. Están ligeramente más hacia abajo. Y la de los actores ligeramente más hacia arriba en vez de centradas.
-// no no, por lo visto es que solo sucede con aquellos items de la segunda fila en adelante, si una carpeta está en la segunda fila, su checkbox marcada también está ligeramente descentrada como la de los actores.
-// Los dialogs no están centrados, al menos en la tab de drop, no sé si en las otras sí lo esté.
-// El spinner de carga global de la app no parece centrado tampoco.
 
 // ? ¿Qué guarda selectedActors?
 // ? Guarda objetos {name, uuid, containerPath, data} donde data es el actor completo (objeto Actor). No solo el uuid.
@@ -164,7 +185,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		const selectedTab = target.dataset.tab;
 		if ( !selectedTab ) return;
 		this.#currentTab = selectedTab;
-		this.render();
+		this.render({ parts: ["header", "content"] });
 	}
 
 	/**
@@ -432,6 +453,24 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		return canDebugLogsBeShown;
 	}
 
+	/**
+	 * Toggles the visibility state of the footer summary panel.
+	 * Adds or removes the "expanded" class from the footer and dynamically updates
+	 * the tooltip text of the expand button to reflect the current state.
+	 * @private
+	 */
+	#toggleFooterSummary() {
+		const footerPart = this.element.querySelector(".footer-part");
+		const expandButton = this.element.querySelector(".expand-summary-button");
+
+		footerPart?.classList.toggle("expanded");
+		const isExpanded = footerPart?.classList.contains("expanded") ?? false;
+
+		if (expandButton) {
+			expandButton.dataset.tooltip = isExpanded ? "Hide Summary" : "Show Summary";
+		}
+	}
+
 	//* Prepare Context for HBS files
 	/**
 	 * Prepares the context for the Handlebars, providing variables that can be used inside the templates.
@@ -439,7 +478,15 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 */
 	async _prepareContext() {
 		return {
-			selectedActors: this.#selectedActors,
+			selectedActors: this.#selectedActors.map(entry => {
+				return {
+					...entry,
+					containerPathForLabel: entry.containerPath.replace(/Actors|Compendiums/, "").trim(),
+					sourceIconClass: entry.containerPath.startsWith("Compendiums Tab")
+						? "fa-solid fa-book-atlas"
+						: "fa-solid fa-user"
+				}
+			}),
 			views: {
 				intro: { active: this.#currentView === this.#VIEWS.INTRO },
 				actorsSelection: { active: this.#currentView === this.#VIEWS.ACTORS_SELECTION }
@@ -1279,6 +1326,18 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		if (packageType === "module") return game.modules.get(packageName)?.title ?? packageName;
 	}
 
+	/**
+	 * Recursively builds the path of a Compendium-type sidebar folder chain.
+	 * @param {Folder|null} folder - The sidebar folder, or null if at root.
+	 * @returns {string} The path up to and including this folder.
+	 * @private
+	 */
+	#buildSidebarFolderPath (folder) {
+		const separator = ">";
+		if (!folder) return "Compendiums Tab";
+		return `${this.#buildSidebarFolderPath(folder.folder)} ${separator} ${folder.name}`;
+	}
+
 	// ? Tal vez esto ya no se use. Hay que revisar. Ahora mismo las rutas para el breadcrumb las manejamos dentro de
 	// ? un array donde cada folder es un elemento, no como un único string, así que quizás a futuro toque adaptar esto
 	// ? o construir una función que pueda transformar el string a el array.
@@ -1289,7 +1348,9 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 * @private
 	 */
 	#buildCompendiumRootPath (compendium) {
-		return `Compendiums Tab / [${this.#getSourceName(compendium)}] ${compendium.metadata.label}`;
+		const separator = ">";
+		const sidebarPath = this.#buildSidebarFolderPath(compendium.folder ?? null);
+		return `${sidebarPath} ${separator} [${this.#getSourceName(compendium)}] ${compendium.metadata.label}`;
 	}
 
 	// ? Tal vez esto ya no se use. Hay que revisar. Ahora mismo las rutas para el breadcrumb las manejamos dentro de
@@ -1303,11 +1364,13 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 * @private
 	 */
 	#buildFolderPath (folder) {
+		const separator = ">";
+
 		// Recursion:
 		// if the folder has a parent folder, build the path of the parent first, then add the current folder name at the end.
 		if (folder.folder) {
 			const parentPath = this.#buildFolderPath(folder.folder);
-			return `${parentPath} / ${folder.name}`;
+			return `${parentPath} ${separator} ${folder.name}`;
 		}
 
 		// Recursion End 1:
@@ -1315,14 +1378,14 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		// If it's in a compendium, the root of the path is the compendium name.
 		if (folder.pack) {
 			const compendium = game.packs.get(folder.pack);
-			return `${this.#buildCompendiumRootPath(compendium)} / ${folder.name}`;
+			return `${this.#buildCompendiumRootPath(compendium)} ${separator} ${folder.name}`;
 		}
 
 		// Recursion End 2:
 		// if the folder doesn't have a parent and is not in a compendium,
 		// it's a folder in the Actors tab, so the root of the path is "Actors Tab".
 		else {
-			return `Actors Tab / ${folder.name}`;
+			return `Actors Tab ${separator} ${folder.name}`;
 		}
 	}
 
@@ -1531,7 +1594,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 		if (showFirstLoadDialog) {
 			const confirmed = await this.#showTooManyActorsDialog(dialogLabel, dialogCount, "entries");
-    		if (!confirmed) return;
+			if (!confirmed) return;
 
 		} else if (showConfirmDialog) {
 			const confirmed = await this.#showTooManyActorsDialog(dialogLabel, dialogCount, "valid");
@@ -1645,6 +1708,115 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	_onRender(context, options) {
 		super._onRender(context, options);
 		const contentWasRerendered = !options.parts || options.parts.includes("content");
+		const footerWasRerendered = !options.parts || options.parts.includes("footer");
+
+		//* Expand/collapse footer summary panel
+		// ? aunque sea redundante, para tenerlo más organizado, ¿no sería mejor tener el interior de esto en diferentes ifs? Como con las demás cosas de aquí dentro del onRender
+		if (footerWasRerendered && this.#currentView === this.#VIEWS.ACTORS_SELECTION) {
+			const expandButton = this.element.querySelector(".expand-summary-button");
+			const summaryHeader = this.element.querySelector(".summary-header");
+
+			// Toggle by clicking the button
+			expandButton?.addEventListener("click", () => {
+				this.#toggleFooterSummary();
+			});
+
+			// Toggle by clicking the header
+			summaryHeader?.addEventListener("click", (event) => {
+				if (event.target.closest("button")) return;
+				this.#toggleFooterSummary();
+			});
+
+			//* Remove actor from summary panel
+			const hiddenSummary = this.element.querySelector(".hidden-summary");
+			hiddenSummary?.addEventListener("click", (event) => {
+				const removeButton = event.target.closest(".remove-button");
+				if (!removeButton) return;
+
+				const uuid = removeButton.dataset.uuid;
+
+				// Find the entry before removing it (needed for the notification message)
+				const removedEntry = this.#selectedActors.find(a => a.uuid === uuid);
+
+				// Remove from the data array
+				this.#selectedActors = this.#selectedActors.filter(a => a.uuid !== uuid);
+
+				// Remove the card from the DOM directly (avoids collapsing the panel via re-render)
+				hiddenSummary.querySelector(`.summary-card[data-uuid="${uuid}"]`)?.remove();
+
+				// Update the counter number in the true-footer
+				const numberElement = this.element.querySelector(".current-counter-container .number");
+				if (numberElement) numberElement.textContent = this.#selectedActors.length;
+
+				// Update the summary header title
+				const summaryTitle = hiddenSummary.querySelector(".summary-header .title");
+				if (summaryTitle) summaryTitle.textContent = `Selected Pokémon (${this.#selectedActors.length})`;
+
+				// Show the empty state if no actors remain
+				if (this.#selectedActors.length === 0) {
+					const summaryList = hiddenSummary.querySelector(".summary-list");
+					summaryList?.classList.add("empty");
+					const emptyDiv = document.createElement("div");
+					emptyDiv.className = "summary-empty";
+					emptyDiv.innerHTML = `<i class="icon fa-duotone fa-solid fa-user-slash"></i><span class="text">No Pokémon selected yet</span>`;
+					summaryList?.appendChild(emptyDiv);
+				}
+
+				ui.notifications.info(`"${removedEntry?.name}" removed from selected actors.`);
+				this.render({ parts: ["content"] });
+				this.#animateCounter();
+			});
+
+			//* Actor sheet open (click on summary card)
+			hiddenSummary?.addEventListener("click", (event) => {
+				// Ignore clicks on the remove button
+				if (event.target.closest(".remove-button")) return;
+
+				const summaryCard = event.target.closest(".summary-card");
+				if (!summaryCard) return;
+
+				// Ignore if already loading
+				if (summaryCard.classList.contains("loading")) return;
+
+				const uuid = summaryCard.dataset.uuid;
+				summaryCard.classList.add("loading");
+				this.#loadingActorsOnExplorer.set(uuid, summaryCard); // Reuses the same map as the explorer: the renderBaseActorSheet hook will remove the spinner automatically
+
+				fromUuidSync(uuid)?.sheet.render(true);
+			});
+
+			//* Clear all actors from summary panel
+			const clearAllButton = hiddenSummary?.querySelector(".clear-all-button");
+			clearAllButton?.addEventListener("click", () => {
+				if (this.#selectedActors.length === 0) return;
+
+				const removedCount = this.#selectedActors.length;
+				this.#selectedActors = [];
+
+				// Clear all cards from the DOM directly (avoids collapsing the panel via re-render)
+				const summaryList = hiddenSummary.querySelector(".summary-list");
+				summaryList?.querySelectorAll(".summary-card").forEach(card => card.remove());
+				summaryList?.classList.add("empty");
+
+				// Show the empty state
+				const emptyDiv = document.createElement("div");
+				emptyDiv.className = "summary-empty";
+				emptyDiv.innerHTML = `<i class="icon fa-duotone fa-solid fa-user-slash"></i><span class="text">No Pokémon selected yet</span>`;
+				summaryList?.appendChild(emptyDiv);
+
+				// Update the counter number in the true-footer
+				const numberElement = this.element.querySelector(".current-counter-container .number");
+				if (numberElement) numberElement.textContent = 0;
+
+				// Update the summary header title
+				const summaryTitle = hiddenSummary.querySelector(".summary-header .title");
+				if (summaryTitle) summaryTitle.textContent = `Selected Pokémon (0)`;
+
+				ui.notifications.info(`${removedCount} ${removedCount === 1 ? "entry" : "entries"} removed.`);
+				this.render({ parts: ["content"] });
+				this.#animateCounter();
+			});
+		}
 
 		//* Restore the search bar input value from #searchQuery after content re-renders,
 		//* since the DOM replacement clears the input's previous value.
