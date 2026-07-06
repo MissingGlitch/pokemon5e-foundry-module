@@ -261,14 +261,14 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				const advIdx = advancementCollection.findIndex(a => a._id === hpAdv.id);
 				if (advIdx === -1) throw new Error("Advancement not found in class item");
 				advancementCollection[advIdx].value = newValue;
-				await cls.update({ "system.advancement": advancementCollection });
+				await cls.update({ "system.advancement": advancementCollection }, { isFromPk5e: true });
 
 				// 2. Update the stored source hp.max and clamp hp.value to the new max
 				const currentHP = actor.system.attributes.hp.value;
 				await actor.update({
 					"system.attributes.hp.max":   newSourceMaxHP,
 					"system.attributes.hp.value": Math.min(currentHP, sourceMaxHP)
-				});
+				}, { isFromPk5e: true });
 
 				results.fixed.push({ name: entry.name, containerPath: entry.containerPath, uuid: entry.uuid, img: actor.img });
 				pk5eLog(`pk5e (npc hp fixer): Fixed "${entry.name}"`, { uuid: entry.uuid, newValue, newSourceMaxHP });
