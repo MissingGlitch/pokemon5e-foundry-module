@@ -33,14 +33,12 @@ Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
 });
 
 async function managePokemonMoves(event) {
-	const showDebugLogs = game.settings.get("pokemon5e", "enableDebugLogs");
-
 	// Variables
 	const { Dialog } = foundry.applications.api;
 	const dID = "pk5e-move-manager-dialog";
 	// Identify the type of actor (synthetic or normal)
 	const rawUUID = event.target.form.id; // HTML Form Element ID
-	if (showDebugLogs) console.log(`Sheet UUID from HTML: ${rawUUID}`);
+	pk5eLog(`pk5e (move manager): Sheet UUID from HTML: ${rawUUID}`);
 	const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
 	const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
 	const sheet = fromUuidSync(parsedUUID);
@@ -439,7 +437,6 @@ async function managePokemonMoves(event) {
 				action: "confirm",
 				default: true,
 				callback: async (event, button, dialog) => {
-					const showDebugLogs = game.settings.get("pokemon5e", "enableDebugLogs");
 					const dialogHtml = dialog.element.querySelector(".pk5e-move-manager-dialog__main-content");
 
 					// Sheet Old Moves
@@ -459,11 +456,11 @@ async function managePokemonMoves(event) {
 					const namesOfMovesToAdd = dialogSelectedMovesNames.filter(newMove => !sheetOldMovesNames.some(oldMove => oldMove === newMove));
 					const namesOfMovesToRemove = sheetOldMovesNames.filter(oldMove => !dialogSelectedMovesNames.some(newMove => oldMove === newMove));
 
-					if (showDebugLogs) {
-						console.log(`PK5E: Move Manager Logs`);
-						console.log(`- Moves to add: ${namesOfMovesToAdd.join(", ").trim()}.`);
-						console.log(`- Moves to remove: ${namesOfMovesToRemove.join(", ").trim()}.`);
-					}
+					pk5eLog(
+						`pk5e (move manager): Confirm`,
+						`Moves to add: ${namesOfMovesToAdd.join(", ").trim() || "(none)"}`,
+						`Moves to remove: ${namesOfMovesToRemove.join(", ").trim() || "(none)"}`
+					);
 
 					try {
 						// Removes
@@ -477,7 +474,7 @@ async function managePokemonMoves(event) {
 						const movesCompendium = game.packs.get("pokemon5e.pokemon_moves");
 						namesOfMovesToAdd.forEach(moveName => {
 							const moveToAdd = movesCompendium.getName(moveName);
-							if (!moveToAdd && showDebugLogs) console.log(`Move "${moveName}" not found`);
+							if (!moveToAdd) pk5eLog(`pk5e (move manager): Move "${moveName}" not found in compendium`);
 							else movesToAdd.push(moveToAdd.toObject());
 						});
 						sheet.createEmbeddedDocuments("Item", movesToAdd);
@@ -837,7 +834,7 @@ async function managePokemonMoves(event) {
 				unsortedMoves[label].push({ ...move, UUID });
 			});
 		});
-		if (showDebugLogs) console.log(unsortedMoves);
+		pk5eLog("pk5e (move manager): Unsorted moves", unsortedMoves);
 
 		const sortedMoves = {};
 		// Sorting Object Properties

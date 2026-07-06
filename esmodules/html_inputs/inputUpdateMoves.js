@@ -59,7 +59,6 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 	if (!manualUpdateByClickEvent && !sheetForAutoUpdate) return;
 	const isAutoUpdate = !manualUpdateByClickEvent;
 
-	const showDebugLogs = game.settings.get("pokemon5e", "enableDebugLogs");
 	const currentUserId = game.user.id; // ID of the current user. Note: This may differ from the Actor's actual Owner ID (the one who triggered the autoUpdate).
 	let sheet = isAutoUpdate ? sheetForAutoUpdate : null;
 	const ownerId = isAutoUpdate ? ownerIdForAutoUpdate : currentUserId;
@@ -67,7 +66,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 	if (!sheetForAutoUpdate) {
 		// Get sheet from HTML Form ID (Manual Update by Click)
 		const rawUUID = manualUpdateByClickEvent.target.form.id; // HTML Form Element ID
-		if (showDebugLogs) console.log(`Sheet UUID from HTML: ${rawUUID}`);
+		pk5eLog(`pk5e (update moves): Sheet UUID from HTML: ${rawUUID}`);
 		const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
 		const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
 		sheet = fromUuidSync(parsedUUID);
@@ -86,21 +85,15 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 		.filter(item => item.type === "weapon")
 		.filter(weapon => weapon.system.type.value === "pokemon");
 
-	pk5eLog("pk5e (update moves):");
-
-	if (allPokemonMoves.length === 0) {
-		const message = "No pokémon moves found in this sheet.";
-		if (showDebugLogs) console.log(message);
-		return;
-	}
+	pk5eLog(`pk5e (update moves): Found ${allPokemonMoves.length} pokémon move(s) on sheet`);
 
 	const sheetLevel = Number(sheet.system.details.level) || 1;
 	allPokemonMoves.forEach(pokemonMove => {
-		pk5eLog(`Trying to Update "${pokemonMove.name}"`);
+		pk5eLog(`pk5e (update moves): Trying to update "${pokemonMove.name}"`);
 
 		const unidentifiedDescription = pokemonMove.system.unidentified.description;
 		const scaleHtmlData = getScaleDataFromText(unidentifiedDescription);
-		if (showDebugLogs) logUnidentifiedDescription(pokemonMove.name, unidentifiedDescription);
+		pk5eLog(`pk5e (update moves): "${pokemonMove.name}" unidentified description`, unidentifiedDescription);
 
 		// Validation: Scaling Data
 		if (!scaleHtmlData) {
@@ -110,8 +103,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 
 		// No Scaling, No STAB
 		if (scaleHtmlData === IIDS.NO_SCALE) {
-			const message = `✅ The pokémon move "${pokemonMove.name}" does not scale or use stab.`;
-			if (showDebugLogs) console.log(message);
+			pk5eLog(`pk5e (update moves): ✅ "${pokemonMove.name}" does not scale or use stab`);
 			return;
 		}
 
@@ -134,11 +126,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 
 			if (!pokemonMoveAbility) {
 				ui.notifications.warn(`❌ The pokémon move "${pokemonMove.name}" does not have a valid cast activity.`, { console: true });
-				if (showDebugLogs) {
-					console.log(`"${pokemonMove.name}" all activities:`);
-					console.log(pokemonMove.system.activities);
-				}
-
+				pk5eLog(`pk5e (update moves): "${pokemonMove.name}" all activities`, pokemonMove.system.activities);
 				return;
 			}
 
@@ -146,7 +134,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 
 			if (!pokemonMoveAbilityScore) {
 				ui.notifications.warn(`❌ The "${weaponType}" pokémon move "${pokemonMove.name}" does not have a valid ability defined in the cast activity.`, { console: true });
-				if (showDebugLogs) console.log(`"${pokemonMove.name}" ability to cast defined: ${pokemonMoveAbility}`);
+				pk5eLog(`pk5e (update moves): "${pokemonMove.name}" ability to cast defined: ${pokemonMoveAbility}`);
 				return;
 			}
 
@@ -186,15 +174,14 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 		let correspondingFinalValue = rollFormula.replace(IIDS.SCALE_AT, correspondingScaling).replace(`${IIDS.STAB_AT}.${stabType}`, correspondingStab);
 		if (castDefinedAbilityScore) correspondingFinalValue = correspondingFinalValue.replace("@mod", calculateModifier(castDefinedAbilityScore));
 
-		if (showDebugLogs) {
-			console.log(`"${pokemonMove.name}" pokémon move scaling found:`);
-			console.log(moveScaling);
-			console.log(`Current Level: ${sheetLevel}, Corresponding Move Level: ${correspondingLevel},\nCurrent Value: "${currentValue}", Corresponding Value: "${correspondingFinalValue}"\nCast Activity Ability Score (only for dmg_auto, healing or simple_dice): "${castDefinedAbilityScore}"`);
-		}
+		pk5eLog(
+			`pk5e (update moves): "${pokemonMove.name}" scaling found`,
+			moveScaling,
+			`Level: ${sheetLevel} → ${correspondingLevel} | Current: "${currentValue}" → New: "${correspondingFinalValue}" | Cast ability score: "${castDefinedAbilityScore}"`
+		);
 
 		if (correspondingFinalValue === currentValue) {
-			const message = `✅ The pokémon move "${pokemonMove.name}" already has the correct scaling and stab for its current level.`;
-			if (showDebugLogs) console.log(message);
+			pk5eLog(`pk5e (update moves): ✅ "${pokemonMove.name}" updated: "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab})`);
 		} else {
 			//* TRUE UPDATE
 			let valueToUpdate;
@@ -216,8 +203,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 			itemUpdate[`system.activities.${targetActivity.id}.${scalingPath}`] = valueToUpdate;
 			pokemonMove.update(itemUpdate, { isFromPk5e: true, pk5e: { isFromUpdateMoves: true } });
 
-			const message = `✅ The pokémon move "${pokemonMove.name}" has been updated from "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab}).`;
-			if (showDebugLogs) console.log(message);
+			pk5eLog(`pk5e (update moves): ✅ "${pokemonMove.name}" updated: "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab})`);
 		}
 	});
 }
@@ -249,8 +235,7 @@ function getScaleDataFromText(text) {
         const weaponType = data.querySelector('p#weapon-type')?.textContent?.trim();
         const rollFormula = data.querySelector('p#roll-formula')?.textContent?.trim();
 
-		const showDebugLogs = game.settings.get("pokemon5e", "enableDebugLogs");
-		if (showDebugLogs) console.log(`·) rawScale: ${rawScale}\n·) weaponType: ${weaponType}\n·) rollFormula: ${rollFormula}`);
+		pk5eLog(`pk5e (update moves): Scale data parsed`, `rawScale: ${rawScale}`, `weaponType: ${weaponType}`, `rollFormula: ${rollFormula}`);
 
 		if (rawScale && weaponType && rollFormula) {
             return { rawScale, weaponType, rollFormula };
@@ -258,10 +243,6 @@ function getScaleDataFromText(text) {
     }
 
     return null;
-}
-
-function logUnidentifiedDescription(name, unidentifiedDescription) {
-	console.log(`"${name}" pokémon move unidentified description:\n${unidentifiedDescription}`);
 }
 
 function getCurrentValue(weaponType, pokemonMove, targetActivity) {
