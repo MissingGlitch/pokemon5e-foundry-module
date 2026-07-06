@@ -1,48 +1,3 @@
-// ================================================================================
-// 📝 NOTITA DE LA SESIÓN — 04/07/2026
-// ================================================================================
-
-// ¡Holis, bebito lindo! ✨
-// Aquí tienes tu resumen súper personal de lo que estuvimos mimando hoy en el código.
-
-// Hoy nos concentramos en pulir y corregir cositas del footer para dejarlo
-// completito y hermoso antes de hacer el commit. ¡Ya está listo para pasar al submit! 🥳
-
-// ¿Qué cositas lindas le arreglamos y agregamos?
-// Corregimos el cálculo de containerPathForLabel: cambiamos el doble .replace() feo
-// por una expresión regular /Actors|Compendiums/ más limpia y elegante. 💅
-// Añadimos que el .summary-header también colapse y expanda el panel al hacerle clic,
-// ignorando los botones internos como el de la basura. 🖱️
-// Arreglamos el spinner global para que ahora sí tape el footer completito:
-// position: relative en el form y z-index: 100 en el .loading-overlay. 🕳️ → ✅
-// De paso, el spinner quedó bien centrado en toda la app también. 🎯
-// ¡Y los dialogs de confirmación ya están centrados también! 📦
-
-// ¿Qué nos queda pendiente, amor?
-// Lo más importante: darle vida al botón grandote de "Fix Selected" (#submitForm)
-// para que por fin cure los puntos de vida de todos los NPCs elegidos. 💊
-// También quedó pendiente para otra sesión el descentrado de las checkboxes y
-// candados en los ítems de la segunda fila en adelante. ☑️
-// Al terminar el submit, ¡testeo total para comprobar que todo corra a la perfección! ¡Sipi! 💕
-
-// todo (app): Cositas grandes que faltan por hacer
-// - El botón de Corregir Seleccionados (el botón de submit / #submitForm). ← ¡EL SIGUIENTE!
-
-// todo (explorers): Cositas pequeñas mejorables
-// - La checkbox de los actores y los candados de los actores no válidos están ligeramente
-//   descentrados en los ítems de la segunda fila en adelante (tanto en Firefox como en Chrome).
-// - meter modo debug con logs a todas las posibles pequeñas acciones que se pueden realizar
-//   con la app, con info extra en la consola (data de los actores, etc)
-
-// ? Notas adicionales para cuando se saque la update:
-// también se hizo una pequeña corrección en el autoUpdateMoves y en el kriketot (no sé si se escribe así).
-// No se puede abrir el move manager desde una ficha del compendio (lo cual tiene sentido). Hay que hacer una alerta que indique que la razón es esa: Que no se puede abrir el move manager desde una ficha de compendio, tiene que ser una ficha de un actor del mundo, no del compendio.
-// Por lo visto hay varios pokémon que no tienen bien sus TMs. En su biografía las tienen vacías, y eso produce un error cuando se intenta abrir el gestor de movimientos. Deberíamos hacer que el gestor sea a prueba de ese tipo de errores y que se pueda abrir igualmente, y ejecutar un script para identificar todos los pokémon que tengan esa particularidad en la biografía (sin TMs). Combee y Kricketot eran de ellos. Aparentemente el problema es que en el json de los pokémon hay pokémon con la propiedad TM de los movimientos que es un array vacío. Habría que ubicarlos a todos y corregirlos.
-
-// ? ¿Qué guarda selectedActors?
-// ? Guarda objetos {name, uuid, containerPath, data} donde data es el actor completo (objeto Actor). No solo el uuid.
-// ? Quizás no haga falta, quizás al final cuando hagamos el procesado de los documentos solo con el uuid sea suficiiente.
-
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const { TextEditor, DragDrop } = foundry.applications.ux;
 import { pk5eLog } from "../../../../utils/logs.js";
@@ -67,7 +22,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		// ? window (actor sheet or compendium window). That process is not immediate, so while it loads, a spinner 🌀 is
 		// ? shown on the item. Once Foundry finishes rendering the window, the spinner must be removed from the explorer.
 		// ? Each hook below listens for its respective render event; when it fires, it checks whether the rendered document
-		// ? is one of those waiting in the loading maps (#loadingActorsOnExplorer / #loadingCompendiumsOnExplorer).
+		// ? is one of those waiting in the loading maps (#loadingActorSheetsOnApp / #loadingCompendiumsOnExplorer).
 		// ? If so, it locates the item and removes its spinner ✨. This way, after the window opens, the spinner is gone.
 
 		this.#renderedCompendiumHookIdForRemoveSpinner = Hooks.on("renderCompendium", (app) => {
@@ -81,9 +36,9 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 		this.#renderedActorHookIdForRemoveSpinner = Hooks.on("renderBaseActorSheet", (sheet) => {
 			const uuid = sheet.actor.uuid;
-			if (this.#loadingActorsOnExplorer.has(uuid)) {
-				this.#loadingActorsOnExplorer.get(uuid).classList.remove("loading");
-				this.#loadingActorsOnExplorer.delete(uuid);
+			if (this.#loadingActorSheetsOnApp.has(uuid)) {
+				this.#loadingActorSheetsOnApp.get(uuid).classList.remove("loading");
+				this.#loadingActorSheetsOnApp.delete(uuid);
 			}
 		});
 	}
@@ -150,13 +105,15 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		/**
 		 * Maps data-action attribute values to their handler functions.
 		 * ApplicationV2 automatically listens for clicks on any element with data-action="key"
-		 * inside the app and calls the corresponding handler — no manual addEventListener needed.
+		 * inside the app and calls the corresponding handler. No manual addEventListener needed.
 		*/
 		actions: {
-			cancel: NpcHpFixer.#onCancel,										// Close the application
-			selectTab: NpcHpFixer.#selectTab,									// Switch between the three tabs: Drop, Actors, or Compendiums
-			moveToIntroView: NpcHpFixer.#moveToIntroView,						// Navigate back to the intro view // todo: Creo que esto no lo usamos
-			moveToActorsSelectionView: NpcHpFixer.#moveToActorsSelectionView	// Navigate to the actor selection view (Drop, Actors, and Compendiums tabs)
+			cancel:						NpcHpFixer.#onCancel,					// Close the application
+			selectTab:					NpcHpFixer.#selectTab,					// Switch between the three tabs: Drop, Actors, or Compendiums
+			moveToIntroView:			NpcHpFixer.#moveToIntroView,			// Navigate back to the intro view
+			moveToActorsSelectionView:	NpcHpFixer.#moveToActorsSelectionView,	// Navigate to the actor selection view (Drop, Actors, and Compendiums tabs)
+			backToSelection:			NpcHpFixer.#backToSelection,			// Navigate back to the actor selection view from the review-and-process view
+			startFix:					NpcHpFixer.#startFix					// Start the fix operation, switching the view to the processing state
 		}
 	};
 
@@ -214,45 +171,288 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		this.render();
 	}
 
-	// todo: Handle Submit
-	static async #handleSubmit (event, form, formData) {
-		// Lo que está acá dentro es código genérico de prueba para mostrar cómo se puede manejar el submit del formulario,
-		// recolectar los datos y mostrar un resumen antes de ejecutar la lógica real de corrección de HP.
-
-		// // Primero debemos recolectar toda la info de las opciones seleccionadas, y mostrar un resumen al usuario con un
-		// // dialog de confirmación. En caso de que confirme, mostrar un spiner de carga, y cuando todo termine, mostrar un ¡éxito!
-
-		// // formData.object contiene los valores del formulario
-		// console.log("Datos del fixer:", formData.object);
-		// // lógica de arreglo de HP aquí
-
-		// const data = formData.object;
-
-		// // Construye el HTML del resumen
-		// const summaryHtml = `
-		// 	<h4>¿Confirmas que quieres aplicar los siguientes cambios?</h4>
-		// 	<p>Esto es solo de ejemplo</p>
-		// `;
-
-		// // Muestra el diálogo de confirmación
-		// const confirmed = await foundry.applications.api.DialogV2.confirm({
-		// 	window: { title: "Confirmar cambios" },
-		// 	content: summaryHtml,
-		// 	rejectClose: false // si el usuario cierra sin confirmar, retorna false en vez de lanzar error
-		// });
-
-		// if (!confirmed) return; // el usuario canceló, NpcHpFixer sigue abierto
-
-		// // El usuario confirmó → ejecuta la lógica real
-		// console.log("Aplicando cambios:", data);
-		// // ... tu lógica aquí ...
-
-		// // Cierra el NpcHpFixer manualmente
-		// // await this.close();
+	/**
+	 * Action handler that navigates the application back to the actor selection view.
+	 * @param {PointerEvent} event - The pointer event that triggered the action.
+	 * @param {HTMLElement} target - The element that carries the data-action attribute.
+	 * @returns {Promise<void>}
+	 * @private
+	 */
+	static async #backToSelection (event, target) {
+		this.#currentView = this.#VIEWS.ACTORS_SELECTION;
+		this.render();
 	}
 
+	/**
+	 * Form submission handler that validates the actor selection and navigates to the review-and-process view.
+	 * If no actors are selected, shows a warning notification and aborts the navigation.
+	 * @param {SubmitEvent} event - The submit event that triggered the handler.
+	 * @param {HTMLFormElement} form - The form element that was submitted.
+	 * @param {FormDataExtended} formData - The processed form data.
+	 * @returns {Promise<void>}
+	 * @private
+	 */
+	static async #handleSubmit (event, form, formData) {
+		if (this.#selectedActors.length === 0) {
+			ui.notifications.warn("No pokémon selected. Please select at least one pokémon before proceeding.");
+			return;
+		}
+		this.#currentView = this.#VIEWS.REVIEW_AND_PROCESS;
+		this.render();
+	}
+
+	/**
+	 * Action handler that starts the fix operation.
+	 * Switches the review-and-process view to the processing state and begins applying corrections.
+	 * @param {PointerEvent} event - The pointer event that triggered the action.
+	 * @param {HTMLElement} target - The element that carries the data-action attribute.
+	 * @returns {Promise<void>}
+	 * @private
+	 */
+	static async #startFix (event, target) {
+		// Switch to the processing state and re-render to show the progress bar
+		this.#isProcessing = true;
+		await this.render();
+
+		// Wait for the next frame to ensure the DOM is fully painted before starting the loop
+		await new Promise(resolve => requestAnimationFrame(resolve));
+
+		// Sequential processing loop: One actor at a time
+		const results = { fixed: [], skipped: [], errors: [] };
+
+		for (let i = 0; i < this.#selectedActors.length; i++) {
+			const entry  = this.#selectedActors[i];
+			const actor  = entry.data;
+			const total  = this.#selectedActors.length;
+
+			// Update the progress bar DOM before processing this actor (step 6)
+			const progressPercent = Math.round((i / total) * 100);
+			this.element.querySelector(".progress-bar-fill").style.width         = `${progressPercent}%`;
+			this.element.querySelector(".progress-counter .current").textContent = i;
+			this.element.querySelector(".progress-percentage").textContent       = `${progressPercent}%`;
+			this.element.querySelector(".current-actor-name").textContent        = entry.name;
+			this.element.querySelector(".current-actor-path").textContent 		 = entry.containerPath;
+
+			// Calculate the fix data for this actor
+			const fixData = this.#calculateFixData(actor);
+
+			// Silent skip: actor was already fixed
+			if (fixData.status === this.#FIX_STATUS.ALREADY_FIXED) {
+				results.skipped.push({ name: entry.name, containerPath: entry.containerPath, uuid: entry.uuid, img: actor.img });
+				pk5eLog(`pk5e (npc hp fixer): Skipping actor "${entry.name}". Reason: Already fixed.`, { name: entry.name, containerPath: entry.containerPath, uuid: entry.uuid });
+				continue;
+			}
+
+			// Calculation error: actor cannot be fixed
+			if (fixData.status !== this.#FIX_STATUS.OK) {
+				const reason = this.#FIX_STATUS_LABELS.get(fixData.status) ?? "Unknown error";
+				console.warn(`pk5e (npc hp fixer): Skipping actor "${entry.name}". Reason: ${reason}.`);
+				pk5eLog(`pk5e (npc hp fixer): Skipping actor "${entry.name}". Reason: ${reason}.`, { name: entry.name, containerPath: entry.containerPath, uuid: entry.uuid, status: fixData.status });
+				results.errors.push({ name: entry.name, reason, containerPath: entry.containerPath, uuid: entry.uuid, img: actor.img });
+				continue;
+			}
+
+			// Apply the fix
+			try {
+				const { cls, hpAdv, newValue, newSourceMaxHP, sourceMaxHP } = fixData;
+
+				// 1. Update the advancement value inside the class item
+				const advancementCollection = cls.toObject().system.advancement;
+				const advIdx = advancementCollection.findIndex(a => a._id === hpAdv.id);
+				if (advIdx === -1) throw new Error("Advancement not found in class item");
+				advancementCollection[advIdx].value = newValue;
+				await cls.update({ "system.advancement": advancementCollection });
+
+				// 2. Update the stored source hp.max and clamp hp.value to the new max
+				const currentHP = actor.system.attributes.hp.value;
+				await actor.update({
+					"system.attributes.hp.max":   newSourceMaxHP,
+					"system.attributes.hp.value": Math.min(currentHP, sourceMaxHP)
+				});
+
+				results.fixed.push({ name: entry.name, containerPath: entry.containerPath, uuid: entry.uuid, img: actor.img });
+				pk5eLog(`pk5e (npc hp fixer): Fixed "${entry.name}"`, { uuid: entry.uuid, newValue, newSourceMaxHP });
+
+			} catch (err) {
+				console.error(`pk5e (npc hp fixer): Failed to fix actor "${entry.name}":`, err);
+				results.errors.push({ name: entry.name, reason: err.message, containerPath: entry.containerPath, uuid: entry.uuid, img: actor.img });
+			}
+		}
+
+		// Update the progress bar to 100% after the loop finishes
+		this.element.querySelector(".progress-bar-fill").style.width = "100%";
+		this.element.querySelector(".progress-counter .current").textContent = this.#selectedActors.length;
+		this.element.querySelector(".progress-percentage").textContent = "100%";
+		this.element.querySelector(".current-actor-name").textContent = "";
+		this.element.querySelector(".current-actor-path").textContent = "";
+
+		// Navigate to the RESULT view with the fix results
+		this.#isProcessing = false;
+		this.#fixResults   = results;
+		this.#currentView  = this.#VIEWS.RESULT;
+		this.render();
+
+	}
+
+	/**
+	 * Calculates the fix data needed to make an NPC actor's HP update dynamically when its Constitution modifier changes.
+	 * Extracts the class item, hit points advancement, and current HP data from the actor,
+	 * then computes the corrected advancement value and the new source hp.max (TIHP).
+	 * Always returns an object with a status Symbol from #FIX_STATUS.
+	 * On success (status === #FIX_STATUS.OK), the object also includes cls, hpAdv, newValue, newSourceMaxHP, and sourceMaxHP.
+	 * @param {Actor} actor - The NPC actor to calculate the fix for.
+	 * @returns {{ status: symbol, cls?: Item, hpAdv?: object, newValue?: object, newSourceMaxHP?: number, sourceMaxHP?: number }}
+	 * @private
+	 */
+	#calculateFixData(actor) {
+		// Validate the actor and return the specific failure status if it does not pass
+		const validationStatus = this.#validateActor(actor);
+		if (validationStatus !== this.#FIX_STATUS.OK) return { status: validationStatus };
+
+		// If the actor belongs to a locked compendium, it cannot be updated
+		if (actor.pack) {
+			const pack = game.packs.get(actor.pack);
+			if (pack?.locked) return { status: this.#FIX_STATUS.LOCKED_COMPENDIUM };
+		}
+
+		// Find the class item
+		const cls = actor.items.find(i => i.type === "class");
+		if (!cls) return { status: this.#FIX_STATUS.NO_CLASS };
+
+		// Find the HitPoints advancement inside the class
+		const hpAdv = cls.advancement.byType.HitPoints?.[0];
+		if (!hpAdv) return { status: this.#FIX_STATUS.NO_ADVANCEMENT };
+
+		const classLevel    = cls.system.levels;
+		const currentValue  = foundry.utils.deepClone(hpAdv.value);
+		const hitDieValue   = hpAdv.hitDieValue;
+		const conMod        = actor.system.abilities[CONFIG.DND5E.defaultAbilities.hitPoints ?? "con"]?.mod ?? 0;
+
+		// Build the new advancement value with entries for ALL levels
+		const newValue = {};
+		let additionalHP = 0;
+
+		for (let level = 1; level <= classLevel; level++) {
+			if (currentValue[level] !== undefined && currentValue[level] !== null) {
+				// Keep existing entries unchanged
+				newValue[level] = currentValue[level];
+			} else {
+				// Assign the correct value to missing levels
+				const assignedValue = (level === 1) ? "max" : "avg";
+				newValue[level] = assignedValue;
+
+				// Calculate how much HP this new entry contributes with the current CON mod
+				const numericValue = (assignedValue === "max") ? hitDieValue : (hitDieValue / 2) + 1;
+				additionalHP += Math.max(numericValue + conMod, 1);
+			}
+		}
+
+		// If no levels were missing, the actor is already fixed, so skip it
+		if (Object.keys(currentValue).length === Object.keys(newValue).length) return { status: this.#FIX_STATUS.ALREADY_FIXED };
+
+		// Get the stored source hp.max (not the derived/computed value)
+		const sourceMaxHP = actor.system._source.attributes.hp.max;
+
+		// Excess correction: if the advancement HP exceeds the original bestiario HP,
+		// reduce stored values level by level (from highest to lowest) until the total matches exactly.
+		// This happens when the CON mod is high enough that the advancement overshoots the statblock HP.
+		if (additionalHP > sourceMaxHP) {
+			let excess = additionalHP - sourceMaxHP;
+
+			// Collect only the new levels (those without a previous value), from highest to lowest
+			const newLevels = [];
+			for (let level = classLevel; level >= 1; level--) {
+				if (currentValue[level] === undefined || currentValue[level] === null) {
+					newLevels.push(level);
+				}
+			}
+
+			// Iteratively reduce by 1 per level until the excess is resolved
+			let progressed = true;
+			while (excess > 0 && progressed) {
+				progressed = false;
+				for (const level of newLevels) {
+					if (excess <= 0) break;
+
+					const stored = newValue[level];
+					const num = (stored === "max") ? hitDieValue
+							: (stored === "avg") ? (hitDieValue / 2) + 1
+							: stored;
+
+					if (num > 1) {
+						const hpBefore    = Math.max(num + conMod, 1);
+						const hpAfter     = Math.max((num - 1) + conMod, 1);
+						const reduction   = hpBefore - hpAfter;
+						if (reduction > 0) {
+							newValue[level] = num - 1;
+							additionalHP   -= reduction;
+							excess         -= reduction;
+							progressed      = true;
+						}
+					}
+				}
+			}
+
+			// If the excess persists after exhausting all levels, this actor cannot be fixed
+			if (excess > 0) return { status: this.#FIX_STATUS.UNCORRECTABLE };
+		}
+
+		return {
+			status: this.#FIX_STATUS.OK,
+			cls,
+			hpAdv,
+			newValue,
+			newSourceMaxHP: Math.max(sourceMaxHP - additionalHP, 0),
+			sourceMaxHP
+		};
+	}
+
+	//* Fix operation status codes and results
+	/**
+	 * Unique Symbol-based status codes returned by #calculateFixData to indicate the outcome of the fix calculation for a single actor.
+	 * Used in the sequential processing loop to distinguish between successful fixes, silent skips, and reportable errors.
+	 * @type {{ OK: symbol, INVALID: symbol, NO_CLASS: symbol, NO_ADVANCEMENT: symbol, ALREADY_FIXED: symbol, UNCORRECTABLE: symbol, LOCKED_COMPENDIUM: symbol }}
+	 * @private
+	 */
+	#FIX_STATUS = {
+		OK:					Symbol("NPC HP Fixer Fix Status"),  // OK:             	  Fix data calculated successfully: Ready to be applied
+		NOT_AN_ACTOR:		Symbol("NPC HP Fixer Fix Status"),  // Not an Actor:      The document is not an Actor instance
+		NOT_AN_NPC:			Symbol("NPC HP Fixer Fix Status"),  // Not an NPC:        The actor is not of type "npc"
+		NO_LEVEL_CLASS:		Symbol("NPC HP Fixer Fix Status"),  // No Level Class:    No class item with "Level" in its name found
+		NO_CLASS:			Symbol("NPC HP Fixer Fix Status"),  // No Class:       	  Actor has no class item
+		NO_ADVANCEMENT:		Symbol("NPC HP Fixer Fix Status"),  // No Advancement: 	  The class item has no HitPoints advancement
+		ALREADY_FIXED:		Symbol("NPC HP Fixer Fix Status"),  // Already Fixed:  	  All levels already had values: No changes needed (silent skip)
+		UNCORRECTABLE:		Symbol("NPC HP Fixer Fix Status"),  // Uncorrectable:  	  Advancement HP exceeds statblock HP even at minimum values. Cannot be corrected
+		LOCKED_COMPENDIUM:	Symbol("NPC HP Fixer Fix Status"),  // Locked Compendium: The actor belongs to a locked compendium and cannot be updated
+	};
+
+	/**
+	 * Human-readable labels for each #FIX_STATUS code.
+	 * Used to display error messages in the RESULT view for status codes that represent a reportable failure.
+	 * Only error statuses need an entry; OK and ALREADY_FIXED are handled separately by the processing loop.
+	 * @type {Map<symbol, string>}
+	 * @private
+	 */
+	#FIX_STATUS_LABELS = new Map([
+		[this.#FIX_STATUS.NOT_AN_ACTOR,      "Not an Actor document"],
+		[this.#FIX_STATUS.NOT_AN_NPC,        "Actor is not of type NPC"],
+		[this.#FIX_STATUS.NO_LEVEL_CLASS,    "No class item with 'Level' in its name found"],
+		[this.#FIX_STATUS.NO_CLASS,       	 "No class item found on this actor"],
+		[this.#FIX_STATUS.NO_ADVANCEMENT, 	 "The class item has no Hit Points advancement"],
+		[this.#FIX_STATUS.UNCORRECTABLE,  	 "HP cannot be corrected: Advancement exceeds statblock HP even at minimum values"],
+		[this.#FIX_STATUS.LOCKED_COMPENDIUM, "Actor belongs to a locked compendium and cannot be updated"]
+	]);
+
+	/**
+	 * Stores the results of the last fix operation, populated at the end of the processing loop.
+	 * Contains three arrays: fixed (successfully corrected actors), skipped (already fixed), and errors (failed actors).
+	 * Null until the first fix operation completes.
+	 * @type {{ fixed: {name: string}[], skipped: {name: string}[], errors: {name: string, reason: string}[] } | null}
+	 * @private
+	 */
+	#fixResults = null;
+
 	//* Locations within the app
-	// todo: Terminar de definir las vistas que van a existir y acomodar el jsdoc acorde a ello.
 	/**
 	 * String identifiers for each tab within the actor selection view.
 	 * Used to track the active tab and to match against data attributes in the rendered HTML templates.
@@ -277,10 +477,10 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 * @private
 	 */
 	#VIEWS = {
-		INTRO:            Symbol("NPC HP Fixer View ID"),   // Intro:            Initial view with an explanation and a button to navigate to the actor selection view
-		ACTORS_SELECTION: Symbol("NPC HP Fixer View ID"),   // Actors Selection: View with the options to select the actors to fix (Drop, Actors, or Compendiums tabs)
-		// LOADING: Symbol("NPC HP Fixer View ID"),          // todo: Loading:    View with a spinner while the fixes are being applied
-		// RESULTS: Symbol("NPC HP Fixer View ID")           // todo: Results:    Final view showing the result of the fix operation (success or error)
+		INTRO:				Symbol("NPC HP Fixer View ID"),	// Intro:				Initial view with an explanation and a button to navigate to the actor selection view
+		ACTORS_SELECTION:	Symbol("NPC HP Fixer View ID"),	// Actors Selection:	View with the options to select the actors to fix (Drop, Actors, or Compendiums tabs)
+		REVIEW_AND_PROCESS:	Symbol("NPC HP Fixer View ID"),	// Review and Process:	View showing a summary of selected actors for confirmation, then a progress bar during processing
+    	RESULT:				Symbol("NPC HP Fixer View ID")	// Result:				Final view showing the result of the fix operation (success or error)
 	};
 
 	/**
@@ -297,7 +497,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 * @type {symbol}
 	 * @private
 	 */
-	#currentView = this.#VIEWS.ACTORS_SELECTION;
+	#currentView = this.#VIEWS.INTRO;
 
 	/**
 	 * Navigation stack representing the current location within the Actors tab file explorer.
@@ -373,12 +573,12 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	#renderedCompendiumHookIdForRemoveSpinner = null;
 
 	/**
-	 * Tracks actor items in the file explorer that are waiting for their actor sheet to be rendered by Foundry.
+	 * Tracks actor items in the app that are waiting for their actor sheet to be rendered by Foundry.
 	 * Maps each actor's UUID to its corresponding DOM element, so the loading spinner can be removed once the sheet opens.
 	 * @type {Map<string, HTMLElement>}
 	 * @private
 	 */
-	#loadingActorsOnExplorer = new Map();
+	#loadingActorSheetsOnApp = new Map();
 
 	/**
 	 * Tracks compendium items in the file explorer that are waiting for their compendium window to be rendered by Foundry.
@@ -395,6 +595,14 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 * @private
 	 */
 	#compendiumDocsCache = new Map();
+
+	/**
+	 * Whether the fix operation is currently in progress.
+	 * Used to switch the review-and-process view between the confirmation state and the processing state.
+	 * @type {boolean}
+	 * @private
+	 */
+	#isProcessing = false;
 
 	//* Miscellaneous States & Utilities
 	/**
@@ -445,15 +653,6 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	}
 
 	/**
-	 * Indicates if debug logs can be shown based on the module settings.
-	 * @returns {boolean} True if debug logs can be shown, false otherwise.
-	 */
-	#canDebugLogsBeShown () {
-		const canDebugLogsBeShown = game.settings.get("pokemon5e", "enableDebugLogs");
-		return canDebugLogsBeShown;
-	}
-
-	/**
 	 * Toggles the visibility state of the footer summary panel.
 	 * Adds or removes the "expanded" class from the footer and dynamically updates
 	 * the tooltip text of the expand button to reflect the current state.
@@ -465,6 +664,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 		footerPart?.classList.toggle("expanded");
 		const isExpanded = footerPart?.classList.contains("expanded") ?? false;
+		pk5eLog(`pk5e (npc hp fixer): Summary panel ${isExpanded ? "expanded" : "collapsed"}`);
 
 		if (expandButton) {
 			expandButton.dataset.tooltip = isExpanded ? "Hide Summary" : "Show Summary";
@@ -488,12 +688,14 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				}
 			}),
 			views: {
-				intro: { active: this.#currentView === this.#VIEWS.INTRO },
-				actorsSelection: { active: this.#currentView === this.#VIEWS.ACTORS_SELECTION }
+				intro:				{ active: this.#currentView === this.#VIEWS.INTRO },
+				actorsSelection:	{ active: this.#currentView === this.#VIEWS.ACTORS_SELECTION },
+				reviewAndProcess:	{ active: this.#currentView === this.#VIEWS.REVIEW_AND_PROCESS },
+    			result:				{ active: this.#currentView === this.#VIEWS.RESULT }
 			},
 			tabs: {
-				drop: { active: this.#currentTab === this.#TABS.DROP },
-				actors: { active: this.#currentTab === this.#TABS.ACTORS },
+				drop:		 { active: this.#currentTab === this.#TABS.DROP },
+				actors:		 { active: this.#currentTab === this.#TABS.ACTORS },
 				compendiums: { active: this.#currentTab === this.#TABS.COMPENDIUMS }
 			},
 			actorsTab: (this.#currentTab === this.#TABS.ACTORS)
@@ -501,7 +703,14 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				: null,
 			compendiumsTab: (this.#currentTab === this.#TABS.COMPENDIUMS)
 				? await this.#prepareCompendiumsTabContext()
-				: null
+				: null,
+			isProcessing: this.#isProcessing,
+			fixResults: this.#fixResults,
+			resultStatus: this.#fixResults ? {
+				isSuccess: this.#fixResults.errors.length === 0,
+				isError:   this.#fixResults.fixed.length === 0 && this.#fixResults.skipped.length === 0,
+				isPartial: this.#fixResults.errors.length > 0 && (this.#fixResults.fixed.length > 0 || this.#fixResults.skipped.length > 0)
+			} : null
 		};
 	}
 
@@ -535,7 +744,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				};
 			});
 
-		// Actors at the current location (not those inside subfolders — only the ones directly at this level)
+		// Actors at the current location (not those inside subfolders, only the ones directly at this level)
 		const actorsRaw = game.actors.filter(actor => actor.folder?.id === location?.id);
 
 		// Filter actors to keep only the valid ones
@@ -603,7 +812,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		let items = [];
 		let invalidItems = [];
 
-		//* Location: Root — the Compendiums sidebar
+		//* Location: Root (the Compendiums sidebar)
 		if (isAtRoot) {
 			// Compendium sidebar folders at the root (no parent folder)
 			const rootFolders = game.folders
@@ -835,22 +1044,34 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 	//* Get Entries
 	/**
+	 * Validates an actor document and returns the corresponding #FIX_STATUS code.
+	 * Contains the actual validation logic shared by #isValidEntry (boolean filtering) and #calculateFixData (detailed error reporting).
+	 * @param {foundry.abstract.Document} entryData - The document to validate.
+	 * @returns {symbol} #FIX_STATUS.OK if the actor is valid, or a specific failure status otherwise.
+	 * @private
+	 */
+	#validateActor(entryData) {
+		if ( !(entryData instanceof Actor) )
+			return this.#FIX_STATUS.NOT_AN_ACTOR;
+
+		if ( entryData.type !== "npc" )
+			return this.#FIX_STATUS.NOT_AN_NPC;
+
+		if ( !entryData.items.some(item => item.type === "class" && item.name.includes("Level")) )
+			return this.#FIX_STATUS.NO_LEVEL_CLASS;
+
+		return this.#FIX_STATUS.OK;
+	}
+
+	/**
 	 * Validates that a document is an Actor of type NPC with at least one class item whose name contains "Level".
+	 * Delegates to #validateActor for the actual validation logic.
 	 * @param {foundry.abstract.Document} entryData - The document data to validate.
 	 * @returns {boolean} True if the document is a valid NPC Actor, false otherwise.
 	 * @private
 	 */
-	#isValidEntry (entryData) {
-		// 1. Must be an Actor document
-		if ( !(entryData instanceof Actor) ) return false;
-
-		// 2. Must be of type "npc"
-		if (entryData.type !== "npc") return false;
-
-		// 3. Must have at least one class item with "Level" in its name
-		if ( !entryData.items.some(item => item.type === "class" && item.name.includes("Level")) ) return false;
-
-		return true;
+	#isValidEntry(entryData) {
+		return this.#validateActor(entryData) === this.#FIX_STATUS.OK;
 	}
 
 	/**
@@ -1264,7 +1485,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 		// Case 2 or 3: Folder
 		// nodeType is "folder", but we do not yet know whether it is a sidebar folder
-		// or a folder inside a compendium — both share the same nodeType.
+		// or a folder inside a compendium (both share the same nodeType).
 		// We try game.folders first: sidebar folders are registered there; compendium folders are not.
 		const sidebarFolder = game.folders.get(nodeId);
 
@@ -1287,7 +1508,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		// We search all packs to find which one owns this folder ( pack.folders.get(nodeId) ).
 		// Then we traverse .folder ancestors upward until the compendium root (folder === null inside the pack).
 		// After that, we prepend the pack itself, and then traverse the pack's sidebar folder ancestors
-		// (pack.folder) upward — because the pack itself may be nested inside sidebar folders.
+		// (pack.folder) upward, because the pack itself may be nested inside sidebar folders.
 		const pack = game.packs.find(p => p.folders.get(nodeId));
 		if (!pack) return null;
 
@@ -1312,7 +1533,6 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		return [...sidebarPath, pack, ...compendiumPath];
 	}
 
-	// todo: No reucerdo con precisión quién usa esta función, quizás solo se usa para el containerPath... Así que en caso de que se vaya a eliminar, seguramente deba borrarse esta función también.
 	/**
 	 * Returns the "readable name" of the source of a compendium (world, system, or module).
 	 * @param {Pack} compendium - The compendium from which to obtain the source name.
@@ -1338,9 +1558,6 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		return `${this.#buildSidebarFolderPath(folder.folder)} ${separator} ${folder.name}`;
 	}
 
-	// ? Tal vez esto ya no se use. Hay que revisar. Ahora mismo las rutas para el breadcrumb las manejamos dentro de
-	// ? un array donde cada folder es un elemento, no como un único string, así que quizás a futuro toque adaptar esto
-	// ? o construir una función que pueda transformar el string a el array.
 	/**
 	 * Builds the root path for a compendium with its source: "Compendiums Tab / [Source] Label".
 	 * @param {Pack} compendium - The compendium for which to build the root path.
@@ -1353,9 +1570,6 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		return `${sidebarPath} ${separator} [${this.#getSourceName(compendium)}] ${compendium.metadata.label}`;
 	}
 
-	// ? Tal vez esto ya no se use. Hay que revisar. Ahora mismo las rutas para el breadcrumb las manejamos dentro de
-	// ? un array donde cada folder es un elemento, no como un único string, así que quizás a futuro toque adaptar esto
-	// ? o construir una función que pueda transformar el string a el array.
 	/**
 	 * Recursively builds the full path of a folder, including its parent folders (and compendium if applicable).
 	 * The path is built in the format "Compendiums (or Actors) Tab / [Source] Compendium Label (if applicable) / Parent Folder / Subfolder".
@@ -1390,9 +1604,13 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	}
 
 	//* Dialogs
+	/** @type {foundry.applications.api.DialogV2|null} Active confirmation or warning dialog, if any. */
+	#activeDialog = null;
+
 	/**
 	 * Displays a confirmation dialog when the user attempts to select a large number of actors.
 	 * Used to warn the user before triggering a potentially slow bulk-selection operation.
+	 * If another dialog is already open, it is closed before this one is shown.
 	 * @param {string}              label   - Display name of the source (e.g. folder or compendium name).
 	 * @param {number}              count   - Number of entries or valid actors to display in the dialog.
 	 * @param {"entries"|"valid"}   variant - Dialog variant:
@@ -1401,6 +1619,9 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 	 * @returns {Promise<boolean>} Resolves to true if the user confirms, false if they cancel or close the dialog.
 	 */
 	async #showTooManyActorsDialog(label, count, variant) {
+		// Close any previously open dialog before showing this one
+		if (this.#activeDialog) await this.#activeDialog.close();
+
 		const isFirstLoad = variant === "entries";
 		const content = isFirstLoad
 			? `
@@ -1420,7 +1641,9 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				</p>
 			`;
 
-		const result = await foundry.applications.api.DialogV2.wait({
+		const { promise, resolve } = Promise.withResolvers();
+
+		const dialog = new foundry.applications.api.DialogV2({
 			window: { title: "Too many actors" },
 			content,
 			buttons: [
@@ -1429,30 +1652,41 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					label: isFirstLoad ? "Continue" : "Confirm",
 					icon: "fa-solid fa-check",
 					default: true,
-					callback: () => "confirm"
+					callback: () => resolve("confirm")
 				},
 				{
 					action: "cancel",
 					label: "Cancel",
 					icon: "fa-solid fa-xmark",
-					callback: () => "cancel"
+					callback: () => resolve("cancel")
 				}
-			],
-			rejectClose: false
+			]
 		});
 
+		this.#activeDialog = dialog;
+		dialog.addEventListener("close", () => resolve(null), { once: true });
+		dialog.render({ force: true });
+
+		const result = await promise;
+		this.#activeDialog = null;
 		return Boolean(result && result !== "cancel");
 	}
 
 	/**
 	 * Displays a warning dialog when the user attempts to navigate into a large compendium that has not yet been cached.
 	 * Offers the option to enter the compendium within the app or open it from the sidebar instead.
+	 * If another dialog is already open, it is closed before this one is shown.
 	 * @param {CompendiumCollection} pack - The compendium pack to display the warning for.
 	 * @returns {Promise<"enter"|"sidebar"|null>} Resolves to "enter" to navigate in, "sidebar" to open from the sidebar,
 	 *   or null if the dialog was closed without choosing.
 	 */
 	async #showLargeCompendiumDialog(pack) {
-		return foundry.applications.api.DialogV2.wait({
+		// Close any previously open dialog before showing this one
+		if (this.#activeDialog) await this.#activeDialog.close();
+
+		const { promise, resolve } = Promise.withResolvers();
+
+		const dialog = new foundry.applications.api.DialogV2({
 			window: { title: "Large Compendium" },
 			content: `
 				<p style="margin:0;text-align:center;">
@@ -1471,17 +1705,24 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					label: "Enter the compendium",
 					icon: "fa-solid fa-door-open",
 					default: true,
-					callback: () => "enter"
+					callback: () => resolve("enter")
 				},
 				{
 					action: "sidebar",
 					label: "Open from the sidebar",
 					icon: "fa-solid fa-book-atlas",
-					callback: () => "sidebar"
+					callback: () => resolve("sidebar")
 				}
-			],
-			rejectClose: false
+			]
 		});
+
+		this.#activeDialog = dialog;
+		dialog.addEventListener("close", () => resolve(null), { once: true });
+		dialog.render({ force: true });
+
+		const result = await promise;
+		this.#activeDialog = null;
+		return result;
 	}
 
 	//* ApplicationV2 Lifecycle Overrides
@@ -1520,10 +1761,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		const data = TextEditor.implementation.getDragEventData(event);
 
 		// Debug logs
-		if (this.#canDebugLogsBeShown()) {
-			pk5eLog("pk5e (npc hp fixer): Dropped Data");
-			console.log(data);
-		}
+		pk5eLog("pk5e (npc hp fixer): Dropped Data", data);
+
 
 		// Confirmation dialog
 		const LARGE_THRESHOLD = 100;
@@ -1668,8 +1907,9 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				ui.notifications.warn(`Document type "${data.type}" is not supported. Only actors, folders, and compendiums containing actors can be added.`);
 			}
 
-			console.log(entries);
+			pk5eLog("pk5e (npc hp fixer): Entries collected", entries);
 			addedCount = this.#processAndAddEntries(entries);
+			pk5eLog(`pk5e (npc hp fixer): ${addedCount} actor(s) added from drop`);
 
 		} catch (error) {
 			ui.notifications.error("An error occurred while processing the drop. Check the console for details.");
@@ -1711,7 +1951,6 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 		const footerWasRerendered = !options.parts || options.parts.includes("footer");
 
 		//* Expand/collapse footer summary panel
-		// ? aunque sea redundante, para tenerlo más organizado, ¿no sería mejor tener el interior de esto en diferentes ifs? Como con las demás cosas de aquí dentro del onRender
 		if (footerWasRerendered && this.#currentView === this.#VIEWS.ACTORS_SELECTION) {
 			const expandButton = this.element.querySelector(".expand-summary-button");
 			const summaryHeader = this.element.querySelector(".summary-header");
@@ -1737,6 +1976,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 				// Find the entry before removing it (needed for the notification message)
 				const removedEntry = this.#selectedActors.find(a => a.uuid === uuid);
+				pk5eLog(`pk5e (npc hp fixer): Actor "${removedEntry?.name}" removed from summary panel`, { uuid });
+
 
 				// Remove from the data array
 				this.#selectedActors = this.#selectedActors.filter(a => a.uuid !== uuid);
@@ -1758,7 +1999,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					summaryList?.classList.add("empty");
 					const emptyDiv = document.createElement("div");
 					emptyDiv.className = "summary-empty";
-					emptyDiv.innerHTML = `<i class="icon fa-duotone fa-solid fa-user-slash"></i><span class="text">No Pokémon selected yet</span>`;
+					emptyDiv.innerHTML = `<i class="icon fa-duotone fa-solid fa-user-slash"></i><span class="text">No pokémon selected yet</span>`;
 					summaryList?.appendChild(emptyDiv);
 				}
 
@@ -1780,9 +2021,10 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 				const uuid = summaryCard.dataset.uuid;
 				summaryCard.classList.add("loading");
-				this.#loadingActorsOnExplorer.set(uuid, summaryCard); // Reuses the same map as the explorer: the renderBaseActorSheet hook will remove the spinner automatically
+				this.#loadingActorSheetsOnApp.set(uuid, summaryCard); // Stores the actor item element in the map of items awaiting their sheet render (spinner is active while waiting)
 
 				fromUuidSync(uuid)?.sheet.render(true);
+				pk5eLog(`pk5e (npc hp fixer): Opening actor sheet from summary panel`, { uuid });
 			});
 
 			//* Clear all actors from summary panel
@@ -1792,6 +2034,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 				const removedCount = this.#selectedActors.length;
 				this.#selectedActors = [];
+				pk5eLog(`pk5e (npc hp fixer): Cleared all actors from summary panel (${removedCount} removed).`);
 
 				// Clear all cards from the DOM directly (avoids collapsing the panel via re-render)
 				const summaryList = hiddenSummary.querySelector(".summary-list");
@@ -1801,7 +2044,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				// Show the empty state
 				const emptyDiv = document.createElement("div");
 				emptyDiv.className = "summary-empty";
-				emptyDiv.innerHTML = `<i class="icon fa-duotone fa-solid fa-user-slash"></i><span class="text">No Pokémon selected yet</span>`;
+				emptyDiv.innerHTML = `<i class="icon fa-duotone fa-solid fa-user-slash"></i><span class="text">No pokémon selected yet</span>`;
 				summaryList?.appendChild(emptyDiv);
 
 				// Update the counter number in the true-footer
@@ -1815,6 +2058,79 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				ui.notifications.info(`${removedCount} ${removedCount === 1 ? "entry" : "entries"} removed.`);
 				this.render({ parts: ["content"] });
 				this.#animateCounter();
+			});
+		}
+
+		//* Review and Process View: Remove actor and open sheet
+		if (contentWasRerendered && this.#currentView === this.#VIEWS.REVIEW_AND_PROCESS) {
+			const confirmationList = this.element.querySelector(".confirmation-list");
+
+			//* Remove actor from confirmation list
+			confirmationList?.addEventListener("click", (event) => {
+				const removeButton = event.target.closest(".remove-button");
+				if (!removeButton) return;
+
+				const uuid         = removeButton.dataset.uuid;
+				const removedEntry = this.#selectedActors.find(a => a.uuid === uuid);
+				pk5eLog(`pk5e (npc hp fixer): Actor "${removedEntry?.name}" removed from confirmation view`, { uuid });
+
+				// Remove from the data array
+				this.#selectedActors = this.#selectedActors.filter(a => a.uuid !== uuid);
+
+				// If no actors remain, go back to the selection view
+				if (this.#selectedActors.length === 0) {
+					this.#currentView = this.#VIEWS.ACTORS_SELECTION;
+					this.render();
+					return;
+				}
+
+				// Remove the card from the DOM directly
+				confirmationList.querySelector(`.summary-card[data-uuid="${uuid}"]`)?.remove();
+
+				// Update the actor count in the title and the confirm button
+				this.element.querySelectorAll(".review-and-process-view .actor-count").forEach(el => {
+					el.textContent = this.#selectedActors.length;
+				});
+
+				ui.notifications.info(`"${removedEntry?.name}" removed from selected actors.`);
+			});
+
+			//* Actor sheet open (click on summary card)
+			confirmationList?.addEventListener("click", (event) => {
+				// Ignore clicks on the remove button
+				if (event.target.closest(".remove-button")) return;
+
+				const summaryCard = event.target.closest(".summary-card");
+				if (!summaryCard) return;
+
+				// Ignore if already loading
+				if (summaryCard.classList.contains("loading")) return;
+
+				const uuid = summaryCard.dataset.uuid;
+				summaryCard.classList.add("loading");
+				this.#loadingActorSheetsOnApp.set(uuid, summaryCard); // Stores the actor item element in the map of items awaiting their sheet render (spinner is active while waiting)
+
+				fromUuidSync(uuid)?.sheet.render(true);
+				pk5eLog(`pk5e (npc hp fixer): Opening actor sheet from confirmation view`, { uuid });
+			});
+		}
+
+		//* Result View: Actor sheet open (click on group item)
+		if (contentWasRerendered && this.#currentView === this.#VIEWS.RESULT) {
+			const resultGroups = this.element.querySelector(".result-groups");
+			resultGroups?.addEventListener("click", (event) => {
+				const groupItem = event.target.closest(".group-item[data-uuid]");
+				if (!groupItem) return;
+
+				// Ignore if already loading
+				if (groupItem.classList.contains("loading")) return;
+
+				const uuid = groupItem.dataset.uuid;
+				groupItem.classList.add("loading");
+				this.#loadingActorSheetsOnApp.set(uuid, groupItem); // Stores the actor item element in the map of items awaiting their sheet render (spinner is active while waiting)
+
+				fromUuidSync(uuid)?.sheet.render(true);
+				pk5eLog(`pk5e (npc hp fixer): Opening actor sheet from result view`, { uuid });
 			});
 		}
 
@@ -1888,6 +2204,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				this.#currentLocationOnActorsTab.push(folder);
 				this.#searchQuery = "";
 				this.render({ parts: ["content"] });
+				pk5eLog(`pk5e (npc hp fixer): Navigated into folder "${folder.name}" (Actors tab).`);
 			});
 		}
 
@@ -1948,6 +2265,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				if (!node) return;
 
 				this.#currentLocationOnCompendiumsTab.push(node);
+				pk5eLog(`pk5e (npc hp fixer): Navigated into ${nodeType} "${nodeId}" (Compendiums tab).`);
+
 				this.#searchQuery = "";
 				this.#toggleLoading(true);
 				await new Promise(resolve => setTimeout(resolve, 0));
@@ -1966,9 +2285,14 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				const index = parseInt(segment.dataset.breadcrumbIndex);
 				const isActorsTab = this.isTheActiveTab(this.#TABS.ACTORS);
 
+				// Capture destination name before modifying the array
+				const locationArray = isActorsTab ? this.#currentLocationOnActorsTab : this.#currentLocationOnCompendiumsTab; // ? Read-only reference: Used only to check .length; private fields cannot be reassigned through a local variable
+				const destinationName = index === -1
+					? "root"
+					: (locationArray[index]?.name ?? locationArray[index]?.metadata?.label ?? `index ${index}`);
+
 				if (index === -1) {
 					// Navigate to root (ignore if already there)
-					const locationArray = isActorsTab ? this.#currentLocationOnActorsTab : this.#currentLocationOnCompendiumsTab; // ? Read-only reference: used only to check .length; private fields cannot be reassigned through a local variable
 					if (locationArray.length === 0) return;
 					if (isActorsTab) this.#currentLocationOnActorsTab = [];
 					else this.#currentLocationOnCompendiumsTab = [];
@@ -1977,6 +2301,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					if (isActorsTab) this.#currentLocationOnActorsTab = this.#currentLocationOnActorsTab.slice(0, index + 1);
 					else this.#currentLocationOnCompendiumsTab = this.#currentLocationOnCompendiumsTab.slice(0, index + 1);
 				}
+
+				pk5eLog(`pk5e (npc hp fixer): Breadcrumb navigated to "${destinationName}" (${isActorsTab ? "Actors" : "Compendiums"} tab).`);
 
 				this.#searchQuery = "";
 				if (!isActorsTab) {
@@ -2006,9 +2332,10 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 
 				const uuid = actorItem.dataset.uuid;
 				actorItem.classList.add("loading");
-				this.#loadingActorsOnExplorer.set(uuid, actorItem); // Stores the actor item element in the map of items awaiting their sheet render (spinner is active while waiting)
+				this.#loadingActorSheetsOnApp.set(uuid, actorItem); // Stores the actor item element in the map of items awaiting their sheet render (spinner is active while waiting)
 
 				fromUuidSync(uuid)?.sheet.render(true);
+				pk5eLog(`pk5e (npc hp fixer): Opening actor sheet from explorer`, { uuid });
 			});
 		}
 
@@ -2017,6 +2344,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 			const invalidHeader = this.element.querySelector(".selection-pane .invalid-section-header");
 			invalidHeader?.addEventListener("click", () => {
 				invalidHeader.closest(".invalid-section").classList.toggle("expanded");
+				const isExpanded = invalidHeader.closest(".invalid-section").classList.contains("expanded");
+				pk5eLog(`pk5e (npc hp fixer): Invalid section ${isExpanded ? "expanded" : "collapsed"}`);
 			});
 		}
 
@@ -2029,10 +2358,14 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 				if (event.target.classList.contains("check-button")) return;
 				if (event.target.classList.contains("lock-icon")) return;
 				if (invalidCompendiumItem.classList.contains("loading")) return; // Already loading
+
 				const collection = invalidCompendiumItem.dataset.nodeId;
+
 				invalidCompendiumItem.classList.add("loading");
-				this.#loadingCompendiumsOnExplorer.set(collection, invalidCompendiumItem);
+				this.#loadingCompendiumsOnExplorer.set(collection, invalidCompendiumItem); // Stores the collection in the map of items awaiting their compendium render (spinner is active while waiting)
+
 				game.packs.get(collection)?.render(true);
+				pk5eLog(`pk5e (npc hp fixer): Opening invalid compendium from explorer`, { collection });
 			});
 		}
 
@@ -2050,8 +2383,10 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					const actor = fromUuidSync(uuid);
 					const containerPath = actor.folder ? this.#buildFolderPath(actor.folder) : "Actors Tab";
 					this.#selectedActors.push({ name: actor.name, uuid, containerPath, data: actor });
+    				pk5eLog(`pk5e (npc hp fixer): Actor "${actor.name}" selected (Actors tab)`, { uuid });
 				} else {
 					this.#selectedActors = this.#selectedActors.filter(a => a.uuid !== uuid);
+    				pk5eLog(`pk5e (npc hp fixer): Actor deselected (Actors tab)`, { uuid });
 				}
 
 				this.render({ parts: ["footer"] });
@@ -2104,6 +2439,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 						// Add all valid actors from the folder
 						const addedCount = this.#processAndAddEntries(entries);
 						if (addedCount > 0) shouldAnimateFooterCounter = true;
+    					pk5eLog(`pk5e (npc hp fixer): Folder "${folder.name}" selected. ${addedCount} actor(s) added (Actors tab).`);
 					} else {
 						// Remove all actors from the folder (and subfolders)
 						const uuidsToRemove = new Set(entries.map(e => e.uuid));
@@ -2114,6 +2450,8 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 							ui.notifications.info(`${removedCount} ${removedCount === 1 ? "entry" : "entries"} removed.`);
 							shouldAnimateFooterCounter = true;
 						}
+    					pk5eLog(`pk5e (npc hp fixer): Folder "${folder.name}" deselected. ${removedCount} actor(s) removed (Actors tab).`);
+
 					}
 				} catch (error) {
 					ui.notifications.error("An error occurred while processing the folder. Check the console for details.");
@@ -2122,6 +2460,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					this.#toggleLoading(false);
 					this.render({ parts: ["footer"] }); // Update the footer counter
 					if (shouldAnimateFooterCounter) this.#animateCounter();
+    				if (isChecked) event.target.checked = true; // Re-check if the operation completed after a stale revert
 				}
 			});
 		}
@@ -2144,8 +2483,10 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 						? this.#buildFolderPath(actor.folder)
 						: this.#buildCompendiumRootPath(pack);
 					this.#selectedActors.push({ name: actor.name, uuid, containerPath, data: actor });
+					pk5eLog(`pk5e (npc hp fixer): Actor "${actor.name}" selected (Compendiums tab)`, { uuid });
 				} else {
 					this.#selectedActors = this.#selectedActors.filter(a => a.uuid !== uuid);
+					pk5eLog(`pk5e (npc hp fixer): Actor deselected (Compendiums tab)`, { uuid });
 				}
 
 				this.render({ parts: ["footer"] });
@@ -2256,6 +2597,32 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					}
 				}
 
+				// Early return: if unchecking a source that has not been cached yet,
+				// no actors from it can be in the selection, so nothing to remove.
+				if (!isChecked) {
+					if (nodeType === "compendium") {
+						const pack = game.packs.get(nodeId);
+						if (pack && !this.#compendiumDocsCache.has(pack.collection)) return;
+
+					} else if (nodeType === "folder") {
+						const location             = this.#currentLocationOnCompendiumsTab.at(-1) ?? null;
+						const isAtCompendium       = typeof location?.collection === "string";
+						const isAtCompendiumFolder = !isAtCompendium && Boolean(location?.pack);
+
+						if (!isAtCompendium && !isAtCompendiumFolder) {
+							// Sidebar folder: if none of its packs are cached, nothing to remove
+							const sidebarFolder = game.folders.get(nodeId);
+							if (sidebarFolder) {
+								const allPacks = [];
+								this.#collectActorPacksInSidebarFolder(sidebarFolder, allPacks);
+								if (allPacks.every(p => !this.#compendiumDocsCache.has(p.collection))) return;
+							}
+						}
+						// For compendium folders (isAtCompendium or isAtCompendiumFolder),
+						// the parent compendium is always cached when navigating inside it, proceed normally.
+					}
+				}
+
 				// Always show spinner, no exceptions (no pre-calculated validCount for compendiums)
 				this.#toggleLoading(true);
 				await new Promise(resolve => setTimeout(resolve, 0));
@@ -2315,6 +2682,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					if (isChecked) {
 						// Add all valid actors
 						const addedCount = this.#processAndAddEntries(entries);
+	    				pk5eLog(`pk5e (npc hp fixer): ${nodeType} "${nodeId}" selected. ${addedCount} actor(s) added (Compendiums tab).`);
 						if (addedCount > 0) shouldAnimateFooterCounter = true;
 					} else {
 						// Remove all actors from the folder/compendium
@@ -2322,6 +2690,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 						const previousCount = this.#selectedActors.length;
 						this.#selectedActors = this.#selectedActors.filter(a => !uuidsToRemove.has(a.uuid));
 						const removedCount = previousCount - this.#selectedActors.length;
+    					pk5eLog(`pk5e (npc hp fixer): ${nodeType} "${nodeId}" deselected. ${removedCount} actor(s) removed (Compendiums tab).`);
 						if (removedCount > 0) {
 							ui.notifications.info(`${removedCount} ${removedCount === 1 ? "entry" : "entries"} removed.`);
 							shouldAnimateFooterCounter = true;
@@ -2335,6 +2704,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					this.#toggleLoading(false);
 					this.render({ parts: ["footer"] }); // Update the footer counter
 					if (shouldAnimateFooterCounter) this.#animateCounter();
+    				if (isChecked) event.target.checked = true; // Re-check if the operation completed after a stale revert
 				}
 			});
 		}
@@ -2396,10 +2766,12 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 							ui.notifications.info(`${removedCount} ${removedCount === 1 ? "entry" : "entries"} removed.`);
 							shouldAnimateFooterCounter = true;
 						}
+    					pk5eLog(`pk5e (npc hp fixer): Select All (Actors tab). Deselected ${removedCount} actor(s).`);
 						content?.querySelectorAll(".check-button:not(:disabled)").forEach(cb => cb.checked = false);
 					} else {
 						// Select the remaining ones
 						const addedCount = this.#processAndAddEntries(entries);
+    					pk5eLog(`pk5e (npc hp fixer): Select All (Actors tab). Added ${addedCount} actor(s).`);
 						content?.querySelectorAll(".check-button:not(:disabled)").forEach(cb => cb.checked = true);
 						if (addedCount > 0) shouldAnimateFooterCounter = true;
 					}
@@ -2570,6 +2942,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 						const uuidsToRemove  = new Set(validEntries.map(e => e.uuid));
 						this.#selectedActors = this.#selectedActors.filter(a => !uuidsToRemove.has(a.uuid));
 						const removedCount   = previousCount - this.#selectedActors.length;
+    					pk5eLog(`pk5e (npc hp fixer): Select All (Compendiums tab). Deselected ${removedCount} actor(s).`);
 						if (removedCount > 0) {
 							ui.notifications.info(`${removedCount} ${removedCount === 1 ? "entry" : "entries"} removed.`);
 							shouldAnimateFooterCounter = true;
@@ -2578,6 +2951,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					} else {
 						// Select the remaining ones
 						const addedCount = this.#processAndAddEntries(entries);
+    					pk5eLog(`pk5e (npc hp fixer): Select All (Compendiums tab). Added ${addedCount} actor(s).`);
 						content?.querySelectorAll(".check-button:not(:disabled)").forEach(cb => cb.checked = true);
 						if (addedCount > 0) shouldAnimateFooterCounter = true;
 					}
@@ -2606,12 +2980,14 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					// Click on the root node
 					if (this.#currentLocationOnActorsTab.length === 0) return;
 					this.#currentLocationOnActorsTab = [];
+    				pk5eLog(`pk5e (npc hp fixer): Tree nav navigated to root (Actors tab).`);
 				} else {
 					// Click on a folder node
 					if (this.#currentLocationOnActorsTab.at(-1)?.id === nodeId) return; // Already there: the user clicked on the folder they are currently in
 					const folder = game.folders.get(nodeId);
 					if (!folder) return;
 					this.#currentLocationOnActorsTab = this.#buildActorBreadcrumbPath(folder);
+    				pk5eLog(`pk5e (npc hp fixer): Tree nav navigated to folder "${folder.name}" (Actors tab).`);
 				}
 
 				this.#searchQuery = "";
@@ -2633,6 +3009,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					// Click on the root node
 					if (this.#currentLocationOnCompendiumsTab.length === 0) return;
 					this.#currentLocationOnCompendiumsTab = [];
+    				pk5eLog(`pk5e (npc hp fixer): Tree nav navigated to root (Compendiums tab).`);
 				} else {
 					// Check if we are already at that node (to avoid unnecessary re-renders)
 					const currentLocation = this.#currentLocationOnCompendiumsTab.at(-1) ?? null;
@@ -2671,6 +3048,7 @@ export class NpcHpFixer extends HandlebarsApplicationMixin (ApplicationV2) {
 					const newPath = this.#buildCompendiumBreadcrumbPath(nodeId, nodeType);
 					if (!newPath) return;
 					this.#currentLocationOnCompendiumsTab = newPath;
+    				pk5eLog(`pk5e (npc hp fixer): Tree nav navigated to ${nodeType} "${nodeId}" (Compendiums tab).`);
 				}
 
 				this.#searchQuery = "";
