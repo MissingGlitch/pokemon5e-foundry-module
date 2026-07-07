@@ -1,0 +1,259 @@
+<div class="content-part">
+	{{!-- Intro View --}}
+	{{#if views.intro.active}}
+	<div class="view intro-view">
+		<h3 class="title">Pokémon HP Update Fixer</h3>
+		<p class="subtitle">Before version 0.11, many Pokémon in the module did not update their HP when their Constitution modifier was changed.<br/>This fixer applies the necessary adjustments inside the Pokémon NPC actors so that HP updates correctly whenever the Constitution modifier is changed.</p>
+
+		<div class="button-container">
+			<button class="button" data-action="moveToActorsSelectionView">
+    			Select the Pokémon NPCs to fix
+				<i class="fa-solid fa-arrow-right"></i>
+			</button>
+		</div>
+
+		<video class="video" controls>
+			<source src="modules/pokemon5e/extras/fixed-hp-example.mp4" type="video/mp4">
+		</video>
+	</div>
+	{{/if}}
+
+	{{!-- Actors Selection View --}}
+	{{#if views.actorsSelection.active}}
+	<div class="view actors-selection-view">
+		{{!-- Drop Tab --}}
+		<section class="tab drop-tab {{#if tabs.drop.active}}active{{/if}}" data-group="content" data-tab="drop">
+			<div class="drop-zone">
+				<div class="drop-info">
+					<i class="icon fa-light fa-folder-arrow-up"></i>
+					<h3 class="text">Drag and drop your Pokémon NPC actors here<br/>(folders and compendiums also supported)</h3>
+				</div>
+			</div>
+		</section>
+
+		{{!-- Actors Tab --}}
+		<section class="tab actors-tab {{#if tabs.actors.active}}active{{/if}}" data-group="content" data-tab="actors">
+			{{> pk5e-file-explorer
+				tabData=actorsTab
+				rootLabel="Actors Tab"
+				emptyRootIconClass="fa-duotone fa-regular fa-folder-open"
+				emptyRootMsg="The Actor Sidebar is empty"
+				emptyFolderMsg="This folder is empty"
+			}}
+		</section>
+
+		{{!-- Compendiums Tab --}}
+		<section class="tab compendiums-tab {{#if tabs.compendiums.active}}active{{/if}}" data-group="content" data-tab="compendiums">
+            {{> pk5e-file-explorer
+                tabData=compendiumsTab
+                rootLabel="Compendiums Tab"
+                emptyRootIconClass="fa-duotone fa-regular fa-book-open-reader"
+                emptyRootMsg="The Compendiums Sidebar is empty"
+                emptyFolderMsg="This folder is empty"
+                emptyCompendiumMsg="This compendium is empty"
+            }}
+		</section>
+	</div>
+	{{/if}}
+
+	{{!-- Review and Process View --}}
+	{{#if views.reviewAndProcess.active}}
+	<div class="view review-and-process-view">
+
+		{{#unless isProcessing}}
+		{{!-- Confirmation State: actor summary + confirm/cancel buttons --}}
+		<div class="confirmation-state">
+
+			<div class="confirmation-header">
+				<h3 class="title">Summary and Confirmation</h3>
+				<p class="subtitle">
+					Corrections will be applied to the <b> <span class="actor-count">{{selectedActors.length}}</span> </b> selected pokémon.
+					This process is <b>irreversible</b>; therefore, creating a <b>prior backup</b> is highly recommended.
+				</p>
+				<p class="subtitle">
+					The operation may take <b>several minutes</b> depending on the volume of data.
+				</p>
+			</div>
+
+			<div class="confirmation-list">
+				{{#each selectedActors}}
+					<div class="summary-card" data-uuid="{{uuid}}">
+						<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+						<img class="img" src="{{data.img}}" alt="{{name}}">
+						<div class="info">
+							<span class="name" data-tooltip="{{name}}">{{name}}</span>
+							<span class="path" data-tooltip="{{containerPath}}">
+								<i class="{{sourceIconClass}}"></i>
+								{{containerPathForLabel}}
+							</span>
+						</div>
+						<button class="remove-button" type="button" data-uuid="{{uuid}}" data-tooltip="Remove">
+							<i class="fa-solid fa-xmark"></i>
+						</button>
+					</div>
+				{{/each}}
+			</div>
+
+			<div class="confirmation-actions">
+				<button class="button back-button" type="button" data-action="backToSelection">
+					<i class="fa-solid fa-arrow-left"></i>
+					Back
+				</button>
+				<button class="button confirm-button" type="button" data-action="startFix">
+					Proceed
+				</button>
+			</div>
+
+		</div>
+		{{/unless}}
+
+		{{#if isProcessing}}
+		{{!-- Processing State: progress bar --}}
+		<div class="processing-state">
+
+			<div class="processing-header">
+				<h3 class="title">Applying corrections...</h3>
+				<p class="subtitle">Please do not close this window.</p>
+			</div>
+
+			<div class="progress-container">
+				<div class="progress-bar">
+					<div class="progress-bar-fill" style="width: 0%"></div>
+				</div>
+				<div class="progress-info">
+					<span class="progress-counter">
+						<span class="current">0</span> / <span class="total">{{selectedActors.length}}</span>
+					</span>
+					<span class="progress-percentage">0%</span>
+				</div>
+			</div>
+
+			<div class="current-actor-container">
+				<div class="actor-name-row">
+					<i class="fa-solid fa-spinner-third fa-spin"></i>
+					<span class="current-actor-name"></span>
+				</div>
+				<span class="current-actor-path"></span>
+			</div>
+
+		</div>
+		{{/if}}
+
+	</div>
+	{{/if}}
+
+	{{!-- Result View --}}
+	{{#if views.result.active}}
+	<div class="view result-view">
+
+		{{!-- Status Header --}}
+		<div class="result-status-header">
+			{{#if resultStatus.isSuccess}}
+				<i class="fa-solid fa-circle-check result-icon success"></i>
+				<h3 class="result-title">All done! Every Pokémon was processed successfully.</h3>
+			{{else if resultStatus.isError}}
+				<i class="fa-solid fa-circle-xmark result-icon error"></i>
+				<h3 class="result-title">Fix failed. All actors encountered errors.</h3>
+			{{else}}
+				<i class="fa-solid fa-circle-exclamation result-icon partial"></i>
+				<h3 class="result-title">Fix completed with some errors.</h3>
+			{{/if}}
+		</div>
+
+		{{!-- Result Groups --}}
+		<div class="result-groups">
+
+			{{!-- Fixed --}}
+			{{#if fixResults.fixed.length}}
+			<details class="result-group fixed-group">
+				<summary class="group-header">
+					<i class="fa-solid fa-circle-check group-icon"></i>
+					<span class="group-title">Fixed</span>
+					<span class="group-count">{{fixResults.fixed.length}}</span>
+					<i class="fa-solid fa-chevron-down chevron-icon"></i>
+				</summary>
+				<ul class="group-list">
+					{{#each fixResults.fixed}}
+					<li class="group-item" data-uuid="{{uuid}}">
+						<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+						<img class="item-img" src="{{img}}" alt="{{name}}">
+						<div class="item-info">
+							<span class="item-name">{{name}}</span>
+							<span class="item-path">{{containerPath}}</span>
+						</div>
+					</li>
+					{{/each}}
+				</ul>
+			</details>
+			{{/if}}
+
+			{{!-- Skipped (already fixed) --}}
+			{{#if fixResults.skipped.length}}
+			<details class="result-group skipped-group">
+				<summary class="group-header" data-tooltip="These actors were already corrected, so no changes were needed.">
+					<i class="fa-solid fa-circle-minus group-icon"></i>
+					<span class="group-title">Already fixed</span>
+					<span class="group-count">{{fixResults.skipped.length}}</span>
+					<i class="fa-solid fa-chevron-down chevron-icon"></i>
+				</summary>
+				<ul class="group-list">
+					{{#each fixResults.skipped}}
+					<li class="group-item" data-uuid="{{uuid}}">
+						<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+						<img class="item-img" src="{{img}}" alt="{{name}}">
+						<div class="item-info">
+							<span class="item-name">{{name}}</span>
+							<span class="item-path">{{containerPath}}</span>
+						</div>
+					</li>
+					{{/each}}
+				</ul>
+			</details>
+			{{/if}}
+
+			{{!-- Errors --}}
+			{{#if fixResults.errors.length}}
+			<details class="result-group errors-group">
+				<summary class="group-header">
+					<i class="fa-solid fa-circle-xmark group-icon"></i>
+					<span class="group-title">Errors</span>
+					<span class="group-count">{{fixResults.errors.length}}</span>
+					<i class="fa-solid fa-chevron-down chevron-icon"></i>
+				</summary>
+				<ul class="group-list">
+					{{#each fixResults.errors}}
+					<li class="group-item" data-uuid="{{uuid}}">
+						<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+						<img class="item-img" src="{{img}}" alt="{{name}}">
+						<div class="item-info">
+							<span class="item-name">{{name}}</span>
+							<span class="item-path">{{containerPath}}</span>
+							<span class="item-reason">{{reason}}</span>
+						</div>
+					</li>
+					{{/each}}
+				</ul>
+			</details>
+			{{/if}}
+
+		</div>
+
+		{{!-- Action Buttons --}}
+		<div class="result-actions">
+			<button class="button" data-action="moveToIntroView">
+				<i class="fa-solid fa-house"></i>
+				Back to Start
+			</button>
+		</div>
+
+	</div>
+	{{/if}}
+
+
+	{{!-- Loading Overlay --}}
+	<div class="loading-overlay">
+		<div class="spinner">
+			<i class="fa-solid fa-spinner-third fa-spin fa-10x"></i>
+		</div>
+	</div>
+</div>

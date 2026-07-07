@@ -1,0 +1,14 @@
+<div class="pk5e-helpers-menu__content">
+	<h3 class="pk5e-helpers-menu__title">Menú de Helpers</h3>
+	<p class="pk5e-helpers-menu__subtitle">Aquí se encuentran todos los helpers diseñados para adaptar documentos de versiones antiguas (actores, items, compendios) a las últimas versiones, actualizándolos automáticamente con los últimos cambios y mejoras del módulo.</p>
+
+	<div class="pk5e-helpers-menu__buttons-container">
+		{{#each helpers}}
+			<button class="pk5e-helpers-menu__button" type="button" data-action="{{this.action}}"
+			{{#if this.disabled}}disabled data-tooltip="Próximamente" data-tooltip-direction="UP"{{/if}}>
+				<i class="{{this.icon}}"></i>
+				{{this.label}}
+			</button>
+		{{/each}}
+	</div>
+</div>

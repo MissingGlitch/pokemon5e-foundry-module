@@ -2,7 +2,7 @@
   "id": "pokemon5e",
   "title": "Pokémon 5e",
   "description": "(BETA VERSION) Everything you need to play Pokémon 5e: Pokémon Bestiary, Items, Moves, Types, Trainer Class, and more!",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "esmodules": [
     "esmodules/utils/logs.js",
     "esmodules/settingsMenuOptions.js",
@@ -11,6 +11,9 @@
     "esmodules/html_inputs/inputUpdateMoves.js",
     "esmodules/html_inputs/inputEvolvePokemon.js",
     "esmodules/html_inputs/inputMoveManager.js"
+  ],
+  "styles": [
+    "styles/main.css"
   ],
   "packFolders": [
     {
@@ -92,7 +95,7 @@
         "manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
         "compatibility": {
           "minimum": "5.0.0",
-          "verified": "5.0.X"
+          "verified": "5.2.5"
         }
       }
     ]
@@ -117,5 +120,5 @@
   ],
   "url": "https://github.com/MissingGlitch/pokemon5e-foundry-module",
   "manifest": "https://github.com/MissingGlitch/pokemon5e-foundry-module/releases/latest/download/module.json",
-  "download": "https://github.com/MissingGlitch/pokemon5e-foundry-module/releases/download/0.10.1/module.zip"
+  "download": "https://github.com/MissingGlitch/pokemon5e-foundry-module/releases/download/0.11.0/module.zip"
 }

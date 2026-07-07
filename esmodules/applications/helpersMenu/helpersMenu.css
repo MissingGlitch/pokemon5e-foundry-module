@@ -1,0 +1,27 @@
+/* id: #pk5e-helpers-menu */
+
+#pk5e-helpers-menu .pk5e-helpers-menu__content
+.pk5e-helpers-menu__title {
+	text-align: center;
+}
+
+#pk5e-helpers-menu .pk5e-helpers-menu__content
+.pk5e-helpers-menu__subtitle {
+	text-align: center;
+}
+
+#pk5e-helpers-menu .pk5e-helpers-menu__content
+.pk5e-helpers-menu__buttons-container {
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: 20px;
+	margin-bottom: 5px;
+	gap: 15px 30px;
+}
+
+#pk5e-helpers-menu .pk5e-helpers-menu__content
+.pk5e-helpers-menu__button {
+	width: fit-content;
+	padding: 15px 20px;
+	margin: 0 auto;
+}

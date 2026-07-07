@@ -1,4 +1,4 @@
-import { pokemonModuleLog } from "./../utils/logs.js";
+import { pk5eLog } from "./../utils/logs.js";
 import { POKEMON_TYPES } from "./../addPokemonSystemProperties.js";
 
 //* HTML Button Creation
@@ -9,8 +9,15 @@ updateButton.setAttribute("aria-label", updateButtonName);
 updateButton.setAttribute("data-tooltip", updateButtonName);
 updateButton.addEventListener("click", updatePokemonMoves);
 const updateButtonIcon = document.createElement("i");
-updateButtonIcon.classList.add("fas", "fa-arrows-rotate");
+updateButtonIcon.classList.add("fa-solid", "fa-arrows-rotate");
 updateButton.appendChild(updateButtonIcon);
+
+//* Input Data to Export
+export const updateMoves = {
+	name: "Update Moves",
+	description: "Automatically update the scaling and stab of all pokémon moves on the sheet.",
+	htmlElement: updateButton
+};
 
 //* Internal IDs (IIDS)
 const IIDS = {
@@ -52,7 +59,6 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 	if (!manualUpdateByClickEvent && !sheetForAutoUpdate) return;
 	const isAutoUpdate = !manualUpdateByClickEvent;
 
-	const hideInfoMessages = game.settings.get("pokemon5e", "hideUpdateMovesButtonMessages");
 	const currentUserId = game.user.id; // ID of the current user. Note: This may differ from the Actor's actual Owner ID (the one who triggered the autoUpdate).
 	let sheet = isAutoUpdate ? sheetForAutoUpdate : null;
 	const ownerId = isAutoUpdate ? ownerIdForAutoUpdate : currentUserId;
@@ -60,7 +66,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 	if (!sheetForAutoUpdate) {
 		// Get sheet from HTML Form ID (Manual Update by Click)
 		const rawUUID = manualUpdateByClickEvent.target.form.id; // HTML Form Element ID
-		console.info(`Sheet UUID from HTML: ${rawUUID}`);
+		pk5eLog(`pk5e (update moves): Sheet UUID from HTML: ${rawUUID}`);
 		const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
 		const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
 		sheet = fromUuidSync(parsedUUID);
@@ -79,21 +85,15 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 		.filter(item => item.type === "weapon")
 		.filter(weapon => weapon.system.type.value === "pokemon");
 
-	pokemonModuleLog("<-- Pokémon 5e Update Pokémon Moves -->");
-
-	if (allPokemonMoves.length === 0) {
-		const message = "No pokémon moves found in this sheet.";
-		hideInfoMessages ? console.log(message) : ui.notifications.warn(message, { console: true });
-		return;
-	}
+	pk5eLog(`pk5e (update moves): Found ${allPokemonMoves.length} pokémon move(s) on sheet`);
 
 	const sheetLevel = Number(sheet.system.details.level) || 1;
 	allPokemonMoves.forEach(pokemonMove => {
-		pokemonModuleLog(`Trying to Update "${pokemonMove.name}"`);
+		pk5eLog(`pk5e (update moves): Trying to update "${pokemonMove.name}"`);
 
 		const unidentifiedDescription = pokemonMove.system.unidentified.description;
 		const scaleHtmlData = getScaleDataFromText(unidentifiedDescription);
-		logUnidentifiedDescription(pokemonMove.name, unidentifiedDescription);
+		pk5eLog(`pk5e (update moves): "${pokemonMove.name}" unidentified description`, unidentifiedDescription);
 
 		// Validation: Scaling Data
 		if (!scaleHtmlData) {
@@ -103,8 +103,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 
 		// No Scaling, No STAB
 		if (scaleHtmlData === IIDS.NO_SCALE) {
-			const message = `✅ The pokémon move "${pokemonMove.name}" does not scale or use stab.`;
-			hideInfoMessages ? console.log(message) : ui.notifications.info(message, { console: true });
+			pk5eLog(`pk5e (update moves): ✅ "${pokemonMove.name}" does not scale or use stab`);
 			return;
 		}
 
@@ -127,8 +126,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 
 			if (!pokemonMoveAbility) {
 				ui.notifications.warn(`❌ The pokémon move "${pokemonMove.name}" does not have a valid cast activity.`, { console: true });
-				console.log(`"${pokemonMove.name}" all activities:`);
-				console.log(pokemonMove.system.activities);
+				pk5eLog(`pk5e (update moves): "${pokemonMove.name}" all activities`, pokemonMove.system.activities);
 				return;
 			}
 
@@ -136,7 +134,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 
 			if (!pokemonMoveAbilityScore) {
 				ui.notifications.warn(`❌ The "${weaponType}" pokémon move "${pokemonMove.name}" does not have a valid ability defined in the cast activity.`, { console: true });
-				console.log(`"${pokemonMove.name}" ability to cast defined: ${pokemonMoveAbility}`);
+				pk5eLog(`pk5e (update moves): "${pokemonMove.name}" ability to cast defined: ${pokemonMoveAbility}`);
 				return;
 			}
 
@@ -160,7 +158,7 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 		}
 
 		// Raw Scale Validation
-		if (rawScale.length !== 4 || !rawScale[0]) {
+		if (rawScale.length === 0 || !rawScale[0]) {
 			ui.notifications.warn(`❌ The pokémon move "${pokemonMove.name}" does not have a valid @scale attribute.`, { console: true });
 			return;
 		}
@@ -176,13 +174,14 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 		let correspondingFinalValue = rollFormula.replace(IIDS.SCALE_AT, correspondingScaling).replace(`${IIDS.STAB_AT}.${stabType}`, correspondingStab);
 		if (castDefinedAbilityScore) correspondingFinalValue = correspondingFinalValue.replace("@mod", calculateModifier(castDefinedAbilityScore));
 
-		console.log(`"${pokemonMove.name}" pokémon move scaling found:`);
-		console.log(moveScaling);
-		console.log(`Current Level: ${sheetLevel}, Corresponding Move Level: ${correspondingLevel},\nCurrent Value: "${currentValue}", Corresponding Value: "${correspondingFinalValue}"\nCast Ability Score: "${castDefinedAbilityScore}"`);
+		pk5eLog(
+			`pk5e (update moves): "${pokemonMove.name}" scaling found`,
+			moveScaling,
+			`Level: ${sheetLevel} → ${correspondingLevel} | Current: "${currentValue}" → New: "${correspondingFinalValue}" | Cast ability score: "${castDefinedAbilityScore}"`
+		);
 
 		if (correspondingFinalValue === currentValue) {
-			const message = `✅ The pokémon move "${pokemonMove.name}" already has the correct scaling and stab for its current level.`;
-			hideInfoMessages ? console.log(message) : ui.notifications.info(message, { console: true });
+			pk5eLog(`pk5e (update moves): ✅ "${pokemonMove.name}" updated: "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab})`);
 		} else {
 			//* TRUE UPDATE
 			let valueToUpdate;
@@ -200,12 +199,11 @@ function updatePokemonMoves(manualUpdateByClickEvent, sheetForAutoUpdate, ownerI
 				});
 			}
 
-			const moveUpdate = {};
-			moveUpdate[scalingPath] = valueToUpdate;
-			targetActivity.update(moveUpdate);
+			const itemUpdate = {};
+			itemUpdate[`system.activities.${targetActivity.id}.${scalingPath}`] = valueToUpdate;
+			pokemonMove.update(itemUpdate, { isFromPk5e: true, pk5e: { isFromUpdateMoves: true } });
 
-			const message = `✅ The pokémon move "${pokemonMove.name}" has been updated from "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab}).`;
-			hideInfoMessages ? console.log(message) : ui.notifications.info(message, { console: true });
+			pk5eLog(`pk5e (update moves): ✅ "${pokemonMove.name}" updated: "${currentValue}" ——→ "${correspondingFinalValue}" (STAB: +${correspondingStab})`);
 		}
 	});
 }
@@ -237,17 +235,14 @@ function getScaleDataFromText(text) {
         const weaponType = data.querySelector('p#weapon-type')?.textContent?.trim();
         const rollFormula = data.querySelector('p#roll-formula')?.textContent?.trim();
 
-		console.log(`·) rawScale: ${rawScale}\n·) weaponType: ${weaponType}\n·) rollFormula: ${rollFormula}`);
-        if (rawScale && weaponType && rollFormula) {
+		pk5eLog(`pk5e (update moves): Scale data parsed`, `rawScale: ${rawScale}`, `weaponType: ${weaponType}`, `rollFormula: ${rollFormula}`);
+
+		if (rawScale && weaponType && rollFormula) {
             return { rawScale, weaponType, rollFormula };
         }
     }
 
     return null;
-}
-
-function logUnidentifiedDescription(name, unidentifiedDescription) {
-	console.log(`"${name}" pokémon move unidentified description:\n${unidentifiedDescription}`);
 }
 
 function getCurrentValue(weaponType, pokemonMove, targetActivity) {
@@ -273,55 +268,27 @@ function getCorrespondingStab(pokemonMove, currentLevel, stabType) {
 	else return 0;
 }
 
-function calculateModifier(score) { return Math.trunc((score - 10) / 2) };
-
-//* Input Data to Export
-export const updateMoves = {
-	name: "Update Moves",
-	description: "Automatically update the scaling and stab of all pokémon moves on the sheet.",
-	htmlElement: updateButton
-};
-
-//* HTML Button Shorcut
-Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
-	pokemonModuleLog("<-- Pokémon 5e Update Move Button Shortcut Rendered on Actor Sheet -->");
-
-	// Place where everything will be rendered: Header Buttons (Short/Long Rest Buttons)
-	const headerButtons = html.querySelector(".dnd5e2 .window-content .sheet-header-buttons");
-
-	const shortcutButton = updateButton.cloneNode(true);
-	shortcutButton.classList.add("gold-button", "pokemon5e");
-	shortcutButton.addEventListener("click", updatePokemonMoves);
-
-	const buttonSeparator = document.createElement("button");
-	buttonSeparator.type = "button";
-	buttonSeparator.classList.add("gold-button", "pokemon5e", "separator");
-	buttonSeparator.style.visibility = "hidden";
-
-	headerButtons.style.gap = "3px";
-	headerButtons?.insertAdjacentElement("beforeend", buttonSeparator);
-	headerButtons?.insertAdjacentElement("beforeend", shortcutButton);
-});
+function calculateModifier(score) { return Math.floor((score - 10) / 2) };
 
 // Hooks for Auto Updating:
 Hooks.on("updateActor", (actor, changes, options, userId) => {
-	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
-	if (enableAutoUpdateMoves) updatePokemonMoves(null, actor, userId);
+	if (options.isFromPk5e) return;
+	updatePokemonMoves(null, actor, userId);
 });
 
 Hooks.on("updateItem", (item, changes, options, userId) => {
-	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
-	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent, userId);
+	if (options.isFromPk5e) return;
+	updatePokemonMoves(null, item.parent, userId);
 });
 
 Hooks.on("createItem", (item, options, userId) => {
-	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
-	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent, userId);
+	if (options.isFromPk5e) return;
+	updatePokemonMoves(null, item.parent, userId);
 });
 
 Hooks.on("deleteItem", (item, options, userId) => {
-	const enableAutoUpdateMoves = game.settings.get("pokemon5e", "enableAutoUpdateMoves");
-	if (enableAutoUpdateMoves) updatePokemonMoves(null, item.parent, userId);
+	if (options.isFromPk5e) return;
+	updatePokemonMoves(null, item.parent, userId);
 });
 
 //* Paths for the different types of weapons (attacks, saves, healings, etc.) to define/get the ability to use
@@ -353,7 +320,7 @@ function autoChooseBestAbility(pokemonMove, weaponType) {
 	if (moveAbilities[0] === "any") moveAbilities = ["str", "dex", "con", "int", "wis", "cha"];
 
 	// Spanish Patch + Lower Case
-	formatAbilities(moveAbilities);
+	formatSpanishAbilities(moveAbilities);
 
 	// Get highest ability
 	const highestAbilityScore = { name: "", value: 0 };
@@ -379,11 +346,13 @@ function autoChooseBestAbility(pokemonMove, weaponType) {
 		const updateValue = highestAbilityScore.name;
 		abilityUpdate[updatePath] = updateValue;
 
-		targetActivity.update(abilityUpdate);
+		const itemUpdate = {};
+		itemUpdate[`system.activities.${targetActivity.id}.${updatePath}`] = updateValue;
+		pokemonMove.update(itemUpdate, { isFromPk5e: true, pk5e: { isFromUpdateMoves: true } });
 	}
 }
 
-function formatAbilities(abilities) {
+function formatSpanishAbilities(abilities) {
 	abilities.forEach((ab, index) => {
 		abilities[index] = ab.replace("FUE", "STR").replace("DES", "DEX").replace("SAB", "WIS").replace("CAR", "CHA").toLocaleLowerCase();
 	});
