@@ -6,7 +6,6 @@ moveManagerButton.setAttribute("type", "button");
 const moveManagerButtonName = "Move Manager";
 moveManagerButton.setAttribute("aria-label", moveManagerButtonName);
 moveManagerButton.setAttribute("data-tooltip", moveManagerButtonName);
-moveManagerButton.addEventListener("click", managePokemonMoves);
 const moveManagerButtonIcon = document.createElement("i");
 moveManagerButtonIcon.classList.add("fa-solid", "fa-duotone", "fa-bars-progress");
 moveManagerButton.appendChild(moveManagerButtonIcon);
@@ -19,6 +18,7 @@ Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
 	const searchBarContainerForFeatures = html.querySelector(".dnd5e2.actor .window-content .tab-body .tab[data-tab=\"features\"] search").parentElement;
 	const searchBarContainerForInventory = html.querySelector(".dnd5e2.actor .window-content .tab-body .tab[data-tab=\"inventory\"] search").parentElement;
 
+	const actor = app.document ?? app.actor;
 	const searchBarContainers = [searchBarContainerForFeatures, searchBarContainerForInventory];
 	searchBarContainers.forEach(searchBarContainer => {
 		searchBarContainer.style.display = "grid";
@@ -27,21 +27,35 @@ Hooks.on("renderBaseActorSheet", (app, html, context, options) => {
 
 		const shortcutButton = moveManagerButton.cloneNode(true);
 		shortcutButton.classList.add("pokemon5e");
-		shortcutButton.addEventListener("click", managePokemonMoves);
+		shortcutButton.addEventListener("click", (event) => managePokemonMoves(event, actor));
 		searchBarContainer.insertAdjacentElement("afterbegin", shortcutButton);
 	});
 });
 
-async function managePokemonMoves(event) {
+/**
+ * Opens the Move Manager dialog for a given actor.
+ * Validates that the actor exists and that its compendium (if any) is not locked.
+ * @param {PointerEvent} event - The click event triggered by the Move Manager button.
+ * @param {Actor5e} sheet - The actor document associated with the sheet that triggered the event.
+ * @returns {Promise<void>}
+ */
+async function managePokemonMoves(event, sheet) {
 	// Variables
 	const { Dialog } = foundry.applications.api;
 	const dID = "pk5e-move-manager-dialog";
-	// Identify the type of actor (synthetic or normal)
-	const rawUUID = event.target.form.id; // HTML Form Element ID
-	pk5eLog(`pk5e (move manager): Sheet UUID from HTML: ${rawUUID}`);
-	const idsIdentificator = /(-Scene-[^-]+)?(-Token-[^-]+)?(-Actor-[^-]+)/;
-	const parsedUUID = rawUUID.match(idsIdentificator)?.[0]?.replaceAll("-", ".")?.slice(1);
-	const sheet = fromUuidSync(parsedUUID);
+
+	// Initial Validation: Actor Exists
+	if (!sheet) {
+		ui.notifications.error(`Actor not found`, { console: true });
+		return;
+	}
+
+	// Initial Validation: Compendium Locked
+	const actorCollection = sheet[game.release.generation < 13 ? "compendium" : "collection"];
+	if (actorCollection?.locked) {
+		ui.notifications.error(`This compendium is locked. Unlock it to use the Move Manager.`, { console: true });
+		return;
+	}
 
 	// Initial Validation
 	if (!sheet) {
@@ -440,7 +454,6 @@ async function managePokemonMoves(event) {
 					const dialogHtml = dialog.element.querySelector(".pk5e-move-manager-dialog__main-content");
 
 					// Sheet Old Moves
-					const sheet = fromUuidSync(dialogHtml.dataset.actorUuid);
 					const sheetOldMoves = sheet.items
 						.filter(item => item.type === "weapon")
 						.filter(weapon => weapon.system.type.value === "pokemon");
@@ -488,7 +501,6 @@ async function managePokemonMoves(event) {
 			render: (renderEvent, dialog) => {
 				const dialogHtml = dialog.element.querySelector(".pk5e-move-manager-dialog__main-content");
 				// Actor Sheet
-				const sheet = fromUuidSync(dialogHtml.dataset.actorUuid);
 				const sheetLevel = sheet.system.details.level;
 				const sheetHasExtraMoveFeat = sheet.toObject().items
 					.filter(item => item.type === "feat").some(item => item.name === "Extra Move");
@@ -815,7 +827,12 @@ async function managePokemonMoves(event) {
 		});
 	}
 
-	// ul -> li -> p -> Level X: @UUID[Compendium.pokemon5e...]{MoveName}, @... .
+	/**
+	 * Parses a biography move list HTML element and returns a sorted object of moves grouped by learning level.
+	 * ul -> li -> p -> Level X: @UUID[Compendium.pokemon5e...]{MoveName}, @... .
+	 * @param {HTMLElement} listHtml - The <ul> element containing the move list from the actor's biography.
+	 * @returns {Object.<string, Array<{name: string, img: string, UUID: string}>>} Sorted moves grouped by level label.
+	 */
 	function getMovesToLern(listHtml) {
 		const moveLevelLabelDetector = /(\w+\s?\w*):/;
 		const moveIdDetector = /@UUID\[(.+?)\]\{(.+?)\}/;
@@ -848,6 +865,11 @@ async function managePokemonMoves(event) {
 		return sortedMoves;
 	}
 
+	/**
+	 * Formats a raw level label string into a human-readable display string.
+	 * @param {string} level - The raw level label (e.g. "Level 5", "TMs", "Egg").
+	 * @returns {string} The formatted level string.
+	 */
 	function formatLevel(level) {
 		if (level.includes("Level")) {
 			return `Learned at ${level}`;
@@ -862,6 +884,12 @@ async function managePokemonMoves(event) {
 		}
 	}
 
+	/**
+	 * Comparator function for sorting move objects alphabetically by name.
+	 * @param {{ name: string }} move1 - The first move object.
+	 * @param {{ name: string }} move2 - The second move object.
+	 * @returns {number} Negative, zero, or positive number for sort ordering.
+	 */
 	function sortMovesAlphabetically(move1, move2) {
 		const move1name = move1.name.toLowerCase();
 		const move2name = move2.name.toLowerCase();
@@ -870,6 +898,10 @@ async function managePokemonMoves(event) {
 }
 
 //* Input Data to Export
+/**
+ * Exported configuration object for the Move Manager feature.
+ * @type {{ name: string, description: string, htmlElement: HTMLButtonElement }}
+ */
 export const manageMoves = {
 	name: "Move Manager",
 	description: "An interface to change the pokémon's moves",
