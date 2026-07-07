@@ -108,8 +108,8 @@ Hooks.once("init", () => {
 	// Show all Helpers
 	game.settings.registerMenu("pokemon5e", "helpers", {
 		name: "Helpers",
-		label: "Abrir el Menú de Helpers",
-		hint: "Accede a todos los helpers que incluye el módulo para resolver incompatibilidades y errores.",
+		label: "Open the Helpers Menu",
+		hint: "Access all the helpers included in the module to resolve incompatibilities and errors.",
 		icon: "fa-solid fa-screwdriver-wrench",
 		type: pk5eHelpersMenu,
 		restricted: true
