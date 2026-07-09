@@ -324,7 +324,7 @@ function autoChooseBestAbility(pokemonMove, weaponType) {
 
 	// Get highest ability
 	const highestAbilityScore = { name: "", value: 0 };
-	const sheet = pokemonMove.parent.toObject();
+	const sheet = pokemonMove.parent;
 	moveAbilities.forEach(ability => {
 		const abilityScore = sheet.system.abilities[ability].value;
 		if (abilityScore > highestAbilityScore.value) {

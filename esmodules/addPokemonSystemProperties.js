@@ -29,6 +29,8 @@ const PK5E_PREFIX = {
 	// Esto es importante porque hay algunas propiedades que no pueden tener nombres muy largos, y si el prefijo (que es para diferenciarlo de otras propiedades similares) es largo de por sí, menos caracteres quedarán para el nombre de la propiedad.
 	// Sin embargo, como al inicio decidí colocarle pokemon, ahora no se puede cambiar ya que eso haría que todos los pokémon que existen actualmente en los mundos de todos los jugadores dejen de funcionar correctamente.
 	// Así que ni modo, nos quedaremos con el prefijo "pokemon" aunque ocupe muchos caracteres. Igualmente no está tan mal. Aunque hubiera sido bonito que fuera solo "pk5e".
+
+	// todo: Ahora que tenemos los helpers, sí podríamos llegar a corregir esto en algún momento.
 };
 
 //* Initializations and Loaded Settings (Init Hook)
@@ -97,7 +99,8 @@ Hooks.once("init", () => {
 			delete CONFIG.DND5E.conditionTypes.paralyzed;
 		}
 		POKEMON_CONDITIONS.forEach(condition => {
-			CONFIG.DND5E.conditionTypes[`${PK5E_PREFIX.forProperties}_${condition}`] = {
+			// ? El id de la condición solo admite caracteres alfanuméricos y un máximo de 11 caracteres
+			CONFIG.DND5E.conditionTypes[`pk5e${condition}`] = {
 				name: `${labelPrefix} ${formatPropertyName(condition)}`.trim(), // Ej.: "(pk5e) Poisoned" o "Poisoned"
 				img: `https://raw.githubusercontent.com/MissingGlitch/pokemon-images/refs/heads/main/conditions/${condition}.svg`,
 				reference: POKEMON_CONDITIONS_REFERENCES[condition] || "",
@@ -137,13 +140,3 @@ Hooks.once("init", () => {
 		}
 	}
 });
-
-Hooks.once("ready", () => {
-    game.modules.get("pokemon5e").api = {
-        NpcHpFixer
-    };
-});
-
-// Macro para abrir rápido el NpcHpFixer
-// const { NpcHpFixer } = game.modules.get("pokemon5e").api;
-// new NpcHpFixer().render({ force: true });
