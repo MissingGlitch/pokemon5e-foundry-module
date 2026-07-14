@@ -216,33 +216,60 @@ function getCorrespondingScaling(moveScaling, level) {
 	if (level === "lv1") return moveScaling.lv1;
 }
 
+/**
+ * Parses scale data from a given HTML string, supporting both v13 and v14 formats.
+ *
+ * @param {string} text - The raw HTML text containing scale metadata.
+ * @returns {string|Object|null} Returns `IIDS.NO_SCALE` if there is no scaling,
+ * an object with parsed data `{ rawScale, weaponType, rollFormula }` if successful,
+ * or `null` if the data is invalid or incomplete.
+ */
 function getScaleDataFromText(text) {
-	/* DATA:
+	/* ORIGINAL DATA on v13:
 	<div class="pokemon5e no-scale">
 		<p id="scale">XdX, XdX, XdX, XdX</p>
 		<p id="weapon-type">damage-from-attack</p>
 		<p id="roll-formula">@scale + @mod + @stab.type</p>
 	</div>
 	*/
-	const container = document.createElement("div");
-	container.innerHTML = text;
-	const data = container.firstElementChild;
 
-    if (data && data.tagName === "DIV" && data.classList.contains("pokemon5e")) {
-		if (data.classList.contains(IIDS.NO_SCALE)) return IIDS.NO_SCALE;
+	/* RE-FORMATTED DATA by v14:
+	<p id="scale"> <span style="color: transparent" class="pokemon5e"> XdX, XdX, XdX, XdX </span> </p>
+	<p id="weapon-type"> <span style="color: transparent" class="pokemon5e"> damage-from-attack </span> </p>
+	<p id="roll-formula"> <span style="color: transparent" class="pokemon5e"> @scale + @mod + @stab.type </span> </p>
+	*/
 
-        const rawScale = data.querySelector('p#scale')?.textContent?.split(",")?.map(x => x.trim());
-        const weaponType = data.querySelector('p#weapon-type')?.textContent?.trim();
-        const rollFormula = data.querySelector('p#roll-formula')?.textContent?.trim();
+	const dataContainer = document.createElement("div");
+	dataContainer.innerHTML = text;
 
-		pk5eLog(`pk5e (update moves): Scale data parsed`, `rawScale: ${rawScale}`, `weaponType: ${weaponType}`, `rollFormula: ${rollFormula}`);
+	// NO SCALE
+	const emptyTextFormV14 = text;
+	const uniqueDivForV13 = dataContainer.firstElementChild;
+	if (uniqueDivForV13?.classList.contains(IIDS.NO_SCALE))		return IIDS.NO_SCALE;	//? In v13, if the div has the "no-scale" class, it means it does not scale
+	if (emptyTextFormV14.trim().length === 0)					return IIDS.NO_SCALE;	//? In v14 due to reformatting, moves with no scale come with their unidentified description empty (the reformatting made them lose the wrapper div)
 
-		if (rawScale && weaponType && rollFormula) {
-            return { rawScale, weaponType, rollFormula };
-        }
-    }
+	// Data retrieval
+	// The selector 'p#id span, p#id' will try to find the span first (v14) and if it does not exist, it will use the p (v13)
+	const getRawTextData = (id) => dataContainer.querySelector(`p#${id} span.pokemon5e, p#${id}`)?.textContent?.trim();
 
-    return null;
+	const rawScaleText = getRawTextData('scale');
+	const weaponType = getRawTextData('weapon-type');
+	const rollFormula = getRawTextData('roll-formula');
+
+	// Processing the scaling dice
+	const rawScale = rawScaleText ? rawScaleText.split(",").map(x => x.trim()) : null;
+
+	pk5eLog(`pk5e (update moves): Scale data parsed`,
+		`rawScale: ${rawScale}`,
+		`weaponType: ${weaponType}`,
+		`rollFormula: ${rollFormula}`
+	);
+
+	if (rawScale && weaponType && rollFormula) {
+		return { rawScale, weaponType, rollFormula };
+	}
+
+	return null;
 }
 
 function getCurrentValue(weaponType, pokemonMove, targetActivity) {
@@ -253,11 +280,27 @@ function getCurrentValue(weaponType, pokemonMove, targetActivity) {
 	if (weaponType === IIDS.SIMPLE_DICE) return targetActivity.roll.formula;
 }
 
+/**
+ * Calculates the STAB (Same Type Attack Bonus) value for a given Pokémon move.
+ *
+ * In version "2018", the bonus is a level-based numeric value (0–5).
+ * In version "2024", the bonus is the roll formula attribute `"@prof"` (proficiency bonus).
+ * Returns `0` if the move's type does not match any of the actor's Pokémon type features,
+ * or if the actor has no Pokémon type features at all.
+ *
+ * @param {Item} pokemonMove - The Pokémon move item whose STAB bonus is being calculated.
+ * @param {number} currentLevel - The current level of the actor owning the move.
+ * @param {string|null} stabType - The Pokémon type of the move (e.g., `"fire"`, `"water"`), or `null` if the move has no STAB.
+ * @returns {number|string} The STAB bonus as a numeric value (2018 version) or as the roll formula string `"@prof"` (2024 version), or `0` if STAB does not apply.
+ */
 function getCorrespondingStab(pokemonMove, currentLevel, stabType) {
 	if (!stabType) return 0;
-	const correspondingBonus = (currentLevel >= 19) ? 5 : (currentLevel >= 15) ? 4 : (currentLevel >= 11) ? 3 : (currentLevel >= 7) ? 2 : (currentLevel >= 3) ? 1 : 0;
+	const stabVersion = game.settings.get("pokemon5e", "stabVersion");
+	const correspondingBonus = (stabVersion === "2024")
+		? "@prof"
+		: (currentLevel >= 19) ? 5 : (currentLevel >= 15) ? 4 : (currentLevel >= 11) ? 3 : (currentLevel >= 7) ? 2 : (currentLevel >= 3) ? 1 : 0;
 	const pokemonTypes = pokemonMove.parent.items
-		.filter(i => i.type === "feat") // Feature Item
+		.filter(i => i.type === "feat") 				// Feature Item
 		.filter(i => i.system.type.value === "pokemon") // Pokémon Feature
 		.filter(i => i.system.type.subtype === "type"); // Pokémon Type Feature
 

@@ -2,6 +2,25 @@ import { pk5eHelpersMenu } from "./applications/helpersMenu/helpersMenu.js";
 import { pk5eLog } from "./utils/logs.js";
 
 Hooks.once("init", () => {
+	// STAB Version
+	game.settings.register("pokemon5e", "stabVersion", {
+		name: "STAB Version",
+		hint: "This is the final modifier applied to moves with STAB (Same Type Attack Bonus).",
+		scope: "world",
+		config: true,
+		type: new foundry.data.fields.StringField({
+			required: true,
+			nullable: false,
+			choices: {
+				"2018": "2018 (Level-based)",
+				"2024": "2024 (Proficiency Bonus)"
+			}
+		}),
+		default: "2024",
+		onChange: value => { pk5eLog(`pk5e (settings): "STAB Version" has been set to <${value}>.`) },
+		requiresReload: false
+	});
+
 	// Add Pokémon Region Languages
 	game.settings.register("pokemon5e", "addPokemonLanguages", {
 		name: "Add Pokémon Region Languages",
