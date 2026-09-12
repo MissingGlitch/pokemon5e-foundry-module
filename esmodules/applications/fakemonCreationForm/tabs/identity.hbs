@@ -1,0 +1,31 @@
+<div class="tab {{ tab.cssClass }}" data-group="{{ tab.group }}" data-tab="{{ tab.id }}">
+
+	<div class="form-group">
+		<label>Name</label>
+		<div class="form-fields">
+			<input type="text" name="name" placeholder="Enter the name of your original Fakemon">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label>Image</label>
+		<div class="form-fields">
+			<file-picker type="image" name="img"></file-picker>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label>Pokédex Number</label>
+		<div class="form-fields">
+			<input type="text" name="pokedexNumber" placeholder="Enter the pokédex number (e.g., 1026, B001, FK-003, etc.)">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label>Pokédex Entry</label>
+		<div class="form-fields">
+			<textarea name="pokedexEntry" placeholder="The Custom Made Pokémon. Here you can enter a short description for your original Fakemon's Pokédex entry."></textarea>
+		</div>
+	</div>
+
+</div>

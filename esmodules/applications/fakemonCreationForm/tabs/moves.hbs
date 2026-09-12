@@ -1,0 +1,44 @@
+<div class="tab {{ tab.cssClass }}" data-group="{{ tab.group }}" data-tab="{{ tab.id }}">
+
+	{{!-- TMs (Máquinas Técnicas), sin nivel asociado --}}
+	<div class="form-group">
+		<label>TMs</label>
+		<div class="form-fields">
+			<div class="pk5e-move-picker" data-field="moves.tm">
+				<button type="button" data-action="openCompendiumPicker" data-filter-type="move" style="padding: 0 50px;">
+					<i class="fas fa-search"></i> Browse Moves
+				</button>
+				<div class="pk5e-move-picker-tags tags"></div>
+			</div>
+		</div>
+	</div>
+
+	{{!-- Egg Moves --}}
+	<div class="form-group">
+		<label>Egg Moves</label>
+		<div class="form-fields">
+			<div class="pk5e-move-picker" data-field="moves.egg">
+				<button type="button" data-action="openCompendiumPicker" data-filter-type="move" style="padding: 0 50px;">
+					<i class="fas fa-search"></i> Browse Moves
+				</button>
+				<div class="pk5e-move-picker-tags tags"></div>
+			</div>
+		</div>
+	</div>
+
+	{{!-- Movimientos por nivel (1-20), todos vacíos por defecto --}}
+	{{#each moveLevels as |level|}}
+	<div class="form-group">
+		<label>{{ level.label }}</label>
+		<div class="form-fields">
+			<div class="pk5e-move-picker" data-field="moves.level.{{ level.level }}">
+				<button type="button" data-action="openCompendiumPicker" data-filter-type="move" style="padding: 0 50px;">
+					<i class="fas fa-search"></i> Browse Moves
+				</button>
+				<div class="pk5e-move-picker-tags tags"></div>
+			</div>
+		</div>
+	</div>
+	{{/each}}
+
+</div>

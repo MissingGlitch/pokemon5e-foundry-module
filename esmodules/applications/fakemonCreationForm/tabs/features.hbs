@@ -1,0 +1,174 @@
+<div class="tab {{ tab.cssClass }}" data-group="{{ tab.group }}" data-tab="{{ tab.id }}">
+
+	{{!-- has Gender? --}}
+	<div class="form-group">
+		<label>Has Gender</label>
+		<div class="form-fields">
+			<input type="checkbox" name="hasGender" class="pk5e-has-gender" checked>
+		</div>
+	</div>
+
+	{{!-- Gender Ratio --}}
+	<div class="form-group split-group pk5e-gender-ratio-group">
+		<label>Gender Ratio (% Female / % Male)</label>
+		<div class="form-fields pk5e-gender-ratio-row">
+			<input type="number" name="genderRatio.female" class="pk5e-gender-female"
+			       min="0" max="100" step="1" value="50">
+			<span class="sep pk5e-gender-female-unit">% ♀️</span>
+			<input type="number" name="genderRatio.male" class="pk5e-gender-male"
+			       min="0" max="100" step="1" value="50" readonly disabled tabindex="-1">
+			<span class="sep pk5e-gender-male-unit">% ♂️</span>
+			<input type="text" name="genderRatio.genderless" class="pk5e-gender-genderless"
+			       value="Genderless" readonly disabled tabindex="-1" style="display:none; text-align:center;">
+		</div>
+	</div>
+
+	{{!-- Types --}}
+	<div class="form-group">
+		<label>Types</label>
+		<div class="form-fields">
+			<multi-select name="pokemonTypes">
+				{{#each pokemonTypes}}
+				<option value="{{ this }}">{{ this }}</option>
+				{{/each}}
+			</multi-select>
+		</div>
+	</div>
+
+	{{!-- Ability --}}
+		<div class="form-group">
+		<label>Possible Abilities</label>
+		<div class="form-fields">
+			<div class="pk5e-move-picker" data-field="possibleAbilities">
+				<button type="button" data-action="openCompendiumPicker" data-filter-type="ability" style="padding: 0 50px;">
+					<i class="fas fa-search"></i> Browse Abilities
+				</button>
+				<div class="pk5e-move-picker-tags tags"></div>
+			</div>
+		</div>
+	</div>
+
+	{{!-- Hidden Ability --}}
+	<div class="form-group">
+		<label>Possible Hidden Abilities</label>
+		<div class="form-fields">
+			<div class="pk5e-move-picker" data-field="possibleHiddenAbilities">
+				<button type="button" data-action="openCompendiumPicker" data-filter-type="ability" style="padding: 0 50px;">
+					<i class="fas fa-search"></i> Browse Abilities
+				</button>
+				<div class="pk5e-move-picker-tags tags"></div>
+			</div>
+		</div>
+	</div>
+
+	{{!-- Egg Group --}}
+	<div class="form-group">
+		<label>Egg Group</label>
+		<div class="form-fields">
+			<multi-select name="eggGroup">
+				<option value="Amorphous">			Amorphous			</option>
+				<option value="Bug">				Bug					</option>
+				<option value="Ditto">				Ditto				</option>
+				<option value="Dragon">				Dragon				</option>
+				<option value="Fairy">				Fairy				</option>
+				<option value="Field">				Field				</option>
+				<option value="Flying">				Flying				</option>
+				<option value="Grass">				Grass				</option>
+				<option value="Human-Like">			Human-Like			</option>
+				<option value="Mineral">			Mineral				</option>
+				<option value="Monster">			Monster				</option>
+				<option value="Water 1">			Water 1				</option>
+				<option value="Water 2">			Water 2				</option>
+				<option value="Water 3">			Water 3				</option>
+				<option value="No Eggs Discovered">	No Eggs Discovered	</option>
+				<option value="Gender unknown">		Gender unknown		</option>
+			</multi-select>
+		</div>
+	</div>
+
+	{{!-- Speeds --}}
+	<fieldset>
+		<legend>Speeds</legend>
+
+		<div class="form-group">
+			<label>Walk</label>
+			<div class="form-fields">
+				<input type="number" name="movement.walk" min="0" value="30" style="max-width: 110px;">
+				<span class="sep unit">ft.</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Swim</label>
+			<div class="form-fields">
+				<input type="number" name="movement.swim" min="0" value="0" style="max-width: 110px;">
+				<span class="sep unit">ft.</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Climb</label>
+			<div class="form-fields">
+				<input type="number" name="movement.climb" min="0" value="0" style="max-width: 110px;">
+				<span class="sep unit">ft.</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Burrow</label>
+			<div class="form-fields">
+				<input type="number" name="movement.burrow" min="0" value="0" style="max-width: 110px;">
+				<span class="sep unit">ft.</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Fly</label>
+			<div class="form-fields">
+				<input type="number" name="movement.fly" min="0" value="0" style="max-width: 110px;">
+				<span class="sep unit">ft.</span>
+				<span class="sep">Is hover?</span>
+				<input type="checkbox" name="movement.hover">
+			</div>
+		</div>
+
+	</fieldset>
+
+	{{!-- Special Senses --}}
+	<fieldset>
+		<legend>Special Senses</legend>
+
+		<div class="form-group">
+			<label>Darkvision</label>
+			<div class="form-fields">
+				<input type="number" name="senses.darkvision" min="0" value="0">
+				<span class="sep unit">ft.</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Blindsight</label>
+			<div class="form-fields">
+				<input type="number" name="senses.blindsight" min="0" value="0">
+				<span class="sep unit">ft.</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Tremorsense</label>
+			<div class="form-fields">
+				<input type="number" name="senses.tremorsense" min="0" value="0">
+				<span class="sep unit">ft.</span>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Truesight</label>
+			<div class="form-fields">
+				<input type="number" name="senses.truesight" min="0" value="0">
+				<span class="sep unit">ft.</span>
+			</div>
+		</div>
+	</fieldset>
+
+</div>

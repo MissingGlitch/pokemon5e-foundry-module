@@ -1,5 +1,5 @@
 import { NpcHpFixer } from "./applications/helpersMenu/helpers/npcHpFixer/npcHpFixer.js";
-
+import { FakemonCreationDialog } from "./applications/fakemonCreationForm/fakemonCreationForm.js";
 
 //* Definitions and Variables
 import { pk5eLog } from "./utils/logs.js";
@@ -138,5 +138,58 @@ Hooks.once("init", () => {
 			ability: "Pokémon Ability",
 			species: "Species Trait"
 		}
+	}
+
+	// Pokémon Actor Type (opción "Fakemon" en el diálogo "Create Actor")
+	{
+		pk5eLog("pk5e (init): Registering 'Fakemon' option in Create Actor dialog");
+
+		Hooks.on("renderApplicationV2", (app, html, context, options) => {
+			if (app.constructor.name !== "CreateDocumentDialog") return;
+			pk5eLog("pk5e (renderApplicationV2): CreateDocumentDialog render detected", { app, html, context, options });
+
+			const npcRadio = html.querySelector('input[name="type"][value="npc"]');
+			if (!npcRadio) {
+				pk5eLog("pk5e (renderApplicationV2): 'npc' radio not found in this render (probably the 'footer' part), skipping");
+				return;
+			}
+
+			const npcLi = npcRadio.closest("li");
+			const list = npcLi.parentElement;
+			if (list.querySelector('input[name="type"][value="fakemon"]')) {
+				pk5eLog("pk5e (renderApplicationV2): 'fakemon' option already exists, skipping duplicate insertion");
+				return;
+			}
+
+			const fakemonLi = npcLi.cloneNode(true);
+			const fakemonRadio = fakemonLi.querySelector('input[name="type"]');
+			fakemonRadio.value = "fakemon";
+			fakemonLi.querySelector("span").textContent = "Fakemon";
+			fakemonLi.querySelector("dnd5e-icon").setAttribute("src", "modules/pokemon5e/extras/pokeball.svg"); // todo: confirmar ruta real del ícono
+			list.appendChild(fakemonLi);
+			pk5eLog("pk5e (renderApplicationV2): 'Fakemon' option inserted into Create Actor list", fakemonLi);
+
+			const form = html.querySelector("form");
+			if (form.dataset.pk5eFakemonBound) {
+				pk5eLog("pk5e (renderApplicationV2): submit listener already bound for this form, skipping");
+				return;
+			}
+			form.dataset.pk5eFakemonBound = "true";
+
+			form.addEventListener("submit", ev => {
+				pk5eLog("pk5e (submit): Create Actor form submitted", { checked: fakemonRadio.checked });
+				if (!fakemonRadio.checked) {
+					pk5eLog("pk5e (submit): non-fakemon type, letting native flow continue");
+					return;
+				}
+
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+				pk5eLog("pk5e (submit): 'Fakemon' selected, intercepting native creation flow");
+
+				app.close();
+				new FakemonCreationDialog().render(true);
+			}, { capture: true });
+		});
 	}
 });

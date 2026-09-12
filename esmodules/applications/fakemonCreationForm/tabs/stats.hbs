@@ -1,0 +1,135 @@
+<div class="tab {{ tab.cssClass }}" data-group="{{ tab.group }}" data-tab="{{ tab.id }}">
+
+	{{!-- Size --}}
+	<div class="form-group">
+		<label>Size</label>
+		<div class="form-fields">
+			<select name="size" style="text-align: center;">
+				{{ selectOptions CONFIG.actorSizes selected="med" labelAttr="label" }}
+			</select>
+		</div>
+	</div>
+
+	{{!-- Hit Die --}}
+	<div class="form-group">
+		<label>Hit Die</label>
+		<div class="form-fields">
+			<select name="hitDie" style="text-align: center;">
+				<option value="4">			d4  </option>
+				<option value="6">			d6  </option>
+				<option value="8" selected> d8  </option>
+				<option value="10">			d10 </option>
+				<option value="12">			d12 </option>
+			</select>
+		</div>
+	</div>
+
+	{{!-- Total HP --}}
+	<div class="form-group">
+		<label>Total HP</label>
+		<div class="form-fields">
+			<input type="number" name="hpBase">
+		</div>
+	</div>
+
+	{{!-- Minimum Level --}}
+	<div class="form-group">
+		<label>Minimum Level</label>
+		<div class="form-fields">
+			<input type="number" name="minLevel" value="1" min="1">
+		</div>
+	</div>
+
+	{{!-- Armor Class --}}
+	<div class="form-group">
+		<label>Natural Armor Class</label>
+		<div class="form-fields">
+			<input type="number" name="naturalArmorClass" min="0" value="10">
+		</div>
+	</div>
+
+	{{!-- Ability Scores --}}
+	<fieldset>
+		<legend>Ability Scores</legend>
+
+		{{!-- Strength Score --}}
+		<div class="form-group split-group">
+			<label>Strength Score</label>
+			<div class="form-fields pk5e-ability-row">
+				<input type="number" name="abilities.str.value" class="pk5e-ability-score" data-ability="str" value="10">
+				<input type="text" class="pk5e-ability-mod" data-mod-for="str" value="+0" readonly disabled tabindex="-1" style="text-align: center;">
+			</div>
+		</div>
+
+		{{!-- Dexterity Score --}}
+		<div class="form-group split-group">
+			<label>Dexterity Score</label>
+			<div class="form-fields pk5e-ability-row">
+				<input type="number" name="abilities.dex.value" class="pk5e-ability-score" data-ability="dex" value="10">
+				<input type="text" class="pk5e-ability-mod" data-mod-for="dex" value="+0" readonly disabled tabindex="-1" style="text-align: center;">
+			</div>
+		</div>
+
+		{{!-- Constitution Score --}}
+		<div class="form-group split-group">
+			<label>Constitution Score</label>
+			<div class="form-fields pk5e-ability-row">
+				<input type="number" name="abilities.con.value" class="pk5e-ability-score" data-ability="con" value="10">
+				<input type="text" class="pk5e-ability-mod" data-mod-for="con" value="+0" readonly disabled tabindex="-1" style="text-align: center;">
+			</div>
+		</div>
+
+		{{!-- Intelligence Score --}}
+		<div class="form-group split-group">
+			<label>Intelligence Score</label>
+			<div class="form-fields pk5e-ability-row">
+				<input type="number" name="abilities.int.value" class="pk5e-ability-score" data-ability="int" value="10">
+				<input type="text" class="pk5e-ability-mod" data-mod-for="int" value="+0" readonly disabled tabindex="-1" style="text-align: center;">
+			</div>
+		</div>
+
+		{{!-- Wisdom Score --}}
+		<div class="form-group split-group">
+			<label>Wisdom Score</label>
+			<div class="form-fields pk5e-ability-row">
+				<input type="number" name="abilities.wis.value" class="pk5e-ability-score" data-ability="wis" value="10">
+				<input type="text" class="pk5e-ability-mod" data-mod-for="wis" value="+0" readonly disabled tabindex="-1" style="text-align: center;">
+			</div>
+		</div>
+
+		{{!-- Charisma Score --}}
+		<div class="form-group split-group">
+			<label>Charisma Score</label>
+			<div class="form-fields pk5e-ability-row">
+				<input type="number" name="abilities.cha.value" class="pk5e-ability-score" data-ability="cha" value="10">
+				<input type="text" class="pk5e-ability-mod" data-mod-for="cha" value="+0" readonly disabled tabindex="-1" style="text-align: center;">
+			</div>
+		</div>
+	</fieldset>
+
+	{{!-- Proficiencies --}}
+	<fieldset>
+		<legend>Proficiencies</legend>
+
+		{{!-- Skill Proficiencies --}}
+		<div class="form-group">
+			<label>Skill Proficiencies</label>
+			<div class="form-fields">
+				<multi-select name="proficientSkills">
+					{{ selectOptions CONFIG.skills labelAttr="label" }}
+				</multi-select>
+			</div>
+		</div>
+
+		{{!-- Saving Throw Proficiencies --}}
+		<div class="form-group">
+			<label>Saving Throw Proficiencies</label>
+			<div class="form-fields">
+				<multi-select name="proficientSaves">
+					{{ selectOptions CONFIG.abilities labelAttr="label" }}
+				</multi-select>
+			</div>
+		</div>
+	</fieldset>
+
+</div>

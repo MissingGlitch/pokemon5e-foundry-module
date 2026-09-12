@@ -1,0 +1,67 @@
+<div class="tab {{ tab.cssClass }}" data-group="{{ tab.group }}" data-tab="{{ tab.id }}">
+
+	{{!-- Pre-Evolution --}}
+	<fieldset>
+		<legend>Pre-Evolution</legend>
+
+		<div class="form-group">
+			<label>Has Pre-Evolution</label>
+			<div class="form-fields">
+				<input type="checkbox" name="hasPreEvolution" class="pk5e-has-pre-evolution">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Pre-Evolution Name</label>
+			<div class="form-fields">
+				<input type="text" name="preEvolution" class="pk5e-pre-evolution-name" placeholder="Enter the name of the pre-evolution">
+				<input type="text" name="preEvolution.none" class="pk5e-pre-evolution-none"
+				       value="No Pre-Evolution" readonly disabled tabindex="-1" style="display:none; text-align:center;">
+			</div>
+		</div>
+	</fieldset>
+
+	{{!-- Next Evolution --}}
+	<fieldset>
+		<legend>Next Evolution</legend>
+
+		<div class="form-group">
+			<label>Has Next Evolution</label>
+			<div class="form-fields">
+				<input type="checkbox" name="hasNextEvolution" class="pk5e-has-next-evolution">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Next Evolution Description</label>
+			<div class="form-fields pk5e-evolution-fields-stacked" style="text-align: center;">
+				<span class="pk5e-evolution-intro">
+					<span class="pk5e-fakemon-name-placeholder">Fakemon</span> can evolve into...
+				</span>
+				<textarea name="nextEvolution" class="pk5e-next-evolution-name" rows="3" placeholder="Fakemon2 at level X or above. When it evolves, its health increases by double its level and it gains X points to add to its ability scores."></textarea>
+				<input type="text" name="nextEvolution.none" class="pk5e-next-evolution-none"
+				       value="No Next Evolution" readonly disabled tabindex="-1" style="display:none; text-align:center; min-height: var(--input-height) !important;">
+			</div>
+		</div>
+	</fieldset>
+
+	{{!-- Evolutionary Stages --}}
+	<fieldset class="pk5e-evolutionary-stages-group">
+		<legend>Evolutionary Stages</legend>
+
+		<div class="form-group">
+			<label>How many evolutionary stages does this species have?</label>
+			<div class="form-fields">
+				<input type="number" name="evolutionStages" class="pk5e-evolution-stages-total" min="1" value="3">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Which stage is this Fakemon currently at?</label>
+			<div class="form-fields">
+				<select name="currentEvolutionStage" class="pk5e-evolution-stages-current"></select>
+			</div>
+		</div>
+	</fieldset>
+
+</div>
