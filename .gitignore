@@ -1,5 +1,31 @@
-# Created by https://www.toptal.com/developers/gitignore/api/windows,macos,linux,node
-# Edit at https://www.toptal.com/developers/gitignore?templates=windows,macos,linux,node
+# * Main folders and files to ignore
+extras
+macros
+.vitest
+.vscode
+node_modules
+test_reports
+pendientes-por-hacer
+como-sacar-una-release
+
+# * Recommended folders and files to ignore in Git, Node, Windows, Linux, and macOS
+# Created by https://www.toptal.com/developers/gitignore/api/git,node,windows,linux,macos
+# Edit at https://www.toptal.com/developers/gitignore?templates=git,node,windows,linux,macos
+
+### Git ###
+# Created by git for backups. To disable backups in Git:
+# $ git config --global mergetool.keepBackup false
+*.orig
+
+# Created by git when using merge tools for conflicts
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+*_BACKUP_*.txt
+*_BASE_*.txt
+*_LOCAL_*.txt
+*_REMOTE_*.txt
 
 ### Linux ###
 *~
@@ -215,14 +241,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/windows,macos,linux,node
-
-# Other files and folders to ignore
-extras
-media
-macros
-testing.js
-como-sacar-una-release
-
-# Exclusion for .log files in the 'packs' folder and its subfolders
-!packs/**/*.log
+# End of https://www.toptal.com/developers/gitignore/api/git,node,windows,linux,macos

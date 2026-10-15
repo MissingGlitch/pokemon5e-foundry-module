@@ -1,0 +1,54 @@
+{
+	"name": "pokemon5e-foundry-module",
+	"version": "0.13.0",
+	"description": "(BETA VERSION) Everything you need to play Pokémon 5e: Pokémon Bestiary, Items, Moves, Types, Trainer Class, and more!",
+	"type": "module",
+	"private": true,
+	"license": "MIT",
+	"author": "Missing Glitch",
+	"packageManager": "pnpm@12.11.2",
+	"devDependencies": {
+		"@foundryvtt/foundryvtt-cli": "^3.0.4",
+		"@vitest/browser-playwright": "^5.0.3",
+		"eslint": "^10.12.0",
+		"@eslint/js": "^10.0.1",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-prettier": "^5.5.6",
+		"prettier": "^3.9.9",
+		"playwright": "^1.64.0",
+		"@playwright/test": "^1.64.0",
+		"vitest": "^5.0.3",
+		"@vitest/ui": "^5.0.3",
+		"happy-dom": "^20.14.6"
+	},
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": ">=24.14.0 <25",
+			"onFail": "error"
+		},
+		"packageManager": {
+			"name": "pnpm",
+			"version": "12.11.2",
+			"onFail": "error"
+		}
+	},
+	"scripts": {
+		"format": "prettier --check .",
+		"format:fix": "prettier --write .",
+		"lint": "eslint .",
+		"lint:fix": "eslint --fix .",
+		"test": "vitest",
+		"test:unit": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:headed": "playwright test --headed",
+		"test:e2e:report": "playwright show-report .playwright/reports/",
+		"build:packs": "node tools/build-packs.mjs",
+		"check:manifest": "node tools/check-manifest.mjs",
+		"check:package": "node tools/check-package.mjs",
+		"build": "pnpm run build:packs && pnpm run check:manifest",
+		"ci": "pnpm run format && pnpm run lint && pnpm run test:unit && pnpm run build"
+	}
+}
