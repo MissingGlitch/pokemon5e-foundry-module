@@ -1,4 +1,5 @@
 # * Main folders and files to ignore
+packs
 extras
 macros
 .vitest
@@ -8,7 +9,7 @@ test_reports
 pendientes-por-hacer
 como-sacar-una-release
 
-# * Recommended folders and files to ignore in Git, Node, Windows, Linux, and macOS
+# * Recommended folders and files to ignore in Git, Node, Windows, Linux, and MacOS
 # Created by https://www.toptal.com/developers/gitignore/api/git,node,windows,linux,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=git,node,windows,linux,macos
 
