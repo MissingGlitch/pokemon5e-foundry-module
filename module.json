@@ -5,12 +5,12 @@
 	"version": "0.13.0",
 	"esmodules": [
 		"esmodules/utils/logs.js",
-		"esmodules/settingsMenuOptions.js",
-		"esmodules/addPokemonSystemProperties.js",
-		"esmodules/html_inputs/pokemonInputsSection.js",
-		"esmodules/html_inputs/inputUpdateMoves.js",
-		"esmodules/html_inputs/inputEvolvePokemon.js",
-		"esmodules/html_inputs/inputMoveManager.js"
+		"esmodules/settings-menu-options.js",
+		"esmodules/add-pokemon-system-properties.js",
+		"esmodules/html-inputs/pokemon-inputs-section.js",
+		"esmodules/html-inputs/input-update-moves.js",
+		"esmodules/html-inputs/input-evolve-pokemon.js",
+		"esmodules/html-inputs/input-move-manager.js"
 	],
 	"styles": ["styles/main.css"],
 	"packFolders": [

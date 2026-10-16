@@ -5,9 +5,9 @@ macros
 .vitest
 .vscode
 node_modules
-test_reports
-pendientes-por-hacer
-como-sacar-una-release
+test-reports
+pending-work.md
+how-to-build-a-release.md
 
 # * Recommended folders and files to ignore in Git, Node, Windows, Linux, and MacOS
 # Created by https://www.toptal.com/developers/gitignore/api/git,node,windows,linux,macos

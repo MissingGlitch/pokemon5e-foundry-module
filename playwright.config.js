@@ -17,7 +17,7 @@ export default defineConfig({
 	testMatch: '**/*.e2e.test.js',
 
 	// Where HTML, JSON and other test reports are stored.
-	outputDir: './test_reports/playwright/artifacts/',
+	outputDir: './test-reports/playwright/artifacts/',
 
 	// Reporters: terminal list plus a browsable HTML report.
 	reporter: [
@@ -25,7 +25,7 @@ export default defineConfig({
 		[
 			'html',
 			{
-				outputFolder: './test_reports/playwright/reports/',
+				outputFolder: './test-reports/playwright/reports/',
 				open: 'never'
 			}
 		]

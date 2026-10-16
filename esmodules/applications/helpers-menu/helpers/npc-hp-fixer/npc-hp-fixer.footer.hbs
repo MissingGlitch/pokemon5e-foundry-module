@@ -1,0 +1,57 @@
+<div class="footer-part">
+	{{#if views.actorsSelection.active}}
+
+		{{!-- Hidden Summary --}}
+		<section class="hidden-summary">
+			{{!-- Summary Panel Header --}}
+			<div class="summary-header">
+				<span class="title">Selected Pokémon ({{selectedActors.length}})</span>
+				<button class="clear-all-button" type="button" data-tooltip="Remove all">
+					<i class="fa-solid fa-trash"></i>
+				</button>
+			</div>
+
+			{{!-- Actor Cards --}}
+			<div class="summary-list {{#unless selectedActors.length}}empty{{/unless}}">
+				{{#each selectedActors}}
+				<div class="summary-card" data-uuid="{{uuid}}">
+					<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+					<img class="img" src="{{data.img}}" alt="{{name}}">
+					<div class="info">
+						<span class="name" data-tooltip="{{name}}">{{name}}</span>
+						<span class="path" data-tooltip="{{containerPath}}">
+							<i class="{{sourceIconClass}}"></i>
+							{{containerPathForLabel}}
+						</span>
+					</div>
+					<button class="remove-button" type="button" data-uuid="{{uuid}}" data-tooltip="Remove">
+						<i class="fa-solid fa-xmark"></i>
+					</button>
+				</div>
+				{{/each}}
+
+				{{#unless selectedActors.length}}
+				{{!-- Empty state --}}
+				<div class="summary-empty">
+					<i class="icon fa-duotone fa-solid fa-user-slash"></i>
+					<span class="text">No pokémon selected yet</span>
+				</div>
+				{{/unless}}
+			</div>
+		</section>
+
+		{{!-- True Footer --}}
+		<div class="true-footer">
+			<div class="brief-summary">
+				<div class="current-counter-container">
+					<span class="number">{{selectedActors.length}}</span>
+					<span class="title">Selected Pokémon</span>
+				</div>
+
+				<button class="expand-summary-button" type="button" data-tooltip="Show Summary"> <i class="fa-solid fa-arrow-up-wide-short"></i> </button>
+			</div>
+
+			<button class="submit-button" type="submit">Fix Selected</button>
+		</div>
+	{{/if}}
+</div>

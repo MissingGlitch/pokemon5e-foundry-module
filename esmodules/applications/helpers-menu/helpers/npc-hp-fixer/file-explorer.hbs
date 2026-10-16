@@ -1,0 +1,149 @@
+{{!-- Reusable partial for the file explorer tabs (Actors Tab and Compendiums Tab) --}}
+{{!-- Parameters: tabData, rootLabel, emptyRootMsg, emptyRootIconClass, emptyFolderMsg, emptyCompendiumMsg --}}
+
+{{#if tabData}}
+
+	{{!-- Top divider line: margin only, separates the header part from the tab content --}}
+	<div class="tab-divider horizontal-top"></div>
+
+	{{!-- Tree Navigation Sidebar --}}
+	<section class="tree-nav">
+		<div class="tree-content">
+			{{!-- Root node --}}
+			<div class="tree-node root-node {{#unless tabData.currentLocationId}}current{{/unless}}" data-node-id="">
+				<i class="fa-solid fa-house"></i>
+				<span class="tree-node-name">{{rootLabel}}</span>
+			</div>
+
+			{{!-- Folder/compendium tree --}}
+			{{#each tabData.treeFolders}}
+				<div class="tree-children">
+					{{> pk5e-tree-node this}}
+				</div>
+			{{/each}}
+		</div>
+	</section>
+
+	{{!-- Middle vertical divider line: separates the tree nav from the selection pane --}}
+	<div class="tab-divider vertical-mid"></div>
+
+	{{!-- Selection Pane --}}
+	<section class="selection-pane">
+		<div class="header">
+			{{!-- Current Route --}}
+			<h3 class="current-route">
+				<span class="breadcrumb-segment {{#unless tabData.breadcrumb.length}}current{{/unless}}" data-breadcrumb-index="-1" data-tooltip="{{rootLabel}}">
+					{{rootLabel}}
+				</span>
+                {{#each tabData.breadcrumb}}
+                    <span class="separator"> > </span>
+                    <span class="breadcrumb-segment {{#if @last}}current{{/if}}" {{#unless @last}}data-breadcrumb-index="{{index}}"{{/unless}} data-tooltip="{{name}}">
+                        <i class="{{iconClass}}" {{#if color}}style="color: {{color}}"{{/if}}></i>
+                        {{name}}
+                    </span>
+                {{/each}}
+				<span class="separator"> > </span>
+			</h3>
+
+			{{!-- Search Bar --}}
+			<div class="search-bar-container">
+				<i class="icon fa-solid fa-magnifying-glass"></i>
+				<input class="search-bar" type="text" placeholder="Search by name...">
+				<button class="select-all-button" type="button" data-tooltip="Select All">
+					<i class="icon fa-light fa-square-check"></i>
+				</button>
+			</div>
+		</div>
+
+		{{!-- Content Grid --}}
+		<div class="content {{#unless tabData.items.length}}empty{{/unless}}">
+			{{#each tabData.items}}
+			<div class="item-container">
+				{{#if isNavigable}}
+					{{!-- Folders and Compendiums (navigable) --}}
+					<div class="item folder-item {{#if isCompendium}}compendium-item{{/if}}" data-node-id="{{id}}" data-node-type="{{nodeType}}" data-valid-actor-count="{{validCount}}">
+						<input type="checkbox" class="check-button" {{#if isSelected}}checked{{/if}}>
+						<i class="icon {{iconClass}}" {{#if color}}style="color: {{color}}"{{/if}}></i>
+						<div class="name" data-tooltip="{{name}}"> <span>{{name}}</span> </div>
+					</div>
+				{{else}}
+					{{!-- Actors --}}
+					<div class="item actor-item" data-uuid="{{uuid}}" data-tooltip="{{name}}">
+						<input type="checkbox" class="check-button" {{#if isSelected}}checked{{/if}}>
+						<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+						<img class="img" src="{{img}}" alt="{{name}}">
+						<div class="name"> <span>{{name}}</span> </div>
+					</div>
+				{{/if}}
+			</div>
+			{{/each}}
+
+			{{#unless tabData.items.length}}
+			<div class="empty-location-msg">
+
+				{{#if tabData.breadcrumb.length}}
+				{{!-- If the current folder or compendium is empty --}}
+					{{#if tabData.currentLocationIsCompendium}}
+						<i class="icon fa-duotone fa-regular fa-book-open-reader"></i>
+						<h3 class="text">{{emptyCompendiumMsg}}</h3>
+					{{else}}
+						<i class="icon fa-duotone fa-regular fa-folder-open"></i>
+						<h3 class="text">{{emptyFolderMsg}}</h3>
+					{{/if}}
+
+				{{else}}
+				{{!-- If the root is empty --}}
+					<i class="icon {{emptyRootIconClass}}"></i>
+					<h3 class="text">{{emptyRootMsg}}</h3>
+				{{/if}}
+			</div>
+			{{/unless}}
+		</div>
+
+		{{!-- Invalid Entries Section --}}
+		{{#if tabData.invalidItems.length}}
+			<div class="invalid-section">
+
+				<div class="invalid-section-header">
+					<div class="separator-line"></div>
+					<div class="text">
+						Invalid Entries ({{tabData.invalidItems.length}})
+						<i class="icon fa-solid fa-chevrons-down"></i>
+					</div>
+					<div class="separator-line"></div>
+				</div>
+
+				<div class="invalid-content">
+					{{#each tabData.invalidItems}}
+						<div class="item-container">
+							{{#if isInvalidCompendium}}
+								{{!-- Non-actor compendium: not navigable, can only be opened --}}
+								<div class="item invalid-compendium-item invalid" data-node-id="{{id}}" data-tooltip="{{name}}">
+									<input type="checkbox" class="check-button" disabled>
+									<i class="lock-icon fa-solid fa-lock"></i>
+									<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+									<i class="icon fa-solid fa-book-atlas"></i>
+									<div class="name"> <span>{{name}}</span> </div>
+								</div>
+							{{else}}
+								{{!-- Invalid actor --}}
+								<div class="item actor-item invalid" data-uuid="{{uuid}}" data-tooltip="{{name}}">
+									<input type="checkbox" class="check-button" disabled>
+									<i class="lock-icon fa-solid fa-lock"></i>
+									<div class="item-spinner"><i class="fa-solid fa-spinner-third fa-spin"></i></div>
+									<img class="img" src="{{img}}" alt="{{name}}">
+									<div class="name"> <span>{{name}}</span> </div>
+								</div>
+							{{/if}}
+						</div>
+					{{/each}}
+				</div>
+
+			</div>
+		{{/if}}
+	</section>
+
+	{{!-- Bottom divider line: separates the content from the Footer Part --}}
+	<div class="tab-divider horizontal-bottom"></div>
+
+{{/if}}

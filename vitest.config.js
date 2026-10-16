@@ -86,7 +86,7 @@ export default defineConfig({
 			reporter: ['text', 'json', 'html'],
 
 			// Directory where coverage reports will be written.
-			reportsDirectory: './test_reports/vitest/coverages/'
+			reportsDirectory: './test-reports/vitest/coverages/'
 		},
 
 		// Test reporters and output files
@@ -104,8 +104,8 @@ export default defineConfig({
 
 		// Where each reporter should write its output files.
 		outputFile: {
-			json: './test_reports/vitest/reports/report.json',
-			html: './test_reports/vitest/reports/report.html'
+			json: './test-reports/vitest/reports/report.json',
+			html: './test-reports/vitest/reports/report.html'
 		}
 	}
 });
