@@ -50,7 +50,7 @@
 		"test:e2e": "playwright test --config .devconfig/playwright.config.js",
 		"test:e2e:ui": "playwright test --ui --config .devconfig/playwright.config.js",
 		"test:e2e:headed": "playwright test --headed --config .devconfig/playwright.config.js",
-		"test:e2e:report": "playwright show-report test-reports/playwright/reports/",
+		"test:e2e:view-report": "playwright show-report test-reports/playwright/reports/",
 		"check:package": "node tools/check-package.mjs",
 		"check:manifest": "node tools/check-manifest.mjs",
 		"build:packs": "node tools/build-packs.mjs",
