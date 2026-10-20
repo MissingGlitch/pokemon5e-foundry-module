@@ -1,0 +1,15 @@
+{
+	"recommendations": [
+		// ESLint
+		"dbaeumer.vscode-eslint",
+
+		// Prettier
+		"esbenp.prettier-vscode",
+
+		// Code Spell Checker
+		"streetsidesoftware.code-spell-checker",
+
+		// Better Comments
+		"aaron-bond.better-comments"
+	]
+}

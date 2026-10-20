@@ -3,7 +3,7 @@ packs
 extras
 macros
 .vitest
-.vscode
+*.code-workspace
 node_modules
 test-reports
 pending-work.md

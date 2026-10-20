@@ -2,10 +2,16 @@
 // This file defines how Vitest should discover, run and report tests in this project.
 // It uses "projects" to split tests into different environments (Node, Simulated DOM and Real browser).
 
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 
+const projectRoot = fileURLToPath(new URL('../', import.meta.url));
+
 export default defineConfig({
+	// Relative project root location
+	root: projectRoot,
+
 	test: {
 		// Test projects
 		// Each project is an isolated test suite with its own environment,
@@ -73,11 +79,26 @@ export default defineConfig({
 		],
 
 		// Code coverage
-		// Configures how Vitest collects and reports code coverage.
+		// Measures which parts of the source code are actually executed during the test run.
+		// While test reports tell you which tests passed or failed,
+		// coverage tells you how much of your code those tests exercised.
 		coverage: {
-			// Use V8's built-in coverage collection.
-			// This is generally faster and more accurate for modern JavaScript.
-			provider: 'v8',
+			// Use Istanbul's instrumented coverage collection.
+			// Unlike v8, it supports Browser Mode with multiple instances.
+			provider: 'istanbul',
+
+			// Glob patterns for source files included in the report.
+			include: ['**/*.js'],
+
+			// Glob patterns for files excluded from the report.
+			exclude: [
+				'node_modules/**',
+				'.vscode/**',
+				'.devconfig/**',
+				'tests/**',
+				'test-reports/**',
+				'packs/**'
+			],
 
 			// Formats in which the coverage report will be generated:
 			// - "text": summary in the terminal.
@@ -96,16 +117,20 @@ export default defineConfig({
 			'verbose',
 
 			// Machine-readable JSON report (useful for CI or custom tooling).
-			'json',
+			[
+				'json',
+				{
+					outputFile: './test-reports/vitest/reports/report.json'
+				}
+			],
 
 			// Browsable HTML report.
-			'html'
-		],
-
-		// Where each reporter should write its output files.
-		outputFile: {
-			json: './test-reports/vitest/reports/report.json',
-			html: './test-reports/vitest/reports/report.html'
-		}
+			[
+				'html',
+				{
+					outputDir: './test-reports/vitest/reports/'
+				}
+			]
+		]
 	}
 });

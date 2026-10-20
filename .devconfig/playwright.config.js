@@ -1,4 +1,3 @@
-// playwright.config.js
 // Configuration for Playwright Test, used only for end-to-end (E2E) tests.
 // This is separate from vitest.config.js:
 // - Vitest runs unit, DOM and browser-component tests.
@@ -11,13 +10,13 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
 	// Folder that contains the E2E test files.
-	testDir: './tests/e2e/',
+	testDir: '../tests/e2e/',
 
 	// Only files with this pattern are considered Playwright tests.
 	testMatch: '**/*.e2e.test.js',
 
 	// Where HTML, JSON and other test reports are stored.
-	outputDir: './test-reports/playwright/artifacts/',
+	outputDir: '../test-reports/playwright/artifacts/',
 
 	// Reporters: terminal list plus a browsable HTML report.
 	reporter: [
@@ -25,7 +24,7 @@ export default defineConfig({
 		[
 			'html',
 			{
-				outputFolder: './test-reports/playwright/reports/',
+				outputFolder: '../test-reports/playwright/reports/',
 				open: 'never'
 			}
 		]

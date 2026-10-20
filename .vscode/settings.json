@@ -1,0 +1,69 @@
+// VS Code Extension Settings for Development
+{
+	// Prettier
+	"editor.formatOnSave": true,
+	"prettier.requireConfig": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"prettier.configPath": "./.devconfig/prettier.config.js",
+
+	// ESLint
+	"eslint.workingDirectories": ["./"],
+	"eslint.options": {
+		"overrideConfigFile": "./.devconfig/eslint.config.js"
+	},
+
+	// Code Spell Checker
+	"cSpell.ignoreWords": [
+		"Moge",
+		"apdisk",
+		"donotpresent",
+		"dotenv",
+		"ehthumbs",
+		"esktop",
+		"eslintcache",
+		"esmodules",
+		"fixs",
+		"fseventsd",
+		"jscoverage",
+		"jsons",
+		"jspm",
+		"mergetool",
+		"microbundle",
+		"msix",
+		"nuxt",
+		"pids",
+		"pokeapi",
+		"scalings",
+		"stackdump",
+		"stylelintcache",
+		"tablev",
+		"timemachine",
+		"vitest",
+		"vuepress",
+		"devconfig",
+		"wscript"
+	],
+	"cSpell.words": [
+		"alolan",
+		"browsable",
+		"encryptable",
+		"fakemon",
+		"foundryvtt",
+		"galarian",
+		"hoennese",
+		"johtoan",
+		"kalosian",
+		"kantoan",
+		"miscelaneous",
+		"paldean",
+		"pokeball",
+		"pokedex",
+		"pokédex",
+		"sinnohan",
+		"terastallization",
+		"typeless",
+		"unofficials",
+		"unovan",
+		"unown"
+	]
+}

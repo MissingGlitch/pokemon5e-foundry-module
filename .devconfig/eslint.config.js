@@ -3,9 +3,11 @@
 
 import js from '@eslint/js';
 import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import prettierCustomConfig from './prettier.config.js';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
 // Configuration objects are applied in order, so later configs can override earlier ones.
-export default [
+export default defineConfig([
 	// * 1. Official ESLint recommended rules for vanilla JavaScript (no frameworks)
 	// Enables a set of rules that ESLint recommends for all JavaScript projects.
 	// These rules help catch common errors and problematic patterns (e.g.,
@@ -16,7 +18,12 @@ export default [
 	// Reports formatting issues detected by Prettier as ESLint errors and also
 	// disables all ESLint default rules that would conflict with Prettier's formatting
 	// so Prettier is the single source of truth for code style (spacing, quotes, etc.).
-	prettierRecommended,
+	{
+		...prettierRecommended,
+		rules: {
+			'prettier/prettier': ['error', prettierCustomConfig]
+		}
+	},
 
 	// Project-specific custom configurations:
 	// * 3. Foundry VTT environment settings
@@ -66,18 +73,31 @@ export default [
 		// '**/*.js' means: all .js files in any directory or subdirectory.
 		files: ['**/*.js'],
 
-		// ? Glob patterns for files and directories that ESLint should ignore.
-		// These will not be linted, even if they match the "files" pattern.
-		ignores: [
-			'**/*.json',
-			'**/*.css',
-			'**/*.md',
-			'pnpm-lock.yaml',
-			'node_modules/**'
-		],
-
 		// ? Custom ESLint rules for this configuration.
 		// Here you can override or add rules on top of the recommended and Prettier configs.
 		rules: {}
-	}
-];
+	},
+
+	// * 4. Javascript (NodeJS / Browser) global variables
+	// Global variables that exist in the javascript (nodejs / browser) runtime but are not known by ESLint.
+	{
+		name: 'javascript-globals',
+		files: ['**/*.js'],
+		languageOptions: {
+			globals: {
+				URL: 'readonly'
+			}
+		}
+	},
+
+	// * 5. Patterns for files and directories that ESLint should ignore.
+	// These will not be linted, even if they match the "files" pattern in other configurations.
+	globalIgnores([
+		'packs/**',
+		'node_modules/**',
+		'**/*.md',
+		'**/*.yaml',
+		'**/*.code-workspace',
+		'.gitignore'
+	])
+]);
