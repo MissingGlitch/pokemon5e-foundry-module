@@ -1,0 +1,16 @@
+{
+	"POKEMON5E.Settings.DebugMode.Name": "Включить журналы отладки",
+	"POKEMON5E.Settings.DebugMode.Hint": "Отображает журналы отладки модуля в консоли.",
+	"POKEMON5E.Settings.CompendiumKeys.Name": "Показывать ключи компендиумов",
+	"POKEMON5E.Settings.CompendiumKeys.Hint": "Отключает язык данных и показывает ключи переводов для компендиумов модуля.",
+	"POKEMON5E.Settings.DataLanguage.Name": "Язык данных",
+	"POKEMON5E.Settings.DataLanguage.Hint": "Язык содержимого модуля (актеры, предметы и т. д.).",
+	"POKEMON5E.Settings.DataLanguage.SameAsFoundry": "Как в Foundry",
+	"POKEMON5E.Settings.DataLanguage.German": "Немецкий",
+	"POKEMON5E.Settings.DataLanguage.English": "Английский",
+	"POKEMON5E.Settings.DataLanguage.Spanish": "Испанский",
+	"POKEMON5E.Settings.DataLanguage.French": "Французский",
+	"POKEMON5E.Settings.DataLanguage.Italian": "Итальянский",
+	"POKEMON5E.Settings.DataLanguage.PortugueseBR": "Португальский (Бразилия)",
+	"POKEMON5E.Settings.DataLanguage.Russian": "Русский"
+}

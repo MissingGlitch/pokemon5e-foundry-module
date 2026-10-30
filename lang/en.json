@@ -1,0 +1,16 @@
+{
+	"POKEMON5E.Settings.DebugMode.Name": "Enable debug logs",
+	"POKEMON5E.Settings.DebugMode.Hint": "Displays the module's debug logs in the console.",
+	"POKEMON5E.Settings.CompendiumKeys.Name": "Show compendium keys",
+	"POKEMON5E.Settings.CompendiumKeys.Hint": "Disable the data language and reveal the translation keys for the module's compendiums",
+	"POKEMON5E.Settings.DataLanguage.Name": "Data language",
+	"POKEMON5E.Settings.DataLanguage.Hint": "Language of the module's content (actors, items, etc).",
+	"POKEMON5E.Settings.DataLanguage.SameAsFoundry": "Same as Foundry",
+	"POKEMON5E.Settings.DataLanguage.German": "German",
+	"POKEMON5E.Settings.DataLanguage.English": "English",
+	"POKEMON5E.Settings.DataLanguage.Spanish": "Spanish",
+	"POKEMON5E.Settings.DataLanguage.French": "French",
+	"POKEMON5E.Settings.DataLanguage.Italian": "Italian",
+	"POKEMON5E.Settings.DataLanguage.PortugueseBR": "Portuguese (Brazil)",
+	"POKEMON5E.Settings.DataLanguage.Russian": "Russian"
+}

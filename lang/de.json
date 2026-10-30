@@ -1,0 +1,16 @@
+{
+	"POKEMON5E.Settings.DebugMode.Name": "Debug-Protokolle aktivieren",
+	"POKEMON5E.Settings.DebugMode.Hint": "Zeigt die Debug-Protokolle des Moduls in der Konsole an.",
+	"POKEMON5E.Settings.CompendiumKeys.Name": "Kompendium-Schlüssel anzeigen",
+	"POKEMON5E.Settings.CompendiumKeys.Hint": "Deaktiviert die Inhaltssprache und zeigt die Übersetzungsschlüssel für die Kompendien des Moduls an.",
+	"POKEMON5E.Settings.DataLanguage.Name": "Datensprache",
+	"POKEMON5E.Settings.DataLanguage.Hint": "Sprache der Inhalte des Moduls (Akteure, Gegenstände usw.).",
+	"POKEMON5E.Settings.DataLanguage.SameAsFoundry": "Wie Foundry",
+	"POKEMON5E.Settings.DataLanguage.German": "Deutsch",
+	"POKEMON5E.Settings.DataLanguage.English": "Englisch",
+	"POKEMON5E.Settings.DataLanguage.Spanish": "Spanisch",
+	"POKEMON5E.Settings.DataLanguage.French": "Französisch",
+	"POKEMON5E.Settings.DataLanguage.Italian": "Italienisch",
+	"POKEMON5E.Settings.DataLanguage.PortugueseBR": "Portugiesisch (Brasilien)",
+	"POKEMON5E.Settings.DataLanguage.Russian": "Russisch"
+}
