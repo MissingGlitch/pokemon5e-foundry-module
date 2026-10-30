@@ -7,14 +7,14 @@
  * @type {import("prettier").Config}
  */
 const config = {
-    semi: true,
-    singleQuote: true,
-    tabWidth: 4,
-    useTabs: true,
-    trailingComma: "none",
-    printWidth: 80,
-    bracketSpacing: true,
-    endOfLine: "auto"
+	semi: true,
+	singleQuote: true,
+	tabWidth: 4,
+	useTabs: true,
+	trailingComma: 'none',
+	printWidth: 80,
+	bracketSpacing: true,
+	endOfLine: 'auto'
 };
 
 export default config;

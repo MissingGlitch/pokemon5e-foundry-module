@@ -85,7 +85,8 @@ export default defineConfig([
 		files: ['**/*.js'],
 		languageOptions: {
 			globals: {
-				URL: 'readonly'
+				URL: 'readonly',
+				console: 'readonly'
 			}
 		}
 	},

@@ -13,12 +13,24 @@
 	},
 
 	// Code Spell Checker
+	"cSpell.ignorePaths": [
+		"lang/**/*.json",
+		"!lang/en.json",
+		"copilot-instructions.md"
+	],
 	"cSpell.ignoreWords": [
+		"Deutsch",
+		"Español",
+		"Français",
+		"Italiano",
 		"Moge",
+		"Português",
 		"apdisk",
+		"devconfig",
 		"donotpresent",
 		"dotenv",
 		"ehthumbs",
+		"esbenp",
 		"esktop",
 		"eslintcache",
 		"esmodules",
@@ -40,8 +52,8 @@
 		"timemachine",
 		"vitest",
 		"vuepress",
-		"devconfig",
-		"wscript"
+		"wscript",
+		"Русский"
 	],
 	"cSpell.words": [
 		"alolan",
